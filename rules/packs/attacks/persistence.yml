@@ -1,0 +1,77 @@
+- id: ATK-PER-001
+  name: Crontab Değişikliği
+  severity: high
+  score: 80
+  category: process
+  message: Crontab düzenlendi — kalıcılık mekanizması şüphesi
+  summary: Bu kural, normalize edilen olayda `crontab_edit` aksiyonu gözlendiğinde Crontab Değişikliği davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  mitre_tactic: TA0003
+  mitre_technique: T1053
+  mitre_subtechnique: T1053.003
+  tags:
+  - persistence
+  - cron
+  - scheduled-task
+  pack: attacks
+  pack_version: '1.0'
+  condition:
+    action: crontab_edit
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Crontab Modification
+  message_tr: Crontab düzenlendi — kalıcılık mekanizması şüphesi
+  summary_en: A crontab edit was observed. This may indicate persistence or privilege escalation.
+  summary_tr: Bu kural, normalize edilen olayda `crontab_edit` aksiyonu gözlendiğinde Crontab Değişikliği davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: ATK-PER-002
+  name: Yeni Systemd Service
+  severity: high
+  score: 75
+  category: process
+  message: Yeni systemd servisi oluşturuldu — kalıcılık mekanizması şüphesi
+  summary: Bu kural, normalize edilen olayda `service_created` aksiyonu gözlendiğinde Yeni Systemd Service davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  mitre_tactic: TA0003
+  mitre_technique: T1543
+  mitre_subtechnique: T1543.002
+  tags:
+  - persistence
+  - systemd
+  - service
+  pack: attacks
+  pack_version: '1.0'
+  condition:
+    action: service_created
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: New Systemd Service
+  message_tr: Yeni systemd servisi oluşturuldu — kalıcılık mekanizması şüphesi
+  summary_en: A new systemd service was created. This may indicate persistence or privilege escalation.
+  summary_tr: Bu kural, normalize edilen olayda `service_created` aksiyonu gözlendiğinde Yeni Systemd Service davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: ATK-PER-003
+  name: Bashrc veya Profile Değişikliği
+  severity: medium
+  score: 65
+  category: process
+  message: Shell startup dosyası değiştirildi — persistence şüphesi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Bashrc veya Profile Değişikliği davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  mitre_tactic: TA0003
+  mitre_technique: T1546
+  mitre_subtechnique: T1546.004
+  tags:
+  - persistence
+  - shell
+  - startup
+  pack: attacks
+  pack_version: '1.0'
+  condition:
+    action: file_modified
+    fields:
+      path_contains: .bashrc|.profile|.bash_profile
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: bashrc or Profile Modification
+  message_tr: Shell startup dosyası değiştirildi — persistence şüphesi
+  summary_en: A Bash rc or profile change was observed. This may indicate persistence.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Bashrc veya Profile Değişikliği davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.

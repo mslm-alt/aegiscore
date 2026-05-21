@@ -1,0 +1,137 @@
+- id: FIRST-001
+  name: Yeni Kaynak IP — Başarısız Giriş
+  severity: low
+  score: 30
+  category: auth
+  message: Yeni kaynak IP ilk kez başarısız SSH denemesi yaptı
+  summary: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında Yeni Kaynak IP — Başarısız Giriş davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0001
+  mitre_technique: T1078
+  tags:
+  - first-seen
+  - initial-access
+  - ssh
+  pack: attacks
+  pack_version: '1.2'
+  condition:
+    action:
+    - ssh_login
+    - ssh_invalid_user
+    outcome: failure
+    first_seen: src_ip
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: New Source IP with Failed Login
+  message_tr: Yeni kaynak IP ilk kez başarısız SSH denemesi yaptı
+  summary_en: This rule highlights new source ip with failed login and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında Yeni Kaynak IP — Başarısız Giriş davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: FIRST-002
+  name: Yeni Kullanıcı-IP Çifti — Başarılı Giriş
+  severity: medium
+  score: 40
+  category: auth
+  message: Kullanıcı bu IP üzerinden ilk kez başarılı giriş yaptı
+  summary: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında Yeni Kullanıcı-IP Çifti — Başarılı Giriş davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0001
+  mitre_technique: T1078
+  tags:
+  - first-seen
+  - initial-access
+  pack: attacks
+  pack_version: '1.2'
+  condition:
+    action: ssh_login
+    outcome: success
+    first_seen: user_ip_pair
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: New User-IP Pair with Successful Login
+  message_tr: Kullanıcı bu IP üzerinden ilk kez başarılı giriş yaptı
+  summary_en: This rule highlights new user-ip pair with successful login and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında Yeni Kullanıcı-IP Çifti — Başarılı Giriş davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: FIRST-003
+  name: İlk Kez Root Sudo
+  severity: high
+  score: 60
+  category: auth
+  message: Kullanıcı ilk kez root'a sudo yaptı
+  summary: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında İlk Kez Root Sudo davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0004
+  mitre_technique: T1548
+  mitre_subtechnique: T1548.003
+  tags:
+  - first-seen
+  - privilege-escalation
+  - sudo
+  pack: attacks
+  pack_version: '1.2'
+  condition:
+    first_seen: user
+    fields:
+      sudo_target_user: root
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: First-Time Root sudo
+  message_tr: Kullanıcı ilk kez root'a sudo yaptı
+  summary_en: This rule highlights first-time root sudo and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında İlk Kez Root Sudo davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: FIRST-004
+  name: İlk Kez Görülen Binary
+  severity: medium
+  score: 50
+  category: process
+  message: Sistemde daha önce çalıştırılmamış binary tespit edildi
+  summary: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında İlk Kez Görülen Binary davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  mitre_tactic: TA0002
+  mitre_technique: T1059
+  tags:
+  - first-seen
+  - execution
+  - binary
+  pack: attacks
+  pack_version: '1.2'
+  condition:
+    action:
+    - lotl_exec
+    - cron_exec
+    first_seen: binary
+    fields:
+      exclude_if_field: cron_safe
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: First-Seen Binary
+  message_tr: Sistemde daha önce çalıştırılmamış binary tespit edildi
+  summary_en: This rule highlights first-seen binary and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında İlk Kez Görülen Binary davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: FIRST-005
+  name: İlk Kez Görülen Şüpheli Process
+  severity: low
+  score: 25
+  category: process
+  message: Bu şüpheli süreç sistemde ilk kez görüldü
+  summary: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında İlk Kez Görülen Şüpheli Process davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  mitre_tactic: TA0002
+  mitre_technique: T1059
+  tags:
+  - first-seen
+  - execution
+  - process
+  pack: attacks
+  pack_version: '1.2'
+  condition:
+    action:
+    - lotl_exec
+    - attack_tool_installed
+    - shell_upload
+    first_seen: process
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: First-Seen Suspicious Process
+  message_tr: Bu şüpheli süreç sistemde ilk kez görüldü
+  summary_en: This rule highlights first-seen suspicious process and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında İlk Kez Görülen Şüpheli Process davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.

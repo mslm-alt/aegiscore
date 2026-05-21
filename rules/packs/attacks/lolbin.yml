@@ -1,0 +1,181 @@
+- id: LOL-001
+  name: Curl Pipe Shell
+  severity: critical
+  score: 95
+  category: process
+  message: curl çıktısı doğrudan shell'e yönlendirildi — uzaktan kod çalıştırma
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Curl Pipe Shell davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  mitre_tactic: TA0002
+  mitre_technique: T1059
+  mitre_subtechnique: T1059.004
+  tags:
+  - lolbin
+  - execution
+  - curl
+  - pipe
+  - remote-code
+  pack: attacks
+  pack_version: '2.1'
+  condition:
+    action: process_exec
+    fields:
+      exec_full_contains: curl
+      exec_full_contains_any:
+      - '| bash'
+      - '| sh'
+      - '| python'
+      - '|bash'
+      - '|sh'
+      - '|python'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Curl Pipe Shell
+  message_tr: curl çıktısı doğrudan shell'e yönlendirildi — uzaktan kod çalıştırma
+  summary_en: This rule highlights Curl Pipe Shell when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Curl Pipe Shell davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: LOL-002
+  name: Wget Pipe Shell / Dropper
+  severity: critical
+  score: 90
+  category: process
+  message: wget ile dosya indirildi ve pipe ile çalıştırıldı — dropper zinciri
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Wget Pipe Shell / Dropper davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  mitre_tactic: TA0002
+  mitre_technique: T1105
+  tags:
+  - lolbin
+  - execution
+  - wget
+  - dropper
+  pack: attacks
+  pack_version: '2.1'
+  condition:
+    action: process_exec
+    fields:
+      exec_full_contains: wget
+      exec_full_contains_any:
+      - '| bash'
+      - '| sh'
+      - '| python'
+      - '|bash'
+      - '|sh'
+      - -O-
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Wget Pipe Shell / Dropper
+  message_tr: wget ile dosya indirildi ve pipe ile çalıştırıldı — dropper zinciri
+  summary_en: This rule highlights Wget Pipe Shell / Dropper when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Wget Pipe Shell / Dropper davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: LOL-003
+  name: Tar ile Hassas Dizin Arşivleme (Exfil)
+  severity: high
+  score: 75
+  category: process
+  message: tar ile hassas dizin arşivlendi — exfiltration hazırlığı
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Tar ile Hassas Dizin Arşivleme (Exfil) davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  mitre_tactic: TA0010
+  mitre_technique: T1560
+  tags:
+  - lolbin
+  - exfiltration
+  - tar
+  - archive
+  pack: attacks
+  pack_version: '2.1'
+  condition:
+    action: process_exec
+    fields:
+      exec_full_contains: tar
+      exec_full_contains_any:
+      - /etc/shadow
+      - /etc/passwd
+      - /root
+      - /.ssh
+      - /var/lib/mysql
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Sensitive Directory Archiving with tar (Exfiltration)
+  message_tr: tar ile hassas dizin arşivlendi — exfiltration hazırlığı
+  summary_en: Tar archived a sensitive directory. This may indicate staging for exfiltration.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Tar ile Hassas Dizin Arşivleme (Exfil) davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: LOL-020
+  name: Netcat Ters Kabuk
+  severity: critical
+  score: 95
+  category: network
+  message: nc/ncat ile ters kabuk bağlantısı — reverse shell şüphesi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Netcat Ters Kabuk davranışını görünür kılar; bu sinyal komuta-kontrol, tünelleme veya dış iletişim hazırlığı riskini gösterir.
+  mitre_tactic: TA0011
+  mitre_technique: T1059
+  mitre_subtechnique: T1059.004
+  tags:
+  - lolbin
+  - reverse-shell
+  - netcat
+  - c2
+  pack: attacks
+  pack_version: '2.0'
+  condition:
+    action: process_exec
+    fields:
+      exec_full_contains: 'nc '
+  operator_note: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+  message_en: Netcat Ters Kabuk
+  message_tr: nc/ncat ile ters kabuk bağlantısı — reverse shell şüphesi
+  summary_en: This rule highlights Netcat Ters Kabuk when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of command-and-control, tunneling, or outbound communication staging.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Netcat Ters Kabuk davranışını görünür kılar; bu sinyal komuta-kontrol, tünelleme veya dış iletişim hazırlığı riskini gösterir.
+  operator_note_en: Review the source and destination IPs and ports, host, event time, relevant URL or protocol context, and the immediately preceding or following auth, web, process, firewall, or DNS events.
+  operator_note_tr: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+- id: LOL-021
+  name: Socat Ters Kabuk
+  severity: critical
+  score: 95
+  category: network
+  message: socat ile ters kabuk bağlantısı
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Socat Ters Kabuk davranışını görünür kılar; bu sinyal komuta-kontrol, tünelleme veya dış iletişim hazırlığı riskini gösterir.
+  mitre_tactic: TA0011
+  mitre_technique: T1059
+  tags:
+  - lolbin
+  - reverse-shell
+  - socat
+  - c2
+  pack: attacks
+  pack_version: '2.0'
+  condition:
+    action: process_exec
+    fields:
+      exec_full_contains: socat
+  operator_note: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+  message_en: Socat Ters Kabuk
+  message_tr: socat ile ters kabuk bağlantısı
+  summary_en: This rule highlights Socat Ters Kabuk when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of command-and-control, tunneling, or outbound communication staging.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Socat Ters Kabuk davranışını görünür kılar; bu sinyal komuta-kontrol, tünelleme veya dış iletişim hazırlığı riskini gösterir.
+  operator_note_en: Review the source and destination IPs and ports, host, event time, relevant URL or protocol context, and the immediately preceding or following auth, web, process, firewall, or DNS events.
+  operator_note_tr: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+- id: LOL-099
+  name: Genel LOLBin Davranışı
+  severity: medium
+  score: 60
+  category: process
+  message: Living-off-the-land ikili kullanımı tespit edildi
+  summary: Bu kural, normalize edilen olayda `process_exec` aksiyonu gözlendiğinde Genel LOLBin Davranışı davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  mitre_tactic: TA0005
+  mitre_technique: T1218
+  tags:
+  - lolbin
+  - defense-evasion
+  pack: attacks
+  pack_version: '2.0'
+  condition:
+    action: process_exec
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Generic LOLBin Activity
+  message_tr: Living-off-the-land ikili kullanımı tespit edildi
+  summary_en: Suspicious LOLBin process execution was observed. This may indicate living-off-the-land abuse.
+  summary_tr: Bu kural, normalize edilen olayda `process_exec` aksiyonu gözlendiğinde Genel LOLBin Davranışı davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.

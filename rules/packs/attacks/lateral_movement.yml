@@ -1,0 +1,266 @@
+- id: ATK-LM-001
+  name: Birden Fazla Host SSH (İlk Kez)
+  severity: high
+  score: 75
+  category: auth
+  message: Kullanıcı daha önce SSH yapmadığı bir hedefe bağlandı — lateral movement şüphesi
+  summary: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında Birden Fazla Host SSH (İlk Kez) davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0008
+  mitre_technique: T1021
+  mitre_subtechnique: T1021.004
+  tags:
+  - lateral-movement
+  - ssh
+  - remote-services
+  pack: attacks
+  pack_version: '1.1'
+  cooldown: 3600
+  condition:
+    action: ssh_login
+    outcome: success
+    user: '!root'
+    first_seen: user_ip_pair
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: SSH Across Multiple Hosts (First Seen)
+  message_tr: Kullanıcı daha önce SSH yapmadığı bir hedefe bağlandı — lateral movement şüphesi
+  summary_en: This rule highlights ssh across multiple hosts (first seen) and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında Birden Fazla Host SSH (İlk Kez) davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: ATK-LM-002
+  name: SSH ile Root Lateral Movement (İlk Kez)
+  severity: critical
+  score: 90
+  category: auth
+  message: Root kullanıcısı daha önce SSH yapmadığı hedefe bağlandı — kritik lateral movement
+  summary: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında SSH ile Root Lateral Movement (İlk Kez) davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0008
+  mitre_technique: T1021
+  mitre_subtechnique: T1021.004
+  tags:
+  - lateral-movement
+  - ssh
+  - root
+  pack: attacks
+  pack_version: '1.1'
+  cooldown: 3600
+  condition:
+    action: ssh_login
+    outcome: success
+    user: root
+    first_seen: user_ip_pair
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: Root Lateral Movement over SSH (First Seen)
+  message_tr: Root kullanıcısı daha önce SSH yapmadığı hedefe bağlandı — kritik lateral movement
+  summary_en: This rule highlights root lateral movement over ssh (first seen) and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Bu kural, daha önce görülmemiş bir kaynak, kullanıcı, süreç veya davranış ilk kez ortaya çıktığında SSH ile Root Lateral Movement (İlk Kez) davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: ATK-LM-003
+  name: SSH Pivot Prep Artifact Change
+  severity: high
+  score: 78
+  category: process
+  message: SSH pivot hazırlığı için trust veya hedef çözümleme artefaktı değiştirildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SSH Pivot Prep Artifact Change davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0008
+  mitre_technique: T1021.004
+  tags:
+  - lateral-movement
+  - ssh
+  - pivot-prep
+  - remote-services
+  pack: attacks
+  pack_version: '1.2'
+  cooldown: 300
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - command_contains_any:
+          - 'ssh-copy-id '
+          - 'ssh-keygen '
+          - .ssh/config
+          - .ssh/known_hosts
+          - known_hosts
+          - /etc/hosts
+        - command_regex: (?:echo|printf|tee|cat|cp|mv|sed|awk|perl|python3?)\s+.*(?:\.ssh/config|\.ssh/known_hosts|/etc/hosts)
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - 'git clone '
+            - 'git pull '
+            - 'git fetch '
+            - ssh-keygen -A
+            - 'ssh-keygen -R '
+            - 'ssh-keygen -F '
+            - 'ssh-keygen -l '
+            - github.com
+            - git@github.com
+            - unattended-upgrades
+            - needrestart
+            - cloud-init
+            - subscription-manager
+            - SUSEConnect
+            - transactional-update
+            - 'ansible-playbook '
+            - chef-client
+            - 'puppet '
+            - 'salt-call '
+            - 'salt-minion '
+            - /var/backups/
+            - /srv/backup/
+            - /backup/
+            - /backups/
+            - backup
+            - restore
+          - command_token_contains_any:
+            - git
+            - backup
+            - restore
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: SSH Pivot Prep Artifact Change
+  message_tr: SSH pivot hazırlığı için trust veya hedef çözümleme artefaktı değiştirildi
+  summary_en: This rule highlights SSH Pivot Prep Artifact Change when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SSH Pivot Prep Artifact Change davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: ATK-LM-004
+  name: Internal Remote Access Push or Pivot Command
+  severity: high
+  score: 82
+  category: process
+  message: İç hedefe SSH benzeri erişim, dosya itme veya pivot komutu görüldü
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Internal Remote Access Push or Pivot Command davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0008
+  mitre_technique: T1021.004
+  tags:
+  - lateral-movement
+  - ssh
+  - scp
+  - sftp
+  - rsync
+  - internal-target
+  - remote-services
+  pack: attacks
+  pack_version: '1.2'
+  cooldown: 180
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - __all__:
+          - command_token_contains_any:
+            - ssh
+            - scp
+            - sftp
+            - rsync
+          - command_regex: (?:^|\s)(?:ssh|scp|sftp|rsync)\b.*(?:@)?(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(?::\d+)?(?:\b|:)
+          - __any__:
+            - command_contains_any:
+              - 'ssh -J '
+              - ProxyJump=
+              - ProxyCommand=
+              - StrictHostKeyChecking=no
+              - UserKnownHostsFile=/dev/null
+              - ControlMaster=
+              - ControlPath=
+              - /tmp/
+              - /var/tmp/
+              - /dev/shm/
+            - command_regex: (?:^|\s)ssh\b.*(?:-J\s+|-L\s+\d| -R\s+\d| -D\s+\d|ProxyJump=|ProxyCommand=|StrictHostKeyChecking=no|UserKnownHostsFile=/dev/null)
+        - __all__:
+          - command_token_contains_any:
+            - ansible
+            - ansible-playbook
+          - command_contains_any:
+            - ' -m shell '
+            - ' -m command '
+            - ' -m raw '
+            - ' -m script '
+            - ' -m copy '
+            - ' -m synchronize '
+            - ' -a '
+          - __not__:
+              command_contains_any:
+              - maintenance
+              - deploy
+              - rollout
+              - backup
+              - restore
+              - /health
+              - /healthz
+              - /readyz
+              - /livez
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - 'git clone '
+            - 'git pull '
+            - 'git fetch '
+            - .deb
+            - .udeb
+            - .ddeb
+            - .rpm
+            - .repo
+            - /Packages.gz
+            - /Packages.xz
+            - /Release
+            - /InRelease
+            - /repodata/
+            - /suse/setup/descr
+            - /srv/repo/
+            - /srv/www/repo/
+            - /var/cache/apt/archives/
+            - /var/cache/dnf/
+            - /var/cache/zypp/
+            - github.com
+            - git@github.com
+            - ansible-playbook maintenance
+            - ansible-playbook deploy
+            - chef-client
+            - 'puppet '
+            - 'salt-call '
+            - 'salt-minion '
+            - /var/backups/
+            - /srv/backup/
+            - /backup/
+            - /backups/
+            - rsnapshot
+            - borg
+            - restic
+            - duplicity
+            - timeshift
+            - aws s3 sync
+            - backup@
+            - /etc/ansible/
+            - /srv/ansible/
+            - /srv/salt/
+            - /etc/puppetlabs/
+            - /var/lib/puppet/
+          - command_token_contains_any:
+            - backup
+            - restore
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: Internal Remote Access Push or Pivot Command
+  message_tr: İç hedefe SSH benzeri erişim, dosya itme veya pivot komutu görüldü
+  summary_en: This rule highlights Internal Remote Access Push or Pivot Command when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Internal Remote Access Push or Pivot Command davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.

@@ -1,0 +1,58 @@
+- id: ATK-BF-001
+  name: SSH Brute Force Başarılı Giriş
+  severity: high
+  score: 85
+  category: auth
+  message: Brute force sonrası başarılı SSH girişi — ele geçirilmiş kimlik bilgisi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SSH Brute Force Başarılı Giriş davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  mitre_subtechnique: T1110.001
+  tags:
+  - brute-force
+  - credential-access
+  - ssh
+  pack: attacks
+  pack_version: '1.1'
+  cooldown: 600
+  condition:
+    action: ssh_login
+    outcome: success
+    fields:
+      consecutive_fails_gte: 5
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: Successful Login After SSH Brute Force
+  message_tr: Brute force sonrası başarılı SSH girişi — ele geçirilmiş kimlik bilgisi
+  summary_en: A successful SSH login followed brute-force activity. This may indicate account compromise.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SSH Brute Force Başarılı Giriş davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: ATK-BF-002
+  name: Başarısızlık Sonrası Başarılı Giriş (Credential Stuffing)
+  severity: high
+  score: 75
+  category: auth
+  message: SSH başarısız denemeden sonra başarılı giriş — credential stuffing şüphesi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Başarısızlık Sonrası Başarılı Giriş (Credential Stuffing) davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  mitre_subtechnique: T1110.004
+  tags:
+  - credential-stuffing
+  - credential-access
+  - ssh
+  pack: attacks
+  pack_version: '1.1'
+  cooldown: 300
+  condition:
+    action: ssh_login
+    outcome: success
+    fields:
+      consecutive_fails_gte: 1
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: Successful Login After Failures (Credential Stuffing)
+  message_tr: SSH başarısız denemeden sonra başarılı giriş — credential stuffing şüphesi
+  summary_en: A login succeeded after repeated failures. This may indicate credential stuffing or brute-force success.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Başarısızlık Sonrası Başarılı Giriş (Credential Stuffing) davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.

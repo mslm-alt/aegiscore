@@ -1,0 +1,9 @@
+# AegisCore — Bağımlılıklar
+# Kurulum: pip install -r requirements.txt
+
+# Zorunlu (backend / servis)
+pyyaml>=6.0
+numpy>=1.24
+scikit-learn>=1.3
+joblib>=1.3
+psycopg2-binary>=2.9

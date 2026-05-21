@@ -1,0 +1,497 @@
+- id: RHEL-001
+  name: SELinux Disabled
+  severity: critical
+  score: 95
+  platform:
+  - rhel
+  category: system
+  message: SELinux devre dışı bırakıldı — kritik güvenlik değişikliği
+  summary: Bu kural, normalize edilen olayda `selinux_disabled` aksiyonu gözlendiğinde SELinux Disabled davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  condition:
+    source: auditd
+    action: selinux_disabled
+  mitre_tactic: TA0005
+  mitre_technique: T1562
+  tags:
+  - defense-evasion
+  - rhel
+  pack: distro
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: SELinux Disabled
+  message_tr: SELinux devre dışı bırakıldı — kritik güvenlik değişikliği
+  summary_en: This rule highlights SELinux Disabled when the normalized event shows the `selinux_disabled` action. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, normalize edilen olayda `selinux_disabled` aksiyonu gözlendiğinde SELinux Disabled davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: RHEL-002
+  name: SELinux Policy Change
+  severity: high
+  score: 80
+  platform:
+  - rhel
+  category: system
+  message: SELinux politikası değiştirildi
+  summary: Bu kural, normalize edilen olayda `selinux_policy_change` aksiyonu gözlendiğinde SELinux Policy Change davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  condition:
+    source: auditd
+    action: selinux_policy_change
+  mitre_tactic: TA0005
+  mitre_technique: T1562
+  tags:
+  - defense-evasion
+  - rhel
+  pack: distro
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: SELinux Policy Change
+  message_tr: SELinux politikası değiştirildi
+  summary_en: This rule highlights SELinux Policy Change when the normalized event shows the `selinux_policy_change` action. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, normalize edilen olayda `selinux_policy_change` aksiyonu gözlendiğinde SELinux Policy Change davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: RHEL-003
+  name: Firewalld Stopped
+  severity: high
+  score: 80
+  platform:
+  - rhel
+  category: network
+  message: firewalld durduruldu — güvenlik duvarı devre dışı
+  summary: Bu kural, normalize edilen olayda `firewalld_stopped` aksiyonu gözlendiğinde Firewalld Stopped davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  condition:
+    source:
+    - syslog
+    - journald
+    action: firewalld_stopped
+  mitre_tactic: TA0005
+  mitre_technique: T1562
+  tags:
+  - defense-evasion
+  - rhel
+  pack: distro
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: Firewalld Stopped
+  message_tr: firewalld durduruldu — güvenlik duvarı devre dışı
+  summary_en: This rule highlights Firewalld Stopped when the normalized event shows the `firewalld_stopped` action. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, normalize edilen olayda `firewalld_stopped` aksiyonu gözlendiğinde Firewalld Stopped davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: RHEL-004
+  name: RPM Package Tampering
+  severity: high
+  score: 75
+  platform:
+  - rhel
+  category: process
+  message: RPM paket veritabanı değiştirildi
+  summary: Bu kural, normalize edilen olayda `rpm_tampering` aksiyonu gözlendiğinde RPM Package Tampering davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  condition:
+    source: auditd
+    action: rpm_tampering
+  mitre_tactic: TA0003
+  mitre_technique: T1546
+  tags:
+  - persistence
+  - rhel
+  pack: distro
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: RPM Package Tampering
+  message_tr: RPM paket veritabanı değiştirildi
+  summary_en: This rule highlights RPM Package Tampering when the normalized event shows the `rpm_tampering` action. This signal indicates a risk of persistence or privilege escalation.
+  summary_tr: Bu kural, normalize edilen olayda `rpm_tampering` aksiyonu gözlendiğinde RPM Package Tampering davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: RHEL-005
+  name: Attack Tool Installed via DNF/YUM
+  severity: critical
+  score: 90
+  platform:
+  - rhel
+  category: process
+  message: Saldırı aracı dnf/yum ile kuruldu
+  summary: Bu kural, normalize edilen olayda `attack_tool_installed` aksiyonu gözlendiğinde Attack Tool Installed via DNF/YUM davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - dnf
+    - syslog
+    - journald
+    action: attack_tool_installed
+  mitre_tactic: TA0002
+  mitre_technique: T1072
+  tags:
+  - execution
+  - rhel
+  pack: distro
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Attack Tool Installed via DNF/YUM
+  message_tr: Saldırı aracı dnf/yum ile kuruldu
+  summary_en: This rule highlights Attack Tool Installed via DNF/YUM when the normalized event shows the `attack_tool_installed` action. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olayda `attack_tool_installed` aksiyonu gözlendiğinde Attack Tool Installed via DNF/YUM davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: SUSE-001
+  name: AppArmor Profile Disabled
+  severity: critical
+  score: 90
+  platform:
+  - suse
+  category: system
+  message: AppArmor profili devre dışı bırakıldı
+  summary: Bu kural, normalize edilen olayda `apparmor_disabled` aksiyonu gözlendiğinde AppArmor Profile Disabled davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  condition:
+    source:
+    - syslog
+    - auditd
+    action: apparmor_disabled
+  mitre_tactic: TA0005
+  mitre_technique: T1562
+  tags:
+  - defense-evasion
+  - suse
+  pack: distro
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: AppArmor Profile Disabled
+  message_tr: AppArmor profili devre dışı bırakıldı
+  summary_en: This rule highlights AppArmor Profile Disabled when the normalized event shows the `apparmor_disabled` action. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, normalize edilen olayda `apparmor_disabled` aksiyonu gözlendiğinde AppArmor Profile Disabled davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: SUSE-002
+  name: Zypper Attack Tool Install
+  severity: critical
+  score: 90
+  platform:
+  - suse
+  category: process
+  message: Saldırı aracı zypper ile kuruldu
+  summary: Bu kural, normalize edilen olayda `attack_tool_installed` aksiyonu gözlendiğinde Zypper Attack Tool Install davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - zypper
+    - syslog
+    - journald
+    action: attack_tool_installed
+  mitre_tactic: TA0002
+  mitre_technique: T1072
+  tags:
+  - execution
+  - suse
+  pack: distro
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Zypper Attack Tool Install
+  message_tr: Saldırı aracı zypper ile kuruldu
+  summary_en: This rule highlights Zypper Attack Tool Install when the normalized event shows the `attack_tool_installed` action. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olayda `attack_tool_installed` aksiyonu gözlendiğinde Zypper Attack Tool Install davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: SUSE-003
+  name: SuSEfirewall2 Stopped
+  severity: high
+  score: 80
+  platform:
+  - suse
+  category: network
+  message: SuSEfirewall2 durduruldu
+  summary: Bu kural, normalize edilen olayda `susefirewall_stopped` aksiyonu gözlendiğinde SuSEfirewall2 Stopped davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  condition:
+    source:
+    - syslog
+    - journald
+    action: susefirewall_stopped
+  mitre_tactic: TA0005
+  mitre_technique: T1562
+  tags:
+  - defense-evasion
+  - suse
+  pack: distro
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: SuSEfirewall2 Stopped
+  message_tr: SuSEfirewall2 durduruldu
+  summary_en: This rule highlights SuSEfirewall2 Stopped when the normalized event shows the `susefirewall_stopped` action. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, normalize edilen olayda `susefirewall_stopped` aksiyonu gözlendiğinde SuSEfirewall2 Stopped davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: PKG-010
+  name: Security Tool Removed (Any Distro)
+  severity: critical
+  score: 95
+  category: process
+  message: Güvenlik aracı kaldırıldı
+  summary: Bu kural, normalize edilen olayda `security_tool_removed` aksiyonu gözlendiğinde Security Tool Removed (Any Distro) davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  condition:
+    source:
+    - dpkg
+    - dnf
+    - zypper
+    - syslog
+    - journald
+    action: security_tool_removed
+  mitre_tactic: TA0005
+  mitre_technique: T1562
+  tags:
+  - defense-evasion
+  pack: distro
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Security Tool Removed (Any Distro)
+  message_tr: Güvenlik aracı kaldırıldı
+  summary_en: This rule highlights Security Tool Removed (Any Distro) when the normalized event shows the `security_tool_removed` action. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, normalize edilen olayda `security_tool_removed` aksiyonu gözlendiğinde Security Tool Removed (Any Distro) davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PKG-011
+  name: Suspicious Tool Installed via Package Manager
+  severity: high
+  score: 72
+  category: process
+  message: Şüpheli araç paket yöneticisi ile kuruldu
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Suspicious Tool Installed via Package Manager davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - dpkg
+    - dnf
+    - rpm
+    - zypper
+    - syslog
+    - journald
+    action:
+    - package_install
+    - pkg_install
+    - attack_tool_installed
+    fields:
+      __any__:
+      - package_contains_any:
+        - nmap
+        - netcat
+        - netcat-openbsd
+        - netcat-traditional
+        - ncat
+        - nmap-ncat
+        - socat
+        - tcpdump
+        - hydra
+        - john
+        - curl
+        - wget
+        - awscli
+        - aws-cli
+        - python3-awscli
+        - rclone
+        - sshpass
+        - tmux
+        - screen
+      - tool_contains_any:
+        - nmap
+        - netcat
+        - netcat-openbsd
+        - netcat-traditional
+        - ncat
+        - nmap-ncat
+        - socat
+        - tcpdump
+        - hydra
+        - john
+        - curl
+        - wget
+        - awscli
+        - aws-cli
+        - python3-awscli
+        - rclone
+        - sshpass
+        - tmux
+        - screen
+  mitre_tactic: TA0002
+  mitre_technique: T1072
+  tags:
+  - execution
+  - package-manager
+  - suspicious-tooling
+  pack: distro
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Suspicious Tool Installed via Package Manager
+  message_tr: Şüpheli araç paket yöneticisi ile kuruldu
+  summary_en: This rule highlights Suspicious Tool Installed via Package Manager when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Suspicious Tool Installed via Package Manager davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PKG-012
+  name: Package Manager Security Control Removal Command
+  severity: critical
+  score: 91
+  category: process
+  message: Paket yöneticisi ile güvenlik kontrolü kaldırma komutu görüldü
+  summary: dnf, yum veya zypper üzerinden audit/log/firewall/SSH gibi güvenlik bileşenlerini kaldırmaya yönelik komut görüldü. Bu sinyal savunma kaçınma veya erişim sonrası sertleştirme bozma davranışına işaret edebilir.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    - dnf
+    - zypper
+    action:
+    - sudo
+    - exec
+    - process_exec
+    - lotl_exec
+    - pkg_event
+    fields:
+      __all__:
+      - __any__:
+        - command_regex: (?:^|\s)(?:/\S+/)?(?:dnf|yum)\s+(?:-[^\s]+\s+)*(?:remove|erase)\s+(?:-[^\s]+\s+)*(?:auditd|rsyslog|systemd-journald|journald|firewalld|openssh-server|openssh|aide|fail2ban|clamav)\b
+        - command_regex: (?:^|\s)(?:/\S+/)?zypper\s+(?:-[^\s]+\s+)*(?:remove|rm)\s+(?:-[^\s]+\s+)*(?:auditd|rsyslog|firewalld|openssh(?:-server)?|aide|fail2ban|clamav)\b
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - subscription-manager
+            - SUSEConnect
+            - transactional-update
+            - packagekit
+  mitre_tactic: TA0005
+  mitre_technique: T1562.001
+  tags:
+  - package-manager
+  - defense-evasion
+  - security-tool-removal
+  - rhel
+  - suse
+  pack: distro
+  pack_version: '1.0'
+  operator_note: Kaldırılmak istenen paketi, komutu başlatan kullanıcıyı, aynı hosttaki hemen önceki auth/persistence activity’sini ve arkasından gelen service stop veya log tamper sinyallerini kontrol edin.
+  message_en: Package Manager Security Control Removal Command
+  message_tr: Paket yöneticisi ile güvenlik kontrolü kaldırma komutu görüldü
+  summary_en: A package-manager command attempted to remove a security control such as audit, logging, firewall, or SSH components. This can indicate defense evasion or hardening rollback after access.
+  summary_tr: dnf, yum veya zypper üzerinden audit/log/firewall/SSH gibi güvenlik bileşenlerini kaldırmaya yönelik komut görüldü. Bu sinyal savunma kaçınma veya erişim sonrası sertleştirme bozma davranışına işaret edebilir.
+  operator_note_en: Review the package targeted for removal, the acting user, nearby auth or persistence activity on the same host, and any following service-stop or log-tamper signals.
+  operator_note_tr: Kaldırılmak istenen paketi, komutu başlatan kullanıcıyı, aynı hosttaki hemen önceki auth/persistence activity’sini ve arkasından gelen service stop veya log tamper sinyallerini kontrol edin.
+- id: PKG-013
+  name: Suspicious Package Repository Manipulation
+  severity: high
+  score: 82
+  category: process
+  message: Paket deposu ekleme/kaldırma veya güvenlik zayıflatıcı repo komutu görüldü
+  summary: dnf, yum veya zypper üzerinden yeni repo ekleme, repo kaldırma veya gpg doğrulamasını zayıflatma davranışı görüldü. Bu sinyal zararlı paket kaynağı ekleme veya mevcut güvenli repo akışını bozma riski taşır.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    - dnf
+    - zypper
+    action:
+    - sudo
+    - exec
+    - process_exec
+    - lotl_exec
+    - pkg_event
+    fields:
+      __all__:
+      - __any__:
+        - command_regex: (?:^|\s)(?:/\S+/)?(?:dnf|yum)\b.*\bconfig-manager\b.*(?:--add-repo|--setopt\s+[^\s=]+(?:gpgcheck|repo_gpgcheck|sslverify)=0)
+        - command_regex: (?:^|\s)(?:/\S+/)?yum-config-manager\b.*(?:--add-repo|--setopt\s+[^\s=]+(?:gpgcheck|repo_gpgcheck|sslverify)=0)
+        - command_regex: (?:^|\s)(?:/\S+/)?zypper\s+(?:-[^\s]+\s+)*(?:ar|addrepo)\b
+        - command_regex: (?:^|\s)(?:/\S+/)?zypper\s+(?:-[^\s]+\s+)*(?:rr|removerepo)\b
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - zypper refresh
+            - zypper update
+            - zypper patch
+            - dnf check-update
+            - yum check-update
+            - dnf update
+            - yum update
+            - subscription-manager
+            - SUSEConnect
+            - transactional-update
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+  mitre_tactic: TA0005
+  mitre_technique: T1562.001
+  tags:
+  - package-manager
+  - repo
+  - config-tamper
+  - rhel
+  - suse
+  pack: distro
+  pack_version: '1.0'
+  operator_note: Yeni veya kaldırılan repo tanımını, kullanılan URL veya alias bilgisini, gpg doğrulama seçeneklerini ve hemen sonrasında gelen install/update activity’sini kontrol edin.
+  message_en: Suspicious Package Repository Manipulation
+  message_tr: Paket deposu ekleme/kaldırma veya güvenlik zayıflatıcı repo komutu görüldü
+  summary_en: A package-manager command added or removed a repository, or weakened repository trust checks such as GPG verification. This can indicate malicious package-source onboarding or security-policy degradation.
+  summary_tr: dnf, yum veya zypper üzerinden yeni repo ekleme, repo kaldırma veya gpg doğrulamasını zayıflatma davranışı görüldü. Bu sinyal zararlı paket kaynağı ekleme veya mevcut güvenli repo akışını bozma riski taşır.
+  operator_note_en: Review the new or removed repository definition, the URL or alias used, the trust-check settings, and any install or update activity that followed.
+  operator_note_tr: Yeni veya kaldırılan repo tanımını, kullanılan URL veya alias bilgisini, gpg doğrulama seçeneklerini ve hemen sonrasında gelen install/update activity’sini kontrol edin.
+- id: PKG-014
+  name: Package Repository Config Tamper
+  severity: high
+  score: 84
+  category: filesystem
+  message: Paket deposu veya abonelik yapılandırmasında yazma/değiştirme görüldü
+  summary: auditd üzerinden repo veya abonelik yapılandırma yollarında yazma/değiştirme sinyali görüldü. Bu durum zararlı repo ekleme, güven zinciri zayıflatma veya distro package flow manipülasyonu anlamına gelebilir.
+  condition:
+    source: auditd
+    action: sensitive_file_access
+    fields:
+      __all__:
+      - write_access: true
+      - file_path_contains_any:
+        - /etc/yum.repos.d/
+        - /etc/dnf/
+        - /etc/zypp/repos.d/
+        - /etc/zypp/credentials.d/
+        - /etc/rhsm/rhsm.conf
+      - __not__:
+          comm_contains_any:
+          - dnf
+          - yum
+          - zypper
+          - packagekit
+          - subscription-manager
+          - SUSEConnect
+          - transactional-update
+          - ansible
+          - puppet
+          - chef-client
+          - salt-call
+          - salt-minion
+  mitre_tactic: TA0005
+  mitre_technique: T1562.001
+  tags:
+  - package-manager
+  - repo
+  - config-tamper
+  - auditd
+  - rhel
+  - suse
+  pack: distro
+  pack_version: '1.0'
+  operator_note: Değiştirilen repo veya abonelik dosyasını, yazan process/uid bağlamını, yeni baseurl/gpg ayarlarını ve hemen sonrasında gelen package install/update activity’sini kontrol edin.
+  message_en: Package Repository Config Tamper
+  message_tr: Paket deposu veya abonelik yapılandırmasında yazma/değiştirme görüldü
+  summary_en: auditd reported write or modification activity under repository or subscription configuration paths. This can indicate malicious repo onboarding, weakened trust settings, or distro package-flow manipulation.
+  summary_tr: auditd üzerinden repo veya abonelik yapılandırma yollarında yazma/değiştirme sinyali görüldü. Bu durum zararlı repo ekleme, güven zinciri zayıflatma veya distro package flow manipülasyonu anlamına gelebilir.
+  operator_note_en: Review the modified repository or subscription file, the writing process or UID context, the new baseurl or GPG settings, and any package install or update activity that followed.
+  operator_note_tr: Değiştirilen repo veya abonelik dosyasını, yazan process/uid bağlamını, yeni baseurl/gpg ayarlarını ve hemen sonrasında gelen package install/update activity’sini kontrol edin.
+  summary_en: This rule highlights Suspicious Tool Installed via Package Manager when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Suspicious Tool Installed via Package Manager davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.

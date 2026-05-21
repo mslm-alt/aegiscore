@@ -1,0 +1,654 @@
+- id: DE-001
+  name: Log Dosyası Temizleme
+  severity: critical
+  score: 95
+  category: defense_evasion
+  message: Log dosyası silindi veya truncate edildi — iz örtme girişimi
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - truncate -s 0
+      - '> /var/log'
+      - rm /var/log
+      - shred /var/log
+      - dd if=/dev/null of=/var/log
+      - /var/log/auth.log
+      - /var/log/syslog
+      - /var/log/secure
+      - /var/log/messages
+  mitre_tactic: TA0005
+  mitre_technique: T1070.002
+  tags:
+  - defense-evasion
+  - log-deletion
+  - cover-tracks
+  - log-tampering
+  summary: Log dosyaları silinmiş veya sıfırlanmış olabilir; iz örtme riski taşır.
+  operator_note: Hedef log yolunu, komutu ve hemen öncesindeki şüpheli etkinlikleri inceleyin.
+  pack: core
+  pack_version: '1.0'
+  message_en: Log File Clearing
+  message_tr: Log dosyası silindi veya truncate edildi — iz örtme girişimi
+  summary_en: This rule highlights log file clearing and may indicate suspicious or unauthorized defense evasion activity. Review the surrounding context to confirm the impact.
+  summary_tr: Log dosyaları silinmiş veya sıfırlanmış olabilir; iz örtme riski taşır.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding defense_evasion activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Hedef log yolunu, komutu ve hemen öncesindeki şüpheli etkinlikleri inceleyin.
+- id: DE-002
+  name: Audit Log Devre Dışı Bırakma
+  severity: critical
+  score: 99
+  category: defense_evasion
+  message: auditd veya syslog servisi durduruldu — denetim kör noktası oluşturuluyor
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - systemctl stop auditd
+      - systemctl disable auditd
+      - systemctl mask auditd
+      - service auditd stop
+      - systemctl stop rsyslog
+      - systemctl disable rsyslog
+      - systemctl mask rsyslog
+      - systemctl stop syslog
+      - systemctl disable syslog
+      - systemctl mask syslog
+      - systemctl stop systemd-journald
+      - systemctl disable systemd-journald
+      - systemctl mask systemd-journald
+      - auditctl -e 0
+  mitre_tactic: TA0005
+  mitre_technique: T1562.001
+  tags:
+  - defense-evasion
+  - disable-auditing
+  - critical
+  - auditd
+  - logging
+  summary: Denetim veya loglama servisi durduruldu/devre dışı bırakıldı; görünürlük kaybı riski vardır.
+  operator_note: Servis durumu değişikliğinin bakım faaliyeti mi yoksa savunma kaçırma mı olduğunu doğrulayın.
+  pack: core
+  pack_version: '1.0'
+  message_en: Audit Log Disabling
+  message_tr: auditd veya syslog servisi durduruldu — denetim kör noktası oluşturuluyor
+  summary_en: This rule highlights audit log disabling and may indicate suspicious or unauthorized defense evasion activity. Review the surrounding context to confirm the impact.
+  summary_tr: Denetim veya loglama servisi durduruldu/devre dışı bırakıldı; görünürlük kaybı riski vardır.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding defense_evasion activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Servis durumu değişikliğinin bakım faaliyeti mi yoksa savunma kaçırma mı olduğunu doğrulayın.
+- id: DE-003
+  name: Bash Geçmişi Temizleme
+  severity: high
+  score: 80
+  category: defense_evasion
+  message: Shell geçmiş dosyası silindi veya devre dışı bırakıldı — iz örtme
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - history -c
+      - history -w
+      - unset HISTFILE
+      - HISTSIZE=0
+      - HISTFILESIZE=0
+      - .bash_history
+      - /dev/null
+  mitre_tactic: TA0005
+  mitre_technique: T1070.003
+  tags:
+  - defense-evasion
+  - history-clear
+  - shell-history
+  - cover-tracks
+  summary: Shell geçmişi temizlendi veya kaydı kapatıldı; komut izi gizlenmeye çalışılıyor olabilir.
+  operator_note: Aynı kullanıcı için kısa süre önceki sudo, persistence veya LOLBin olaylarını kontrol edin.
+  pack: core
+  pack_version: '1.0'
+  message_en: Bash History Clearing
+  message_tr: Shell geçmiş dosyası silindi veya devre dışı bırakıldı — iz örtme
+  summary_en: This rule highlights bash history clearing and may indicate suspicious or unauthorized defense evasion activity. Review the surrounding context to confirm the impact.
+  summary_tr: Shell geçmişi temizlendi veya kaydı kapatıldı; komut izi gizlenmeye çalışılıyor olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding defense_evasion activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Aynı kullanıcı için kısa süre önceki sudo, persistence veya LOLBin olaylarını kontrol edin.
+- id: DE-004
+  name: shred ile Dosya İmhası
+  severity: high
+  score: 85
+  category: defense_evasion
+  message: shred/wipe komutu ile dosya izleri yok ediliyor
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde shred ile Dosya İmhası davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - shred
+      - wipe
+      - srm
+      - secure-delete
+  mitre_tactic: TA0005
+  mitre_technique: T1070.004
+  tags:
+  - defense-evasion
+  - secure-delete
+  - file-wipe
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: File Destruction with shred
+  message_tr: shred/wipe komutu ile dosya izleri yok ediliyor
+  summary_en: The shred command was used to destroy files. This may indicate evidence removal or defense evasion.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde shred ile Dosya İmhası davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-005
+  name: World-Writable Dosya (chmod 777)
+  severity: high
+  score: 75
+  category: defense_evasion
+  message: Dosya/dizin herkese yazılabilir yapıldı (chmod 777)
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde World-Writable Dosya (chmod 777) davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - chmod 777
+      - chmod a+w
+      - chmod o+w
+      - chmod -R 777
+  mitre_tactic: TA0005
+  mitre_technique: T1222.002
+  tags:
+  - defense-evasion
+  - chmod
+  - world-writable
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: World-Writable File (chmod 777)
+  message_tr: Dosya/dizin herkese yazılabilir yapıldı (chmod 777)
+  summary_en: This rule highlights World-Writable Dosya (chmod 777) when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde World-Writable Dosya (chmod 777) davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-006
+  name: SUID/SGID Bit Ayarlama
+  severity: critical
+  score: 90
+  category: defense_evasion
+  message: SUID veya SGID bit ayarlandı — yetki yükseltme backdoor'u olabilir
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SUID/SGID Bit Ayarlama davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - chmod +s
+      - chmod u+s
+      - chmod g+s
+      - chmod 4755
+      - chmod 4777
+      - chmod 6755
+  mitre_tactic: TA0005
+  mitre_technique: T1222.002
+  tags:
+  - defense-evasion
+  - suid
+  - privilege-escalation
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: SUID/SGID Bit Change
+  message_tr: SUID veya SGID bit ayarlandı — yetki yükseltme backdoor'u olabilir
+  summary_en: This rule highlights SUID/SGID Bit Ayarlama when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of persistence or privilege escalation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SUID/SGID Bit Ayarlama davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-007
+  name: chattr ile Dosya Değiştirilemez Yapma
+  severity: high
+  score: 80
+  category: defense_evasion
+  message: chattr +i ile dosya immutable yapıldı — kötü amaçlı dosya koruma
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde chattr ile Dosya Değiştirilemez Yapma davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - chattr +i
+      - chattr -i
+      - lsattr
+  mitre_tactic: TA0005
+  mitre_technique: T1222.002
+  tags:
+  - defense-evasion
+  - chattr
+  - immutable
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: File Made Immutable with chattr
+  message_tr: chattr +i ile dosya immutable yapıldı — kötü amaçlı dosya koruma
+  summary_en: The chattr command was used to make a file immutable. This may indicate control tampering or defense evasion.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde chattr ile Dosya Değiştirilemez Yapma davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-008
+  name: Hex/Octal Encoding ile Komut Çalıştırma
+  severity: high
+  score: 80
+  category: defense_evasion
+  message: Hex veya octal encode edilmiş komut çalıştırma — IDS atlatma girişimi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Hex/Octal Encoding ile Komut Çalıştırma davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - $'\x
+      - \x2f
+      - \x62\x61\x73\x68
+      - printf '\\'
+      - $(printf
+  mitre_tactic: TA0005
+  mitre_technique: T1027
+  tags:
+  - defense-evasion
+  - obfuscation
+  - encoding
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: Command Execution with Hex/Octal Encoding
+  message_tr: Hex veya octal encode edilmiş komut çalıştırma — IDS atlatma girişimi
+  summary_en: Command execution used hex or octal encoding. This may indicate obfuscation and defense evasion.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Hex/Octal Encoding ile Komut Çalıştırma davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-009
+  name: /tmp veya /dev/shm'den Çalıştırma
+  severity: high
+  score: 85
+  category: defense_evasion
+  message: Geçici dizinden executable çalıştırıldı — fileless attack veya dropper
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde /tmp veya /dev/shm'den Çalıştırma davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - /tmp/
+      - /dev/shm/
+      - /var/tmp/
+      - /run/
+  mitre_tactic: TA0005
+  mitre_technique: T1036.005
+  tags:
+  - defense-evasion
+  - tmp-execution
+  - masquerading
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: Execution from /tmp or /dev/shm
+  message_tr: Geçici dizinden executable çalıştırıldı — fileless attack veya dropper
+  summary_en: A process executed from /tmp or /dev/shm. This may indicate transient or suspicious execution.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde /tmp veya /dev/shm'den Çalıştırma davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-010
+  name: Firewall Devre Dışı Bırakma
+  severity: critical
+  score: 90
+  category: defense_evasion
+  message: Güvenlik duvarı (ufw/iptables/firewalld) devre dışı bırakıldı
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Firewall Devre Dışı Bırakma davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - ufw disable
+      - ufw --force disable
+      - iptables -F
+      - iptables --flush
+      - systemctl stop ufw
+      - systemctl disable ufw
+      - systemctl stop firewalld
+      - nft flush
+  mitre_tactic: TA0005
+  mitre_technique: T1562.004
+  tags:
+  - defense-evasion
+  - disable-firewall
+  - critical
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: Firewall Disabled
+  message_tr: Güvenlik duvarı (ufw/iptables/firewalld) devre dışı bırakıldı
+  summary_en: A command attempted to disable the firewall. This may indicate defense evasion.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Firewall Devre Dışı Bırakma davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-011
+  name: AppArmor/SELinux Devre Dışı
+  severity: critical
+  score: 95
+  category: defense_evasion
+  message: AppArmor veya SELinux devre dışı bırakıldı — güvenlik katmanı bypass
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde AppArmor/SELinux Devre Dışı davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - apparmor_parser
+      - aa-disable
+      - setenforce 0
+      - systemctl stop apparmor
+      - systemctl disable apparmor
+      - selinux=0
+  mitre_tactic: TA0005
+  mitre_technique: T1562.001
+  tags:
+  - defense-evasion
+  - apparmor
+  - selinux
+  - mandatory-access-control
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: AppArmor/SELinux Disabled
+  message_tr: AppArmor veya SELinux devre dışı bırakıldı — güvenlik katmanı bypass
+  summary_en: A command attempted to disable AppArmor or SELinux. This may indicate defense evasion.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde AppArmor/SELinux Devre Dışı davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-012
+  name: fail2ban Devre Dışı Bırakma
+  severity: high
+  score: 85
+  category: defense_evasion
+  message: fail2ban servisi durduruldu — brute force koruması kaldırıldı
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde fail2ban Devre Dışı Bırakma davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - systemctl stop fail2ban
+      - systemctl disable fail2ban
+      - service fail2ban stop
+  mitre_tactic: TA0005
+  mitre_technique: T1562.001
+  tags:
+  - defense-evasion
+  - fail2ban
+  - brute-force-protection
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: fail2ban Disabled
+  message_tr: fail2ban servisi durduruldu — brute force koruması kaldırıldı
+  summary_en: A command attempted to disable fail2ban. This may indicate reduced protection or defense evasion.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde fail2ban Devre Dışı Bırakma davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-013
+  name: Dosya Zaman Damgası Değiştirme (Timestomp)
+  severity: high
+  score: 80
+  category: defense_evasion
+  message: touch ile dosya zaman damgası değiştirildi — adli analiz engellenemye çalışıyor
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Dosya Zaman Damgası Değiştirme (Timestomp) davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - touch -t
+      - touch -d
+      - touch --date
+      - debugfs
+  mitre_tactic: TA0005
+  mitre_technique: T1070.006
+  tags:
+  - defense-evasion
+  - timestomp
+  - anti-forensics
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: File Timestamp Modification (Timestomp)
+  message_tr: touch ile dosya zaman damgası değiştirildi — adli analiz engellenemye çalışıyor
+  summary_en: File timestamp modification was observed. This may indicate timestomping and defense evasion.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Dosya Zaman Damgası Değiştirme (Timestomp) davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-014
+  name: Sistem Binary'sini Taklit Eden İsim
+  severity: high
+  score: 80
+  category: defense_evasion
+  message: Sistem aracı ismiyle gizlenmiş executable — masquerading şüphesi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Sistem Binary'sini Taklit Eden İsim davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - /tmp/sshd
+      - /tmp/systemd
+      - /tmp/cron
+      - /tmp/bash
+      - /var/tmp/sshd
+      - /dev/shm/sshd
+  mitre_tactic: TA0005
+  mitre_technique: T1036.005
+  tags:
+  - defense-evasion
+  - masquerading
+  - binary-rename
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: Name Masquerading as a System Binary
+  message_tr: Sistem aracı ismiyle gizlenmiş executable — masquerading şüphesi
+  summary_en: A process used a name that mimics a system binary. This may indicate masquerading.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Sistem Binary'sini Taklit Eden İsim davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-015
+  name: ptrace Kullanımı (Process Injection)
+  severity: critical
+  score: 90
+  category: defense_evasion
+  message: ptrace ile process injection girişimi — memory manipulation veya credential dumping
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde ptrace Kullanımı (Process Injection) davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - ptrace
+      - /proc/mem
+      - /proc/pid/mem
+      - gcore
+  mitre_tactic: TA0005
+  mitre_technique: T1055.008
+  tags:
+  - defense-evasion
+  - process-injection
+  - ptrace
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: ptrace Usage (Process Injection)
+  message_tr: ptrace ile process injection girişimi — memory manipulation veya credential dumping
+  summary_en: Ptrace usage was observed. This may indicate process injection or tampering.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde ptrace Kullanımı (Process Injection) davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-016
+  name: memfd_create — Dosyasız Yürütme
+  severity: critical
+  score: 95
+  category: defense_evasion
+  message: memfd_create ile bellekte dosyasız yürütme — fileless malware girişimi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde memfd_create — Dosyasız Yürütme davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - memfd_create
+      - /proc/self/fd
+      - /proc/self/exe
+  mitre_tactic: TA0005
+  mitre_technique: T1620
+  tags:
+  - defense-evasion
+  - fileless
+  - memory-execution
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: memfd_create Fileless Execution
+  message_tr: memfd_create ile bellekte dosyasız yürütme — fileless malware girişimi
+  summary_en: Memfd_create activity was observed. This may indicate fileless execution.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde memfd_create — Dosyasız Yürütme davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: DE-017
+  name: Process-Logged Log Sabotage or Audit Reset
+  severity: critical
+  score: 88
+  category: defense_evasion
+  message: Process loglarında log sabotage veya denetim reset davranışı görüldü
+  cooldown: 120
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action:
+    - sudo
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - command_contains_any:
+          - systemctl stop auditd
+          - systemctl disable auditd
+          - systemctl mask auditd
+          - kill -STOP
+          - kill -SIGSTOP
+          - pkill -STOP
+          - pkill -SIGSTOP
+          - killall -STOP
+          - killall -SIGSTOP
+          - systemctl stop rsyslog
+          - systemctl disable rsyslog
+          - systemctl mask rsyslog
+          - systemctl stop systemd-journald
+          - systemctl disable systemd-journald
+          - systemctl mask systemd-journald
+          - service auditd stop
+          - auditctl -D
+          - auditctl -e 0
+          - truncate -s 0 /var/log/
+          - rm -f /var/log/
+          - shred /var/log/
+          - dd if=/dev/null of=/var/log/
+          - journalctl --vacuum-time
+          - journalctl --vacuum-size
+          - journalctl --vacuum-files
+          - rm -rf /var/log/journal
+          - history -c
+          - unset HISTFILE
+          - .bash_history
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - systemctl restart auditd
+            - systemctl reload auditd
+            - service auditd restart
+            - service auditd reload
+            - logrotate
+            - systemctl restart rsyslog
+            - systemctl restart systemd-journald
+            - systemctl reload rsyslog
+            - apt
+            - apt-get
+            - dpkg
+            - rpm
+            - dnf
+            - yum
+            - zypper
+            - packagekit
+            - needrestart
+            - cloud-init
+            - subscription-manager
+            - SUSEConnect
+            - transactional-update
+            - chef-client
+            - puppet
+            - ansible
+            - ansible-playbook
+            - salt-call
+            - salt-minion
+            - journalctl --rotate
+            - journalctl --sync
+            - tmpfiles --clean
+          - command_token_contains_any:
+            - logrotate
+            - apt
+            - dpkg
+            - rpm
+            - dnf
+            - yum
+            - zypper
+  mitre_tactic: TA0005
+  mitre_technique: T1070.002
+  tags:
+  - defense-evasion
+  - log-tampering
+  - audit-reset
+  - journald
+  - rsyslog
+  - auditd
+  - history-clear
+  summary: Audit/log servisleri durduruluyor, audit kuralları sıfırlanıyor veya log/history temizleniyor olabilir.
+  operator_note: Değişikliğin bakım penceresi mi yoksa erişim sonrası iz silme mi olduğunu, hemen önceki oturum ve sonraki persistence/exfil davranışlarıyla birlikte değerlendirin.
+  pack: core
+  pack_version: '1.0'
+  message_en: Process-Logged Log Sabotage or Audit Reset
+  message_tr: Process loglarında log sabotage veya denetim reset davranışı görüldü
+  summary_en: This rule highlights process-logged log sabotage or audit reset and may indicate suspicious or unauthorized defense evasion activity. Review the surrounding context to confirm the impact.
+  summary_tr: Audit/log servisleri durduruluyor, audit kuralları sıfırlanıyor veya log/history temizleniyor olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding defense_evasion activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Değişikliğin bakım penceresi mi yoksa erişim sonrası iz silme mi olduğunu, hemen önceki oturum ve sonraki persistence/exfil davranışlarıyla birlikte değerlendirin.

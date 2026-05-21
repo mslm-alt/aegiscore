@@ -1,0 +1,990 @@
+- id: WEB-014
+  name: XSS Girişimi
+  severity: medium
+  score: 65
+  category: network
+  message: XSS payload/deseni içeren HTTP isteği tespit edildi
+  summary: İstek içinde tarayıcıda script çalıştırmaya yönelik XSS göstergeleri bulundu; başarılı istismar kullanıcı oturumu çalma, içerik manipülasyonu veya istemci tarafı kod yürütmeye yol açabilir.
+  operator_note: Hedef endpoint'i, payload'ın hangi parametrede taşındığını, uygulamanın bu girdiyi yansıtıp yansıtmadığını ve aynı istemciden gelen diğer web exploit denemelerini doğrulayın.
+  mitre_tactic: TA0001
+  mitre_technique: T1190
+  tags:
+  - web
+  - xss
+  - injection
+  pack: web
+  pack_version: '1.1'
+  condition:
+    action: http_request
+    source:
+    - apache2
+    - nginx
+    fields:
+      __any__:
+      - request_target_lc_contains_any:
+        - '%3cscript'
+        - '%3csvg'
+        - alert(
+        - onerror=
+        - onload=
+        - 'javascript:'
+        - document.cookie
+      - request_target_decoded_lc_contains_any:
+        - <script
+        - <svg
+        - '%3cscript'
+        - alert(
+        - onerror=
+        - onload=
+        - 'javascript:'
+        - document.cookie
+      - path_lc_contains_any:
+        - '%3cscript'
+        - '%3csvg'
+        - alert(
+        - onerror=
+        - onload=
+        - 'javascript:'
+        - document.cookie
+      - path_decoded_lc_contains_any:
+        - <script
+        - <svg
+        - '%3cscript'
+        - alert(
+        - onerror=
+        - onload=
+        - 'javascript:'
+        - document.cookie
+      - query_lc_contains_any:
+        - '%3cscript'
+        - '%3csvg'
+        - alert(
+        - onerror=
+        - onload=
+        - 'javascript:'
+        - document.cookie
+      - query_decoded_lc_contains_any:
+        - <script
+        - <svg
+        - '%3cscript'
+        - alert(
+        - onerror=
+        - onload=
+        - 'javascript:'
+        - document.cookie
+  message_en: XSS Attempt
+  message_tr: XSS payload/deseni içeren HTTP isteği tespit edildi
+  summary_en: This rule highlights xss attempt and may indicate suspicious or unauthorized network activity. Review the surrounding context to confirm the impact.
+  summary_tr: İstek içinde tarayıcıda script çalıştırmaya yönelik XSS göstergeleri bulundu; başarılı istismar kullanıcı oturumu çalma, içerik manipülasyonu veya istemci tarafı kod yürütmeye yol açabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding network activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Hedef endpoint'i, payload'ın hangi parametrede taşındığını, uygulamanın bu girdiyi yansıtıp yansıtmadığını ve aynı istemciden gelen diğer web exploit denemelerini doğrulayın.
+- id: WEB-015
+  name: XXE Payload Injection
+  severity: high
+  score: 80
+  category: network
+  message: XML External Entity payload denemesi tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde XXE Payload Injection davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  mitre_tactic: TA0001
+  mitre_technique: T1190
+  tags:
+  - web
+  - xxe
+  - xml-injection
+  pack: web
+  pack_version: '1.1'
+  condition:
+    action: http_request
+    source:
+    - apache2
+    - nginx
+    fields:
+      __any__:
+      - __all__:
+        - path_lc_contains_any:
+          - '%3c!entity'
+          - '%3c!doctype'
+          - <!entity
+          - <!doctype
+        - path_decoded_lc_contains_any:
+          - system
+          - file://
+          - http://
+          - https://
+      - query_decoded_lc_contains_any:
+        - <!entity
+        - <!doctype
+      - query_lc_contains_any:
+        - '%3c!entity'
+        - '%3c!doctype'
+      - request_target_decoded_lc_contains_any:
+        - <!entity
+        - <!doctype
+      - request_target_lc_contains_any:
+        - '%3c!entity'
+        - '%3c!doctype'
+  operator_note: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+  message_en: XXE Payload Injection
+  message_tr: XML External Entity payload denemesi tespit edildi
+  summary_en: A web request matched an XXE payload pattern. This may indicate exploitation of a public-facing application.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde XXE Payload Injection davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  operator_note_en: Review the source IP, target host, URL or path, query or payload parameters, HTTP status code, user-agent, and the immediately preceding or following upload, exploit, process, file-access, or persistence events.
+  operator_note_tr: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+- id: WEB-018
+  name: DVWA Exploitation Attempt
+  severity: high
+  score: 82
+  category: network
+  message: DVWA saldırı endpoint'inde exploit payload/context tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde DVWA Exploitation Attempt davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  mitre_tactic: TA0001
+  mitre_technique: T1190
+  tags:
+  - web
+  - dvwa
+  - exploit
+  pack: web
+  pack_version: '1.1'
+  condition:
+    action:
+    - http_request
+    - sqli_attempt
+    - shell_upload
+    source:
+    - apache2
+    - nginx
+    fields:
+      __all__:
+      - __any__:
+        - request_target_lc_contains_any:
+          - /dvwa/vulnerabilities/sqli
+          - /dvwa/vulnerabilities/xss
+          - /dvwa/vulnerabilities/exec
+          - /dvwa/vulnerabilities/upload
+          - /dvwa/login
+        - request_target_decoded_lc_contains_any:
+          - /dvwa/vulnerabilities/sqli
+          - /dvwa/vulnerabilities/xss
+          - /dvwa/vulnerabilities/exec
+          - /dvwa/vulnerabilities/upload
+          - /dvwa/login
+      - __any__:
+        - __any__:
+          - request_target_lc_contains_any:
+            - union%20select
+            - '%27%20or%20%271%27%3d%271'
+            - '%22%20or%20%221%22%3d%221'
+            - sleep%28
+            - benchmark%28
+          - request_target_decoded_lc_contains_any:
+            - union select
+            - ''' or ''1''=''1'
+            - '" or "1"="1'
+            - sleep(
+            - benchmark(
+        - __any__:
+          - request_target_lc_contains_any:
+            - '%3cscript'
+            - '%3csvg'
+            - onerror=
+            - onload=
+            - 'javascript:'
+            - alert(
+            - document.cookie
+          - request_target_decoded_lc_contains_any:
+            - <script
+            - <svg
+            - onerror=
+            - onload=
+            - 'javascript:'
+            - alert(
+            - document.cookie
+        - __any__:
+          - request_target_lc_contains_any:
+            - cmd=
+            - exec=
+            - command=
+            - ip=
+            - host=
+            - ping=
+            - '%26%26id'
+            - '%7cid'
+            - '%3bid'
+          - request_target_decoded_lc_contains_any:
+            - cmd=
+            - exec=
+            - command=
+            - ip=
+            - host=
+            - ping=
+            - '&&id'
+            - '&&whoami'
+            - '|id'
+            - '|whoami'
+            - ;id
+            - ;whoami
+            - /bin/sh
+            - /bin/bash
+        - __all__:
+          - request_target_decoded_lc_contains_any:
+            - /dvwa/login
+          - request_target_decoded_lc_contains_any:
+            - username=
+            - password=
+            - login=login
+        - __all__:
+          - __any__:
+            - request_target_lc_contains_any:
+              - /dvwa/vulnerabilities/upload
+          - request_target_decoded_lc_contains_any:
+            - /dvwa/vulnerabilities/upload
+          - method_regex: (?i)^(post|put)$
+  operator_note: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+  message_en: DVWA Exploitation Attempt
+  message_tr: DVWA saldırı endpoint'inde exploit payload/context tespit edildi
+  summary_en: A web request matched a DVWA exploitation attempt. This may indicate active web attack activity.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde DVWA Exploitation Attempt davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  operator_note_en: Review the source IP, target host, URL or path, query or payload parameters, HTTP status code, user-agent, and the immediately preceding or following upload, exploit, process, file-access, or persistence events.
+  operator_note_tr: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+- id: WEB-019
+  name: Suspicious HTTP Method Probe
+  severity: medium
+  score: 58
+  category: network
+  message: Şüpheli veya riskli HTTP method kullanımı tespit edildi
+  summary: TRACE, PROPFIND, DEBUG veya benzeri method'lar ile yapılan istekler; web keşfi, yanlış yapılandırma yoklaması veya istismar öncesi doğrulama davranışına işaret edebilir.
+  mitre_tactic: TA0043
+  mitre_technique: T1595
+  tags:
+  - web
+  - reconnaissance
+  - risky-method
+  - method-probe
+  pack: web
+  pack_version: '1.0'
+  condition:
+    action: http_request
+    source:
+    - apache2
+    - nginx
+    fields:
+      __any__:
+      - method_regex: (?i)^(trace|debug|propfind|connect|track|search|mkcol|move|copy)$
+      - __all__:
+        - method_regex: (?i)^options$
+        - __any__:
+          - path_decoded_lc_contains_any:
+            - /server-status
+            - /server-info
+            - /.git/
+            - /.env
+            - wp-config.php
+            - /phpmyadmin
+            - /admin
+            - /cgi-bin/
+          - path_lc_contains_any:
+            - /server-status
+            - /server-info
+            - /.git/
+            - /.env
+            - wp-config.php
+            - /phpmyadmin
+            - /admin
+            - /cgi-bin/
+          - ua_lc_contains_any:
+            - curl/
+            - wget/
+            - python-requests
+            - sqlmap
+            - nikto
+            - gobuster
+            - dirbuster
+            - wfuzz
+            - nuclei
+            - nmap
+            - masscan
+  operator_note: Method değerini, hedef URL/path'i, user-agent bilgisini ve aynı kaynaktan gelen 404, exploit veya upload denemelerini birlikte inceleyin.
+  message_en: Suspicious HTTP Method Probe
+  message_tr: Şüpheli veya riskli HTTP method kullanımı tespit edildi
+  summary_en: This rule highlights suspicious http method probe and may indicate suspicious or unauthorized network activity. Review the surrounding context to confirm the impact.
+  summary_tr: TRACE, PROPFIND, DEBUG veya benzeri method'lar ile yapılan istekler; web keşfi, yanlış yapılandırma yoklaması veya istismar öncesi doğrulama davranışına işaret edebilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding network activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Method değerini, hedef URL/path'i, user-agent bilgisini ve aynı kaynaktan gelen 404, exploit veya upload denemelerini birlikte inceleyin.
+- id: WEB-020
+  name: Sensitive File or Server Status Probe
+  severity: high
+  score: 78
+  category: network
+  message: Hassas dosya, config leak veya sunucu durum endpoint'i yoklaması tespit edildi
+  summary: İstek hedefi `.env`, `.git/config`, yedek/dump dosyaları, özel anahtarlar veya `server-status` gibi ifşa riski taşıyan içeriklere yöneliyor. Bu davranış çoğunlukla keşif ve hassas veri sızdırma hazırlığıdır.
+  mitre_tactic: TA0007
+  mitre_technique: T1083
+  tags:
+  - web
+  - reconnaissance
+  - sensitive-file
+  - config-leak
+  - server-status
+  pack: web
+  pack_version: '1.0'
+  condition:
+    action: http_request
+    source:
+    - apache2
+    - nginx
+    fields:
+      __all__:
+      - method_regex: (?i)^(get|head|post|options|trace|propfind)$
+      - __any__:
+        - path_decoded_lc_contains_any:
+          - /.env
+          - /.git/config
+          - /backup.zip
+          - /db.sql
+          - wp-config.php
+          - /id_rsa
+          - /server-status
+          - /server-info
+          - /config.php
+          - /config.json
+          - /docker-compose.yml
+          - /.htpasswd
+          - /.ds_store
+          - /phpinfo.php
+          - .pem
+          - .key
+          - .dump
+        - path_lc_contains_any:
+          - /.env
+          - /.git/config
+          - /backup.zip
+          - /db.sql
+          - wp-config.php
+          - /id_rsa
+          - /server-status
+          - /server-info
+          - /config.php
+          - /config.json
+          - /docker-compose.yml
+          - /.htpasswd
+          - /.ds_store
+          - /phpinfo.php
+          - .pem
+          - .key
+          - .dump
+        - request_target_decoded_lc_contains_any:
+          - /.env
+          - /.git/config
+          - /backup.zip
+          - /db.sql
+          - wp-config.php
+          - /id_rsa
+          - /server-status
+          - /server-info
+          - /config.php
+          - /config.json
+          - /docker-compose.yml
+          - /.htpasswd
+          - /.ds_store
+          - /phpinfo.php
+          - .pem
+          - .key
+          - .dump
+        - request_target_lc_contains_any:
+          - /.env
+          - /.git/config
+          - /backup.zip
+          - /db.sql
+          - wp-config.php
+          - /id_rsa
+          - /server-status
+          - /server-info
+          - /config.php
+          - /config.json
+          - /docker-compose.yml
+          - /.htpasswd
+          - /.ds_store
+          - /phpinfo.php
+          - .pem
+          - .key
+          - .dump
+      - __not__:
+          __all__:
+          - path_decoded_lc_contains_any:
+            - /server-status
+            - /server-info
+          - ua_lc_contains_any:
+            - prometheus
+            - kube-probe
+            - elb-healthchecker
+  operator_note: İstenen dosya/endpoint'i, HTTP durum kodunu, user-agent bilgisini ve aynı istemciden gelen diğer traversal, exploit veya auth denemelerini doğrulayın.
+  message_en: Sensitive File or Server Status Probe
+  message_tr: Hassas dosya, config leak veya sunucu durum endpoint'i yoklaması tespit edildi
+  summary_en: This rule highlights sensitive file or server status probe and may indicate suspicious or unauthorized network activity. Review the surrounding context to confirm the impact.
+  summary_tr: İstek hedefi `.env`, `.git/config`, yedek/dump dosyaları, özel anahtarlar veya `server-status` gibi ifşa riski taşıyan içeriklere yöneliyor. Bu davranış çoğunlukla keşif ve hassas veri sızdırma hazırlığıdır.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding network activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: İstenen dosya/endpoint'i, HTTP durum kodunu, user-agent bilgisini ve aynı istemciden gelen diğer traversal, exploit veya auth denemelerini doğrulayın.
+- id: WEB-006
+  name: Server Side Template Injection (SSTI)
+  severity: critical
+  score: 90
+  category: network
+  message: Sunucu tarafı template injection girişimi tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Server Side Template Injection (SSTI) davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  mitre_tactic: TA0001
+  mitre_technique: T1190
+  tags:
+  - web
+  - ssti
+  - rce
+  pack: web
+  pack_version: '1.1'
+  condition:
+    action: http_request
+    source:
+    - apache2
+    - nginx
+    fields:
+      __any__:
+      - path_lc_contains_any:
+        - '%7b%7b7*7%7d%7d'
+        - '%24%7b7*7%7d'
+        - <%= 7*7 %>
+        - '#{7*7}'
+      - path_decoded_lc_contains_any:
+        - '{{7*7}}'
+        - '{%7b7*7%7d}'
+        - ${7*7}
+        - <%= 7*7 %>
+        - '#{7*7}'
+      - query_lc_contains_any:
+        - '%7b%7b7*7%7d%7d'
+        - '%24%7b7*7%7d'
+      - query_decoded_lc_contains_any:
+        - '{{7*7}}'
+        - ${7*7}
+        - <%= 7*7 %>
+        - '#{7*7}'
+      - request_target_lc_contains_any:
+        - '%7b%7b7*7%7d%7d'
+        - '%24%7b7*7%7d'
+      - request_target_decoded_lc_contains_any:
+        - '{{7*7}}'
+        - ${7*7}
+        - <%= 7*7 %>
+        - '#{7*7}'
+  operator_note: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+  message_en: Server Side Template Injection (SSTI)
+  message_tr: Sunucu tarafı template injection girişimi tespit edildi
+  summary_en: A web request matched SSTI behavior. This may indicate server-side template injection.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Server Side Template Injection (SSTI) davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  operator_note_en: Review the source IP, target host, URL or path, query or payload parameters, HTTP status code, user-agent, and the immediately preceding or following upload, exploit, process, file-access, or persistence events.
+  operator_note_tr: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+- id: WEB-007
+  name: Command Injection Girişimi
+  severity: critical
+  score: 95
+  category: network
+  message: HTTP parametresinde komut injection girişimi tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Command Injection Girişimi davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  mitre_tactic: TA0002
+  mitre_technique: T1190
+  tags:
+  - web
+  - command-injection
+  - rce
+  pack: web
+  pack_version: '1.1'
+  condition:
+    action: http_request
+    source:
+    - apache2
+    - nginx
+    fields:
+      __all__:
+      - method_regex: (?i)^(get|post|head)$
+      - __any__:
+        - path_lc_contains_any:
+          - cmd=
+          - exec=
+          - command=
+          - ping=
+          - host=
+          - ip=
+        - path_decoded_lc_contains_any:
+          - cmd=
+          - exec=
+          - command=
+          - ping=
+          - host=
+          - ip=
+        - query_lc_contains_any:
+          - cmd=
+          - exec=
+          - command=
+          - ping=
+          - host=
+          - ip=
+        - query_decoded_lc_contains_any:
+          - cmd=
+          - exec=
+          - command=
+          - ping=
+          - host=
+          - ip=
+        - request_target_lc_contains_any:
+          - cmd=
+          - exec=
+          - command=
+        - request_target_decoded_lc_contains_any:
+          - cmd=
+          - exec=
+          - command=
+      - __any__:
+        - path_lc_contains_any:
+          - '%60id%60'
+          - '%60whoami%60'
+          - '%24%28id%29'
+          - '%24%28whoami%29'
+          - '%26%26id'
+          - '%7cid'
+          - '%0aid'
+        - path_decoded_lc_contains_any:
+          - '`id`'
+          - '`whoami`'
+          - $(id)
+          - $(whoami)
+          - '&&id'
+          - '&&whoami'
+          - '|id'
+          - '|whoami'
+          - ;id
+          - ;whoami
+          - /bin/sh
+          - /bin/bash
+        - query_lc_contains_any:
+          - '%60id%60'
+          - '%60whoami%60'
+          - '%24%28id%29'
+          - '%24%28whoami%29'
+          - '%26%26id'
+          - '%7cid'
+          - '%0aid'
+        - query_decoded_lc_contains_any:
+          - '`id`'
+          - '`whoami`'
+          - $(id)
+          - $(whoami)
+          - '&&id'
+          - '&&whoami'
+          - '|id'
+          - '|whoami'
+          - ;id
+          - ;whoami
+          - /bin/sh
+          - /bin/bash
+        - request_target_lc_contains_any:
+          - '%60id%60'
+          - '%60whoami%60'
+          - '%24%28id%29'
+          - '%24%28whoami%29'
+        - request_target_decoded_lc_contains_any:
+          - '`id`'
+          - '`whoami`'
+          - $(id)
+          - $(whoami)
+  operator_note: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+  message_en: Command Injection Attempt
+  message_tr: HTTP parametresinde komut injection girişimi tespit edildi
+  summary_en: A web request matched command injection behavior. This may indicate exploitation of a public-facing application.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Command Injection Girişimi davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  operator_note_en: Review the source IP, target host, URL or path, query or payload parameters, HTTP status code, user-agent, and the immediately preceding or following upload, exploit, process, file-access, or persistence events.
+  operator_note_tr: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+- id: WEB-008
+  name: Dosya Yükleme Saldırısı
+  severity: high
+  score: 85
+  category: network
+  message: Tehlikeli uzantılı dosya yükleme girişimi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Dosya Yükleme Saldırısı davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  mitre_tactic: TA0001
+  mitre_technique: T1190
+  tags:
+  - web
+  - file-upload
+  - webshell
+  pack: web
+  pack_version: '1.1'
+  condition:
+    action: http_request
+    source:
+    - apache2
+    - nginx
+    fields:
+      __all__:
+      - method_regex: (?i)^(post|put)$
+      - status_lt: 400
+      - __any__:
+        - path_decoded_lc_contains_any:
+          - /upload
+          - /uploads
+          - /file
+          - /files
+          - /avatar
+          - /image
+          - /images
+          - /attachment
+          - /import
+        - path_lc_contains_any:
+          - /upload
+          - /uploads
+          - /file
+          - /files
+          - /avatar
+          - /image
+          - /images
+          - /attachment
+          - /import
+      - __any__:
+        - path_lc_contains_any:
+          - .php.jpg
+          - .php.png
+          - .php.gif
+          - .php%00
+          - .jsp%00
+          - .phtml
+          - .php5
+          - .phar
+          - .shtml
+          - .asp
+          - .aspx
+          - .jsp
+        - path_decoded_lc_contains_any:
+          - .php.jpg
+          - .php.png
+          - .php.gif
+          - ".php\0"
+          - ".jsp\0"
+          - .phtml
+          - .php5
+          - .phar
+          - .shtml
+          - .asp
+          - .aspx
+          - .jsp
+  operator_note: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+  message_en: File Upload Attack
+  message_tr: Tehlikeli uzantılı dosya yükleme girişimi
+  summary_en: A web request matched malicious file upload behavior. This may indicate an attempt to plant a web shell or payload.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Dosya Yükleme Saldırısı davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  operator_note_en: Review the source IP, target host, URL or path, query or payload parameters, HTTP status code, user-agent, and the immediately preceding or following upload, exploit, process, file-access, or persistence events.
+  operator_note_tr: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+- id: WEB-010
+  name: Yavaş HTTP Saldırısı (Slowloris)
+  severity: medium
+  score: 65
+  category: network
+  message: Yavaş HTTP bağlantısı — Slowloris veya DoS girişimi şüphesi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Yavaş HTTP Saldırısı (Slowloris) davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  mitre_tactic: TA0040
+  mitre_technique: T1499.002
+  tags:
+  - web
+  - dos
+  - slowloris
+  pack: web
+  pack_version: '1.1'
+  condition:
+    action: http_request
+    source:
+    - apache2
+    - nginx
+    fields:
+      ua_lc_contains_any:
+      - slowhttptest
+      - slowloris
+      - slow-headers
+  operator_note: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+  message_en: Slow HTTP Attack (Slowloris)
+  message_tr: Yavaş HTTP bağlantısı — Slowloris veya DoS girişimi şüphesi
+  summary_en: A web request matched slow HTTP attack behavior. This may indicate a Slowloris-style denial-of-service attempt.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Yavaş HTTP Saldırısı (Slowloris) davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  operator_note_en: Review the source IP, target host, URL or path, query or payload parameters, HTTP status code, user-agent, and the immediately preceding or following upload, exploit, process, file-access, or persistence events.
+  operator_note_tr: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+- id: WEB-011
+  name: SSRF / Metadata Endpoint Access
+  severity: high
+  score: 80
+  category: network
+  message: SSRF veya cloud metadata endpoint erişimi denemesi tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SSRF / Metadata Endpoint Access davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  mitre_tactic: TA0001
+  mitre_technique: T1190
+  tags:
+  - web
+  - ssrf
+  - internal-access
+  pack: web
+  pack_version: '1.1'
+  condition:
+    action: http_request
+    source:
+    - apache2
+    - nginx
+    fields:
+      __all__:
+      - method_regex: (?i)^(get|post)$
+      - __any__:
+        - path_decoded_lc_contains_any:
+          - url=http://
+          - url=https://
+          - uri=http://
+          - uri=https://
+          - dest=http://
+          - dest=https://
+          - target=http://
+          - target=https://
+          - feed=http://
+          - proxy=http://
+        - path_lc_contains_any:
+          - url=http%3a%2f%2f
+          - url=https%3a%2f%2f
+          - uri=http%3a%2f%2f
+          - dest=http%3a%2f%2f
+          - target=http%3a%2f%2f
+        - query_decoded_lc_contains_any:
+          - url=http://
+          - url=https://
+          - uri=http://
+          - uri=https://
+          - dest=http://
+          - dest=https://
+          - target=http://
+          - target=https://
+          - feed=http://
+          - proxy=http://
+        - query_lc_contains_any:
+          - url=http%3a%2f%2f
+          - url=https%3a%2f%2f
+          - uri=http%3a%2f%2f
+          - dest=http%3a%2f%2f
+          - target=http%3a%2f%2f
+        - request_target_decoded_lc_contains_any:
+          - url=http://
+          - url=https://
+          - uri=http://
+          - dest=http://
+          - target=http://
+      - __any__:
+        - path_decoded_lc_contains_any:
+          - 169.254.169.254
+          - metadata.google.internal
+          - metadata.google
+          - 100.100.100.200
+          - 127.0.0.1
+          - localhost
+          - ::1
+          - '0x7f000001'
+          - '2130706433'
+          - 192.168.
+          - '10.'
+          - 172.16.
+          - 172.17.
+          - 172.18.
+          - 172.19.
+          - 172.20.
+          - 172.21.
+          - 172.22.
+          - 172.23.
+          - 172.24.
+          - 172.25.
+          - 172.26.
+          - 172.27.
+          - 172.28.
+          - 172.29.
+          - 172.30.
+          - 172.31.
+        - path_lc_contains_any:
+          - 169.254.169.254
+          - metadata.google
+          - 100.100.100.200
+          - 127.0.0.1
+          - localhost
+          - 192.168.
+          - '10.'
+          - 172.16.
+          - 172.17.
+          - 172.18.
+          - 172.19.
+          - 172.20.
+          - 172.21.
+          - 172.22.
+          - 172.23.
+          - 172.24.
+          - 172.25.
+          - 172.26.
+          - 172.27.
+          - 172.28.
+          - 172.29.
+          - 172.30.
+          - 172.31.
+        - query_decoded_lc_contains_any:
+          - 169.254.169.254
+          - metadata.google.internal
+          - metadata.google
+          - 100.100.100.200
+          - 127.0.0.1
+          - localhost
+          - ::1
+          - '0x7f000001'
+          - '2130706433'
+        - query_lc_contains_any:
+          - 169.254.169.254
+          - metadata.google
+          - 100.100.100.200
+          - 127.0.0.1
+          - localhost
+        - request_target_decoded_lc_contains_any:
+          - 169.254.169.254
+          - metadata.google.internal
+          - metadata.google
+          - 100.100.100.200
+          - 127.0.0.1
+          - localhost
+  operator_note: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+  message_en: SSRF / Metadata Endpoint Access
+  message_tr: SSRF veya cloud metadata endpoint erişimi denemesi tespit edildi
+  summary_en: A web request attempted SSRF or metadata endpoint access. This may indicate internal service probing or credential theft.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SSRF / Metadata Endpoint Access davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  operator_note_en: Review the source IP, target host, URL or path, query or payload parameters, HTTP status code, user-agent, and the immediately preceding or following upload, exploit, process, file-access, or persistence events.
+  operator_note_tr: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+- id: WEB-016
+  name: Path Traversal / Sensitive File Probe
+  severity: high
+  score: 82
+  category: network
+  message: Path traversal veya hassas dosya erişim denemesi tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Path Traversal / Sensitive File Probe davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  mitre_tactic: TA0001
+  mitre_technique: T1190
+  tags:
+  - web
+  - traversal
+  - lfi
+  - sensitive-file
+  pack: web
+  pack_version: '1.1'
+  condition:
+    action:
+    - http_request
+    - path_traversal
+    source:
+    - apache2
+    - nginx
+    fields:
+      __all__:
+      - method_regex: (?i)^(get|head|post)$
+      - __any__:
+        - path_lc_contains_any:
+          - ..%2f
+          - '%2e%2e%2f'
+          - '%252e%252e%252f'
+          - ..\
+          - '%2e%2e\'
+          - '%252e%252e%255c'
+        - path_decoded_lc_contains_any:
+          - ../
+          - ..\
+          - '%2e%2e/'
+          - '%2e%2e\'
+          - /etc/passwd
+          - /etc/shadow
+          - /proc/self
+          - windows/win.ini
+          - boot.ini
+      - __any__:
+        - status_eq: 200
+        - status_eq: 206
+        - status_eq: 403
+  operator_note: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+  message_en: Path Traversal / Sensitive File Probe
+  message_tr: Path traversal veya hassas dosya erişim denemesi tespit edildi
+  summary_en: A web request matched path traversal or sensitive file probing. This may indicate file disclosure attempts.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Path Traversal / Sensitive File Probe davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  operator_note_en: Review the source IP, target host, URL or path, query or payload parameters, HTTP status code, user-agent, and the immediately preceding or following upload, exploit, process, file-access, or persistence events.
+  operator_note_tr: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+- id: WEB-017
+  name: Suspicious Web Exploit or Upload With Post-Exploit Potential
+  severity: high
+  score: 88
+  category: network
+  message: Post-exploitation riski taşıyan şüpheli web exploit veya upload isteği tespit edildi
+  summary: İstek; shell upload, traversal, SQLi veya komut çalıştırmaya dönebilecek payload kalıplarını bir araya getiriyor. Bu sinyal, ilk erişimin başarıya dönüşüp sunucu üzerinde komut yürütme veya kalıcılık aşamasına ilerleme riskinin yüksek olduğunu gösterir.
+  operator_note: Hedef URL ve parametreleri, HTTP durum kodunu, ilgili web worker process zincirini ve hemen sonrasında gelen process, dosya erişimi, secret okuma veya persistence sinyallerini birlikte inceleyin.
+  mitre_tactic: TA0001
+  mitre_technique: T1190
+  tags:
+  - web
+  - exploit
+  - webshell
+  - post-exploitation
+  pack: web
+  pack_version: '1.0'
+  condition:
+    source:
+    - apache2
+    - nginx
+    action:
+    - shell_upload
+    - path_traversal
+    - sqli_attempt
+    - http_request
+    fields:
+      __all__:
+      - __any__:
+        - attack_contains_any:
+          - shell_upload
+          - path_traversal
+          - sql_injection
+        - path_decoded_lc_contains_any:
+          - cmd=
+          - exec=
+          - command=
+          - /bin/sh
+          - /bin/bash
+          - ../
+          - /etc/passwd
+          - .php.jpg
+          - .phtml
+          - .jsp
+        - path_lc_contains_any:
+          - '%24%28id%29'
+          - '%60id%60'
+          - '%252e%252e%252f'
+          - .php%00
+          - .php.jpg
+          - .phtml
+          - .jsp
+      - __not__:
+          __any__:
+          - path_decoded_lc_contains_any:
+            - /admin/upload
+            - /admin/media
+            - /wp-admin/
+            - /server-status
+            - /server-info
+            - /health
+            - /healthz
+            - /readyz
+            - /livez
+            - /status
+          - ua_lc_contains_any:
+            - kube-probe
+            - prometheus
+            - elb-healthchecker
+  message_en: Suspicious Web Exploit or Upload With Post-Exploit Potential
+  message_tr: Post-exploitation riski taşıyan şüpheli web exploit veya upload isteği tespit edildi
+  summary_en: This rule highlights suspicious web exploit or upload with post-exploit potential and may indicate suspicious or unauthorized network activity. Review the surrounding context to confirm the impact.
+  summary_tr: İstek; shell upload, traversal, SQLi veya komut çalıştırmaya dönebilecek payload kalıplarını bir araya getiriyor. Bu sinyal, ilk erişimin başarıya dönüşüp sunucu üzerinde komut yürütme veya kalıcılık aşamasına ilerleme riskinin yüksek olduğunu gösterir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding network activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Hedef URL ve parametreleri, HTTP durum kodunu, ilgili web worker process zincirini ve hemen sonrasında gelen process, dosya erişimi, secret okuma veya persistence sinyallerini birlikte inceleyin.

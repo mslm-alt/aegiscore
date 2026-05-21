@@ -1,0 +1,712 @@
+- id: REGEX-001
+  name: Reverse Shell — /dev/tcp
+  severity: critical
+  score: 95
+  message: Reverse shell girişimi tespit edildi (/dev/tcp veya /dev/udp)
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Reverse Shell — /dev/tcp davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: (?:bash|sh|zsh|dash|fish|ksh)\s+(?:-i\s+)?(?:>&|>|<)\s*/dev/(?:tcp|udp)
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - reverse-shell
+  - bash
+  - tcp-redirect
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Reverse Shell — /dev/tcp
+  message_tr: Reverse shell girişimi tespit edildi (/dev/tcp veya /dev/udp)
+  summary_en: This rule highlights Reverse Shell — /dev/tcp when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Reverse Shell — /dev/tcp davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-002
+  name: Base64 Pipe Decode
+  severity: high
+  score: 75
+  message: Base64 encode edilmiş komut çalıştırma girişimi
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Base64 Pipe Decode davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: (?:echo|printf)\s+[A-Za-z0-9+/]{10,}={0,2}\s*\|\s*base64\s+(?:-d|--decode)\s*(?:\|\s*(?:bash|sh|python\w*|perl|ruby|php|exec\b))?|base64\s+(?:-d|--decode)\s*<<<\s*[A-Za-z0-9+/]{10,}={0,2}
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - obfuscation
+  - base64
+  - pipe-decode
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Base64 Pipe Decode
+  message_tr: Base64 encode edilmiş komut çalıştırma girişimi
+  summary_en: This rule highlights Base64 Pipe Decode when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Base64 Pipe Decode davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-003
+  name: Wget/Curl to Pipe
+  severity: high
+  score: 80
+  message: İnternetten script indirip doğrudan çalıştırma
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Wget/Curl to Pipe davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: (?:wget|curl)\s+[^\|]+\|\s*(?:bash|sh|python[23]?|perl|ruby|exec\b)|bash\s+-c\s+"?\$\((?:curl|wget)\b
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - dropper
+  - wget
+  - curl
+  - pipe-exec
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Wget/Curl to Pipe
+  message_tr: İnternetten script indirip doğrudan çalıştırma
+  summary_en: This rule highlights Wget/Curl to Pipe when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Wget/Curl to Pipe davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-004
+  name: SUID Binary Ayarlama
+  severity: critical
+  score: 90
+  message: SUID/SGID bit ayarlama — privilege escalation backdoor
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde SUID Binary Ayarlama davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  pattern: chmod\s+[0-9]*[46][0-9][0-9]\s+
+  mitre_tactic: TA0004
+  mitre_technique: T1548.001
+  tags:
+  - privilege-escalation
+  - suid
+  - sgid
+  - chmod
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: SUID Binary Change
+  message_tr: SUID/SGID bit ayarlama — privilege escalation backdoor
+  summary_en: This rule highlights SUID Binary Ayarlama when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of persistence or privilege escalation.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde SUID Binary Ayarlama davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-005
+  name: SSH Key Injection
+  severity: high
+  score: 85
+  message: SSH authorized_keys dosyasına yazma — backdoor SSH anahtarı
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde SSH Key Injection davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  pattern: (?:>>|>)\s*(?:/root|/home/\S+)/\.ssh/authorized_keys
+  mitre_tactic: TA0003
+  mitre_technique: T1098.004
+  tags:
+  - persistence
+  - ssh
+  - authorized-keys
+  - backdoor
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: SSH Key Injection
+  message_tr: SSH authorized_keys dosyasına yazma — backdoor SSH anahtarı
+  summary_en: This rule highlights SSH Key Injection when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde SSH Key Injection davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: REGEX-006
+  name: Passwd Okuma
+  severity: medium
+  score: 55
+  message: /etc/passwd okunuyor — hesap keşfi olabilir
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Passwd Okuma davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  pattern: (?:cat|more|less|head|tail|strings)\s+/etc/(?:passwd|gshadow|master\.passwd)
+  mitre_tactic: TA0006
+  mitre_technique: T1003.008
+  tags:
+  - credential-access
+  - passwd
+  - file-read
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Passwd File Read
+  message_tr: /etc/passwd okunuyor — hesap keşfi olabilir
+  summary_en: This rule highlights Passwd Okuma when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Passwd Okuma davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-006A
+  name: Shadow Okuma
+  severity: high
+  score: 85
+  message: /etc/shadow okunuyor — credential harvesting
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Shadow Okuma davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  pattern: (?:cat|more|less|head|tail|strings)\s+/etc/shadow
+  mitre_tactic: TA0006
+  mitre_technique: T1003.008
+  tags:
+  - credential-access
+  - shadow
+  - file-read
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Shadow File Read
+  message_tr: /etc/shadow okunuyor — credential harvesting
+  summary_en: This rule highlights Shadow Okuma when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Shadow Okuma davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-007
+  name: Crontab Doğrudan Değiştirme
+  severity: high
+  score: 70
+  message: Crontab veya cron dizini doğrudan değiştirildi
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Crontab Doğrudan Değiştirme davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  pattern: (?:crontab\s+-[ei]|>\s*/etc/cron(?:tab|\.d|\.daily|\.hourly|\.weekly))
+  mitre_tactic: TA0003
+  mitre_technique: T1053.003
+  tags:
+  - persistence
+  - cron
+  - scheduled-task
+  - crontab
+  operator_note: Değiştirilen dosya, servis, cron, kullanıcı veya anahtar artefact’ını; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, process ve network olaylarını kontrol edin.
+  message_en: Direct Crontab Modification
+  message_tr: Crontab veya cron dizini doğrudan değiştirildi
+  summary_en: Direct crontab modification was observed. This may indicate persistence.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Crontab Doğrudan Değiştirme davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the modified file, service, cron entry, user, or key artifact, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, process, and network events.
+  operator_note_tr: Değiştirilen dosya, servis, cron, kullanıcı veya anahtar artefact’ını; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, process ve network olaylarını kontrol edin.
+- id: REGEX-008
+  name: Sudoers Değiştirme
+  severity: critical
+  score: 95
+  message: /etc/sudoers değiştiriliyor — root yetki bypass
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Sudoers Değiştirme davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  pattern: (?:visudo|>\s*/etc/sudoers(?:\.d)?|echo.*>>/etc/sudoers|tee\s+/etc/sudoers)
+  mitre_tactic: TA0004
+  mitre_technique: T1548.003
+  tags:
+  - privilege-escalation
+  - sudoers
+  - sudo
+  - config-tamper
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: sudoers Modification
+  message_tr: /etc/sudoers değiştiriliyor — root yetki bypass
+  summary_en: Sudoers modification was observed. This may indicate privilege escalation or persistence.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Sudoers Değiştirme davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-009
+  name: Python Reverse Shell
+  severity: critical
+  score: 95
+  message: Python ile reverse shell girişimi
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Python Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: python[23]?\s+-c\s+["\x27]?.*(?:socket\s*\.\s*connect|subprocess|pty\.spawn)
+  mitre_tactic: TA0002
+  mitre_technique: T1059.006
+  tags:
+  - execution
+  - reverse-shell
+  - python
+  - socket
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Python Reverse Shell
+  message_tr: Python ile reverse shell girişimi
+  summary_en: This rule highlights Python Reverse Shell when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Python Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-010
+  name: Perl Reverse Shell
+  severity: critical
+  score: 95
+  message: Perl ile reverse shell girişimi
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Perl Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: perl\s+-e\s+["\x27]?.*(?:IO::Socket|exec\s*/bin/(?:bash|sh))
+  mitre_tactic: TA0002
+  mitre_technique: T1059.006
+  tags:
+  - execution
+  - reverse-shell
+  - perl
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Perl Reverse Shell
+  message_tr: Perl ile reverse shell girişimi
+  summary_en: This rule highlights Perl Reverse Shell when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Perl Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-011
+  name: PHP Reverse Shell
+  severity: critical
+  score: 95
+  message: PHP CLI ile reverse shell girişimi
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde PHP Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: php\s+-r\s+["\x27]?.*(?:fsockopen|popen|exec|system|passthru)
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - reverse-shell
+  - php
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: PHP Reverse Shell
+  message_tr: PHP CLI ile reverse shell girişimi
+  summary_en: This rule highlights PHP Reverse Shell when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde PHP Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-012
+  name: Ruby Reverse Shell
+  severity: critical
+  score: 90
+  message: Ruby ile reverse shell girişimi
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Ruby Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: ruby\s+-rsocket\s+-e|ruby\s+-e\s+["\x27]?.*TCPSocket
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - reverse-shell
+  - ruby
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Ruby Reverse Shell
+  message_tr: Ruby ile reverse shell girişimi
+  summary_en: This rule highlights Ruby Reverse Shell when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Ruby Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-013
+  name: Netcat Reverse Shell
+  severity: critical
+  score: 95
+  message: Netcat ile reverse shell bağlantısı
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Netcat Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: (?:nc|netcat|ncat)\s+.*(?:-(?:e|c)\s*(?:/bin/)?(?:bash|sh|dash)|-(?:e|c)\s+/bin)
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - reverse-shell
+  - netcat
+  - nc
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Netcat Reverse Shell
+  message_tr: Netcat ile reverse shell bağlantısı
+  summary_en: This rule highlights Netcat Reverse Shell when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Netcat Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-014
+  name: Socat Reverse Shell
+  severity: critical
+  score: 90
+  message: socat ile reverse shell veya şifreli tünel
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Socat Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: socat\s+.*(?:EXEC:|SYSTEM:|TCP(?:4)?(?:-LISTEN|-CONNECT)?|OPENSSL:).*(?:/bin/(?:bash|sh)|pty)
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - reverse-shell
+  - socat
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Socat Reverse Shell
+  message_tr: socat ile reverse shell veya şifreli tünel
+  summary_en: This rule highlights Socat Reverse Shell when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Socat Reverse Shell davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-015
+  name: Bash TCP Redirect
+  severity: critical
+  score: 95
+  message: Bash ile TCP yönlendirme — reverse shell varyantı
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Bash TCP Redirect davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: exec\s+\d+<>\s*/dev/tcp/|bash\s+-c\s+["\x27]?.*exec\s+\d+<>/dev/tcp
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - reverse-shell
+  - bash
+  - tcp-redirect
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Bash TCP Redirect
+  message_tr: Bash ile TCP yönlendirme — reverse shell varyantı
+  summary_en: This rule highlights Bash TCP Redirect when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Bash TCP Redirect davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-016
+  name: Hex Encoded Command
+  severity: high
+  score: 80
+  message: Hex kodlanmış komut çalıştırma — IDS atlatma
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Hex Encoded Command davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: (?:\\x[0-9a-fA-F]{2}){5,}
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - obfuscation
+  - hex-encode
+  - evasion
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Hex Encoded Command
+  message_tr: Hex kodlanmış komut çalıştırma — IDS atlatma
+  summary_en: This rule highlights Hex Encoded Command when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Hex Encoded Command davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-017
+  name: eval ile Dinamik Kod
+  severity: high
+  score: 80
+  message: eval ile dinamik kod yürütme — obfuscation zinciri
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde eval ile Dinamik Kod davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: eval\s*\(\s*(?:base64|gzinflate|str_rot13|gzdecode|rawurldecode|hex2bin)
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - obfuscation
+  - eval
+  - dynamic-code
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Dynamic Code via eval
+  message_tr: eval ile dinamik kod yürütme — obfuscation zinciri
+  summary_en: This rule highlights eval ile Dinamik Kod when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde eval ile Dinamik Kod davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-018
+  name: Çift Base64 Encode
+  severity: high
+  score: 85
+  message: Çift katmanlı base64 encode — gelişmiş obfuscation
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Çift Base64 Encode davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: base64\s+-d\s*\|\s*base64\s+-d
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - obfuscation
+  - base64
+  - double-encode
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Double Base64 Encoding
+  message_tr: Çift katmanlı base64 encode — gelişmiş obfuscation
+  summary_en: Double Base64 encoding was observed. This may indicate obfuscated command execution.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Çift Base64 Encode davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-019
+  name: Auth Log Temizleme
+  severity: critical
+  score: 99
+  message: Auth veya güvenlik logu silindi/temizlendi — iz örtme
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Auth Log Temizleme davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  pattern: (?:>\s*|truncate\s+-s\s*0\s+|shred\s+)(?:/var/log/auth\.log|/var/log/secure|/var/log/messages|/var/log/syslog)
+  mitre_tactic: TA0005
+  mitre_technique: T1070.002
+  tags:
+  - defense-evasion
+  - log-clear
+  - auth-log
+  - indicator-removal
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: Auth Log Clearing
+  message_tr: Auth veya güvenlik logu silindi/temizlendi — iz örtme
+  summary_en: This rule highlights Auth Log Temizleme when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Auth Log Temizleme davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: REGEX-020
+  name: Bash History Devre Dışı
+  severity: high
+  score: 80
+  message: Bash history kaydı devre dışı bırakıldı — iz örtme
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Bash History Devre Dışı davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  pattern: HISTFILE\s*=\s*/dev/null|unset\s+HISTFILE|HISTSIZE\s*=\s*0
+  mitre_tactic: TA0005
+  mitre_technique: T1562.003
+  tags:
+  - defense-evasion
+  - history-disable
+  - bash-history
+  - impair-logging
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: Bash History Disabled
+  message_tr: Bash history kaydı devre dışı bırakıldı — iz örtme
+  summary_en: Bash history was disabled or bypassed. This may indicate defense evasion.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Bash History Devre Dışı davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: REGEX-021
+  name: Audit Kural Silme
+  severity: critical
+  score: 95
+  message: auditd kuralları temizlendi — denetim blind spot oluşturuluyor
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Audit Kural Silme davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  pattern: auditctl\s+-D|auditctl\s+--delete-all|auditctl\s+-e\s+0
+  mitre_tactic: TA0005
+  mitre_technique: T1562.001
+  tags:
+  - defense-evasion
+  - audit
+  - auditctl
+  - impair-defenses
+  operator_note: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+  message_en: Audit Rule Removal
+  message_tr: auditd kuralları temizlendi — denetim blind spot oluşturuluyor
+  summary_en: Audit rule removal was observed. This may indicate reduced visibility or defense evasion.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Audit Kural Silme davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the modified service, log, binary, or security control, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, persistence, exfiltration, or process events.
+  operator_note_tr: Değiştirilen servis, log, binary veya güvenlik kontrolünü; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, persistence, exfil veya process olaylarını kontrol edin.
+- id: REGEX-022
+  name: Şifre Dosyası Grep
+  severity: high
+  score: 80
+  message: Sistemde şifre içerebilecek dosyalar aranıyor — credential harvesting
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Şifre Dosyası Grep davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  pattern: grep\s+-(?:r|R)\s+.*(?:password|passwd|secret|api.?key)\s+/(?:etc|home|var|opt)
+  mitre_tactic: TA0006
+  mitre_technique: T1003.008
+  tags:
+  - credential-access
+  - passwd
+  - shadow
+  - grep
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Password File Grep
+  message_tr: Sistemde şifre içerebilecek dosyalar aranıyor — credential harvesting
+  summary_en: A command searched password-related files. This may indicate credential access.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Şifre Dosyası Grep davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-023
+  name: SSH Özel Anahtar Erişimi
+  severity: high
+  score: 85
+  message: SSH özel anahtarı okunuyor — lateral movement kimlik bilgisi
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde SSH Özel Anahtar Erişimi davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  pattern: cat\s+(?:/root|/home/\S+)/\.ssh/(?:id_rsa|id_ed25519|id_ecdsa|id_dsa)(?:\s|$)
+  mitre_tactic: TA0006
+  mitre_technique: T1552.004
+  tags:
+  - credential-access
+  - ssh-key
+  - private-key
+  - file-search
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: SSH Private Key Access
+  message_tr: SSH özel anahtarı okunuyor — lateral movement kimlik bilgisi
+  summary_en: Access to an SSH private key was observed. This may indicate credential access.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde SSH Özel Anahtar Erişimi davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-024
+  name: AWS/Cloud Kimlik Bilgisi Arama
+  severity: high
+  score: 85
+  message: Cloud kimlik bilgileri aranıyor — credential harvesting
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde AWS/Cloud Kimlik Bilgisi Arama davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  pattern: cat\s+(?:~|/root|/home/\S+)/\.aws/credentials
+  mitre_tactic: TA0006
+  mitre_technique: T1552.001
+  tags:
+  - credential-access
+  - cloud-credentials
+  - aws
+  - credential-file
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: AWS/Cloud Credential Search
+  message_tr: Cloud kimlik bilgileri aranıyor — credential harvesting
+  summary_en: This rule highlights AWS/Cloud Kimlik Bilgisi Arama when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde AWS/Cloud Kimlik Bilgisi Arama davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-025
+  name: SSH ProxyJump Zincirleme
+  severity: high
+  score: 75
+  message: SSH ProxyJump ile zincirleme bağlantı — lateral movement
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde SSH ProxyJump Zincirleme davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  pattern: ssh\s+.*(?:-J\s+|-o\s+ProxyJump=|-o\s+ProxyCommand=)
+  mitre_tactic: TA0008
+  mitre_technique: T1021.004
+  tags:
+  - lateral-movement
+  - ssh
+  - proxyjump
+  - pivot
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: Chained SSH ProxyJump
+  message_tr: SSH ProxyJump ile zincirleme bağlantı — lateral movement
+  summary_en: This rule highlights SSH ProxyJump Zincirleme when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde SSH ProxyJump Zincirleme davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: REGEX-025A
+  name: SSH Tunnel with Dynamic or Reverse Forward
+  severity: high
+  score: 82
+  message: SSH ile şüpheli tunnel veya port-forward kullanımı
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde SSH Tunnel with Dynamic or Reverse Forward davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: ssh\s+.*(?:\s-D\s+\d+|\s-R\s+(?:0\.0\.0\.0:)?\d+:\S+|\s-L\s+0\.0\.0\.0:\d+:\S+|GatewayPorts=yes|UserKnownHostsFile=/dev/null|StrictHostKeyChecking=no)
+  mitre_tactic: TA0011
+  mitre_technique: T1572
+  tags:
+  - command-and-control
+  - ssh-tunnel
+  - port-forward
+  - covert-channel
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: SSH Tunnel with Dynamic or Reverse Forward
+  message_tr: SSH ile şüpheli tunnel veya port-forward kullanımı
+  summary_en: This rule highlights SSH Tunnel with Dynamic or Reverse Forward when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde SSH Tunnel with Dynamic or Reverse Forward davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-026
+  name: scp/rsync Şüpheli Transfer
+  severity: high
+  score: 75
+  message: scp/rsync ile geçici dizinden dosya transferi — araç dağıtımı veya exfil
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde scp/rsync Şüpheli Transfer davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  pattern: (?:scp|rsync)\s+.*(?:/tmp/|/dev/shm/|/var/tmp/).*(?:\d{1,3}\.){3}\d{1,3}
+  mitre_tactic: TA0010
+  mitre_technique: T1048
+  tags:
+  - exfiltration
+  - scp
+  - rsync
+  - outbound-transfer
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Suspicious scp/rsync Transfer
+  message_tr: scp/rsync ile geçici dizinden dosya transferi — araç dağıtımı veya exfil
+  summary_en: A suspicious scp or rsync transfer was observed. This may indicate data exfiltration.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde scp/rsync Şüpheli Transfer davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-027
+  name: Kernel Exploit Araçları
+  severity: critical
+  score: 95
+  message: Bilinen kernel exploit aracı veya CVE istismarı tespit edildi
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Kernel Exploit Araçları davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  pattern: (?:dirtycow|dirtypipe|pwnkit|CVE-20\d\d-\d+\s|raptor_udf|linux_exploit)
+  mitre_tactic: TA0004
+  mitre_technique: T1068
+  tags:
+  - privilege-escalation
+  - kernel-exploit
+  - exploit-tool
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Kernel Exploit Tools
+  message_tr: Bilinen kernel exploit aracı veya CVE istismarı tespit edildi
+  summary_en: Kernel exploit tooling was observed. This may indicate privilege escalation attempts.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Kernel Exploit Araçları davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-028
+  name: /proc/mem Erişimi
+  severity: critical
+  score: 90
+  message: Kernel belleğine doğrudan erişim — rootkit veya process injection
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde /proc/mem Erişimi davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  pattern: (?:cat|dd|strings|gdb)\s+/proc/(?:kcore|kmem|self/mem|\d+/mem)
+  mitre_tactic: TA0004
+  mitre_technique: T1055
+  tags:
+  - privilege-escalation
+  - process-injection
+  - proc-mem
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: /proc/mem Access
+  message_tr: Kernel belleğine doğrudan erişim — rootkit veya process injection
+  summary_en: Access to /proc/mem was observed. This may indicate credential access or privilege escalation.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde /proc/mem Erişimi davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-029
+  name: LD_PRELOAD Injection
+  severity: critical
+  score: 95
+  message: LD_PRELOAD ile geçici dizinden kütüphane injection — rootkit veya stealer
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde LD_PRELOAD Injection davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  pattern: LD_PRELOAD\s*=\s*(?:/tmp/|/dev/shm/|/var/tmp/|\./)
+  mitre_tactic: TA0003
+  mitre_technique: T1574.006
+  tags:
+  - persistence
+  - ld-preload
+  - hijack-execution-flow
+  operator_note: Değiştirilen dosya, servis, cron, kullanıcı veya anahtar artefact’ını; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, process ve network olaylarını kontrol edin.
+  message_en: LD_PRELOAD Injection
+  message_tr: LD_PRELOAD ile geçici dizinden kütüphane injection — rootkit veya stealer
+  summary_en: This rule highlights LD_PRELOAD Injection when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of persistence or privilege escalation.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde LD_PRELOAD Injection davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the modified file, service, cron entry, user, or key artifact, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, process, and network events.
+  operator_note_tr: Değiştirilen dosya, servis, cron, kullanıcı veya anahtar artefact’ını; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, process ve network olaylarını kontrol edin.
+- id: REGEX-030
+  name: Fileless Execution (memfd)
+  severity: critical
+  score: 95
+  message: Bellekte dosyasız yürütme — anti-forensics saldırısı
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Fileless Execution (memfd) davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: memfd_create|/proc/self/fd/\d+.*exec
+  mitre_tactic: TA0002
+  mitre_technique: T1620
+  tags:
+  - execution
+  - fileless
+  - memfd
+  - reflective-load
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Fileless Execution (memfd)
+  message_tr: Bellekte dosyasız yürütme — anti-forensics saldırısı
+  summary_en: This rule highlights Fileless Execution (memfd) when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Fileless Execution (memfd) davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-031
+  name: mkfifo Reverse Shell Pattern
+  severity: critical
+  score: 95
+  category: execution
+  message: mkfifo ile reverse shell kurulumu tespit edildi
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde mkfifo Reverse Shell Pattern davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: mkfifo\s+\S+\s*;\s*(?:nc|ncat|bash|sh|python|perl)
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - reverse-shell
+  - mkfifo
+  - named-pipe
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: mkfifo Reverse Shell Pattern
+  message_tr: mkfifo ile reverse shell kurulumu tespit edildi
+  summary_en: This rule highlights mkfifo Reverse Shell Pattern when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde mkfifo Reverse Shell Pattern davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: REGEX-032
+  name: Netcat Listener / Shell Spawn
+  severity: critical
+  score: 90
+  category: execution
+  message: nc/netcat ile shell spawn veya listener tespit edildi
+  summary: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Netcat Listener / Shell Spawn davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  pattern: nc\s+(?:-l|-e\s*/bin/(?:bash|sh)|.*\s+-e\s*/bin)
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - reverse-shell
+  - netcat
+  - listener
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Netcat Listener / Shell Spawn
+  message_tr: nc/netcat ile shell spawn veya listener tespit edildi
+  summary_en: This rule highlights Netcat Listener / Shell Spawn when the defined conditions match an attack or anomaly pattern. This signal indicates a risk of abuse or progression of an attack chain.
+  summary_tr: Bu kural, tanımlı koşullar saldırı veya anomali kalıbıyla eşleştiğinde Netcat Listener / Shell Spawn davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.

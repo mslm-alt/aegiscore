@@ -1,0 +1,113 @@
+- id: PKG-001
+  name: Attack Tool Installed
+  severity: critical
+  score: 90
+  category: process
+  message: Saldırı aracı kuruldu
+  summary: Bu kural, normalize edilen olayda `attack_tool_installed` aksiyonu gözlendiğinde Attack Tool Installed davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  platform:
+  - debian
+  condition:
+    source: dpkg
+    action: package_install
+    fields:
+      package_contains_any:
+      - hydra
+      - medusa
+      - john
+      - hashcat
+      - metasploit-framework
+      - msfconsole
+      - sqlmap
+      - nikto
+      - dirb
+      - gobuster
+      - wfuzz
+      - ettercap
+      - dsniff
+      - arpspoof
+      - mimikatz
+      - crackmapexec
+      - impacket
+      - beef-xss
+      - setoolkit
+      - masscan
+      - zmap
+      - rustscan
+  mitre_tactic: TA0002
+  mitre_technique: T1072
+  tags:
+  - execution
+  - software-deployment-tools
+  pack: core
+  pack_version: '1.1'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Attack Tool Installed
+  message_tr: Saldırı aracı kuruldu
+  summary_en: This rule highlights Attack Tool Installed when the normalized event shows the `attack_tool_installed` action. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olayda `attack_tool_installed` aksiyonu gözlendiğinde Attack Tool Installed davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PKG-002
+  name: Security Tool Removed
+  severity: critical
+  score: 95
+  category: process
+  message: Güvenlik aracı kaldırıldı (defense evasion)
+  summary: Bu kural, normalize edilen olayda `security_tool_removed` aksiyonu gözlendiğinde Security Tool Removed davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  platform:
+  - debian
+  condition:
+    source: dpkg
+    action: package_remove
+    fields:
+      package_contains_any:
+      - auditd
+      - ufw
+      - fail2ban
+      - apparmor
+      - aide
+      - tripwire
+      - rkhunter
+      - chkrootkit
+      - clamav
+  mitre_tactic: TA0005
+  mitre_technique: T1562.001
+  tags:
+  - defense-evasion
+  - disable-security-tools
+  pack: core
+  pack_version: '1.1'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Security Tool Removed
+  message_tr: Güvenlik aracı kaldırıldı (defense evasion)
+  summary_en: This rule highlights Security Tool Removed when the normalized event shows the `security_tool_removed` action. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, normalize edilen olayda `security_tool_removed` aksiyonu gözlendiğinde Security Tool Removed davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PKG-003
+  name: Package Purged
+  severity: medium
+  score: 40
+  category: process
+  message: Paket tamamen silindi (purge)
+  summary: Bu kural, normalize edilen olayda `pkg_purge` aksiyonu gözlendiğinde Package Purged davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  platform:
+  - debian
+  condition:
+    source: dpkg
+    action: pkg_purge
+  mitre_tactic: TA0005
+  mitre_technique: T1070
+  tags:
+  - defense-evasion
+  - indicator-removal
+  pack: core
+  pack_version: '1.1'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Package Purged
+  message_tr: Paket tamamen silindi (purge)
+  summary_en: This rule highlights Package Purged when the normalized event shows the `pkg_purge` action. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, normalize edilen olayda `pkg_purge` aksiyonu gözlendiğinde Package Purged davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.

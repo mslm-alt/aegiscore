@@ -1,0 +1,447 @@
+siem:
+  name: LinuxSIEM
+  version: 16.0.0
+  log_level: WARNING
+sources:
+  # Distro-aware startup common paths'i runtime'da çözer.
+  # İndirildikten sonra config'in taşınabilir kalması için distroya bağlı
+  # path varsayılanları boş bırakılır; eksik kaynaklar runtime'da güvenle kapanır.
+  auth_log:
+    enabled: true
+    path: ""
+    type: syslog
+  syslog:
+    enabled: true
+    path: ""
+    type: syslog
+  journald:
+    enabled: true
+    type: journald
+    units: []
+  ufw:
+    enabled: true
+    path: ""
+    type: syslog
+  apache2:
+    enabled: true
+    path: /var/log/apache2
+    type: weblog
+  nginx:
+    enabled: true
+    path: /var/log/nginx
+    type: weblog
+  mysql:
+    enabled: true
+    path: ""
+    type: dblog
+  postgresql:
+    enabled: true
+    path: ""
+    type: dblog
+  mail:
+    enabled: false
+    path: ""
+    # /var/log/maillog alias'ı da normalize edilir; source adı korunur
+    type: syslog
+  openvpn:
+    enabled: false
+    path: ""
+    type: syslog
+  auditd:
+    enabled: true
+    path: ""
+    type: auditd
+  dpkg:
+    enabled: true
+    path: ""
+    type: dpkg
+  dns:
+    enabled: true
+    path: ""
+    type: dns
+  wtmp:
+    enabled: false
+    path: /var/log/wtmp
+    type: utmp
+  btmp:
+    enabled: false
+    path: /var/log/btmp
+    type: utmp
+monitor:
+  interval_seconds: 30
+  systemd_creation_only: true
+  watched_files:
+  - /etc/passwd
+  - /etc/shadow
+  - /etc/sudoers
+  - /etc/ssh/sshd_config
+  - /etc/hosts
+  - /etc/crontab
+  - /root/.ssh/authorized_keys
+storage:
+  models_dir: data/models
+  logs_dir: data/logs
+retention:
+  events_recent_days: 14
+  alerts_retention_days: 90
+  risk_history_days: 30
+  dedup_cache_hours: 48
+  maintenance_interval: 3600
+auth_shadow_dedup:
+  # Stable source class'lar: auth_log (journald/auth.log/secure), accounting (wtmp/btmp)
+  # Mevcut kapsam: sadece accounting login_success/login_failed shadow copy suppression
+  # İleriye dönük çalışır; daha sonra gelen yüksek öncelikli peer için retroaktif drop yapmaz
+  enabled: true
+  window_seconds: 5
+# Runtime lifecycle notları:
+# startup_mode = fresh_start | clean_restart | crash_restore
+# last_shutdown_clean=false ise bir sonraki açılış crash_restore olur
+# runtime_restore_health.degraded=true ise bozuk/eksik runtime component state atlanıp güvenli varsayılanlarla devam edilir
+# Telemetry closure notları:
+# identity/vpn/mail/firewall context compact nested bag'lerde tutulur
+# faillog / lastlog snapshot kaynakları bilinçli no-go; append-only telemetry sayılmaz
+# Ops/status notları:
+# --metrics runtime sağlık sinyallerini ve shadow dedup sayaçlarını gösterir
+# kısa coverage özeti: identity, vpn, mail, firewall, snapshot_no_go
+# Closure note:
+# ürün scope'u log-centric kalır; canlı /proc benzeri local collector eklenmez
+# Operator checklist:
+# 1) scripts/preflight.sh çalıştır  2) gerekli log/journal erişimini doğrula
+# 3) distroya uygun source'ları gerektiği kadar enable et  4) sonra servisi başlat
+# Known limits:
+# tek host kapsamı; sadece mevcut log/journal/event kayıtlarını okur
+# eksik veya erişilemeyen log kaynakları runtime'da güvenle kapanır, sentetik telemetry üretilmez
+detection:
+  rules_source: yaml
+  rules_dir: rules
+  rules:
+    enabled: true
+  regex:
+    enabled: true
+  ioc:
+    enabled: true
+    ioc_file: config/ioc_list.txt
+  threshold:
+    enabled: true
+    ssh_fail_window: 60
+    ssh_fail_count: 5
+    ssh_flood_count: 20
+  first_seen:
+    enabled: true
+    track_fields:
+    - user
+    - src_ip
+    - user_ip_pair
+ml:
+  bootstrap_scan_mode: auto
+  active_decision_layer:
+    enabled: false
+    mode: audit_only
+    no_action_contract: true
+  family:
+    ML-AUTH:
+      default_status: readiness_blocked
+      phase_gate: PHASE_2
+      runtime_min_events: 2000
+      normal_label_min: 100
+      suspicious_label_min: 50
+      time_features_enabled: true
+      no_action_contract: true
+    ML-SUDO:
+      default_status: readiness_blocked
+      phase_gate: PHASE_2
+      runtime_min_events: 500
+      normal_label_min: 100
+      suspicious_label_min: 50
+      time_features_enabled: true
+      no_action_contract: true
+    ML-PROC:
+      default_status: readiness_blocked
+      phase_gate: PHASE_1
+      runtime_min_events: 10000
+      normal_label_min: 300
+      suspicious_label_min: 150
+      time_features_enabled: true
+      no_action_contract: true
+    ML-SERVICE:
+      default_status: readiness_blocked
+      phase_gate: PHASE_2
+      runtime_min_events: 1000
+      normal_label_min: 100
+      suspicious_label_min: 50
+      time_features_enabled: true
+      no_action_contract: true
+    ML-NET:
+      default_status: readiness_blocked
+      phase_gate: PHASE_1
+      runtime_min_events: 5000
+      normal_label_min: 200
+      suspicious_label_min: 100
+      time_features_enabled: true
+      no_action_contract: true
+    ML-SEQ:
+      default_status: readiness_blocked
+      phase_gate: PHASE_3
+      runtime_min_events: 1000
+      normal_label_min: 150
+      suspicious_label_min: 100
+      time_features_enabled: true
+      no_action_contract: true
+    ML-USER:
+      default_status: readiness_blocked
+      phase_gate: PHASE_2
+      runtime_min_events: 1000
+      normal_label_min: 200
+      suspicious_label_min: 80
+      time_features_enabled: true
+      no_action_contract: true
+    ML-HOST:
+      default_status: readiness_blocked
+      phase_gate: PHASE_2
+      runtime_min_events: 5000
+      normal_label_min: 300
+      suspicious_label_min: 100
+      time_features_enabled: true
+      no_action_contract: true
+    ML-DBAUTH:
+      default_status: readiness_blocked
+      phase_gate: PHASE_2
+      runtime_min_events: 300
+      normal_label_min: 80
+      suspicious_label_min: 40
+      time_features_enabled: true
+      no_action_contract: true
+    ML-DNS:
+      default_status: readiness_blocked
+      phase_gate: PHASE_2
+      runtime_min_events: 3000
+      normal_label_min: 150
+      suspicious_label_min: 60
+      time_features_enabled: true
+      no_action_contract: true
+    ML-WEBPOST:
+      default_status: readiness_blocked
+      phase_gate: PHASE_3
+      runtime_min_events: 2000
+      normal_label_min: 150
+      suspicious_label_min: 80
+      time_features_enabled: true
+      no_action_contract: true
+    ML-IMPACT:
+      default_status: readiness_blocked
+      phase_gate: PHASE_3
+      runtime_min_events: 500
+      normal_label_min: 80
+      suspicious_label_min: 60
+      time_features_enabled: true
+      no_action_contract: true
+  instant:
+    enabled: true
+    contamination: 0.05
+    n_estimators: 100
+  pca:
+    enabled: true
+    n_components: 10
+    batch_size: 50
+delayed_learning:
+  default_delay_seconds: 7200
+  lab_delay_seconds: 5400
+risk:
+  decay:
+    enabled: true
+    half_life: 3600
+  cooldown:
+    default_seconds: 300
+alert:
+  output:
+    file: true
+    file_path: data/alerts.jsonl
+phase_profile: auto  # otomatik: server / desktop / lab — elle geçersiz kılmak için değiştir
+phases:
+  server:
+    p1_min_events: 500
+    p1_min_hours: 2.0
+    p1_min_sources: 2
+    p1_max_dup_rate: 0.2
+    p2_min_events: 10000
+    p2_min_days: 3.0
+    p2_min_users: 2
+    p2_min_sources: 3
+    p2_min_user_events: 100
+    p2_min_continuity: 0.7
+    p2_max_dup_rate: 0.1
+    p3_min_events: 30000
+    p3_min_days: 10.0
+    p3_min_users: 3
+    p3_min_sources: 3
+    p3_min_user_events: 300
+    p3_min_continuity: 0.8
+    p3_max_dup_rate: 0.05
+  desktop:
+    p1_min_events: 500
+    p1_min_hours: 1.0
+    p1_min_sources: 2
+    p1_max_dup_rate: 0.2
+    p2_min_events: 15000
+    p2_min_days: 2.0
+    p2_min_users: 1
+    p2_min_sources: 2
+    p2_min_user_events: 100
+    p2_min_continuity: 0.6
+    p2_max_dup_rate: 0.1
+    p3_min_events: 40000
+    p3_min_days: 5.0
+    p3_min_users: 2
+    p3_min_sources: 3
+    p3_min_user_events: 300
+    p3_min_continuity: 0.7
+    p3_max_dup_rate: 0.05
+  lab:
+    p1_min_events: 500
+    p1_min_hours: 0.5
+    p1_min_sources: 1
+    p1_max_dup_rate: 0.3
+    p2_min_events: 20000
+    p2_min_days: 1.0
+    p2_min_users: 1
+    p2_min_sources: 2
+    p2_min_user_events: 50
+    p2_min_continuity: 0.5
+    p2_max_dup_rate: 0.15
+    p3_min_events: 50000
+    p3_min_days: 3.0
+    p3_min_users: 1
+    p3_min_sources: 2
+    p3_min_user_events: 200
+    p3_min_continuity: 0.6
+    p3_max_dup_rate: 0.1
+llm:
+  enabled: false
+  backend: mock
+  model: ''
+  api_key: ''
+  base_url: ''
+  language: tr
+  max_tokens: 512
+  timeout_seconds: 15
+  cache_ttl: 300
+  auto_incident_summary: false
+risk_weights:
+  rule: 1.0
+  ioc: 1.5
+  correlation: 1.2
+  ml: 0.7
+  baseline: 0.8
+  monitor: 0.6
+  threshold: 0.8
+  freq_anomaly: 0.25
+# Lean defaults:
+# default_on: rules / ioc / regex / threshold / instant_ml / core baselines / FIM / process+network monitor
+# default_low_impact: freq/day/source context multipliers, monitor risk weight
+# prod_lean_profile: mevcut varsayılanlar
+# lab_full_profile:
+#   monitor.systemd_creation_only: false
+#   risk_weights.monitor: 0.8
+#   risk_weights.freq_anomaly: 0.6
+alert_policy:
+  min_risk_for_alert: 40
+  min_risk_for_incident: 60
+  score_to_severity:
+    critical: 90
+    high: 70
+    medium: 50
+    low: 0
+monitor_policy:
+  process_risk:
+    low_risk:
+    - firefox
+    - chrome
+    - chromium
+    - apt
+    - apt-get
+    - dpkg
+    - snap
+    - snapd
+    - update-notifier
+    - vmtoolsd
+    - gnome-software
+    trusted:
+    - ssh
+    - sshd
+    - rsync
+    - systemd
+    - NetworkManager
+    high_risk_net:
+    - bash
+    - sh
+    - python3
+    - python
+    - perl
+    - ruby
+    - php
+  outbound_cooldown:
+    browser_seconds: 120
+    curl_seconds: 60
+    proc_seconds: 300
+ml_control:
+  pause_on_incident: true
+  auto_resume: true
+  clean_window_hours: 2.0
+  excluded_sources: []
+database:
+  type: postgresql
+  url: ''
+threat_intel:
+  enabled: true
+  update_interval_hours: 24
+  fetch_timeout_seconds: 20
+  max_iocs_per_feed: 50000
+  otx_api_key: ''
+abuseipdb:
+  enrich_alert_ips: true
+  query_dst_ip: true
+  max_age_days: 90
+  timeout_seconds: 10
+  cache_ttl_seconds: 3600
+  rate_limit_backoff_seconds: 300
+  suggestion_min_abuse_score: 25
+  suggestion_min_reports: 1
+  always_suggest_for_high_severity: false
+ip_blocking:
+  enabled: true
+  # `auto`: firewalld -> ufw -> nftables -> iptables tespit sırası.
+  # Dry-run/plan için belirli bir backend adı da verilebilir.
+  default_backend: auto
+  allowlist: []
+  # Gerçek apply/unblock firewalld ve ufw için desteklidir.
+  # auto: tespit edilen real-apply destekli backend'i kullanır.
+  # nftables/iptables bu seviyede fail-safe reddedilir.
+  real_backend: auto
+labels:
+  dir: data/labels
+  # Dağıtım başına kategori eşikleri (araştırma bazlı)
+  # Debian: 50  — yaygın, log çeşitliliği yüksek, Platt ile başlar
+  # RHEL:   60  — auditd detaylı, saldırı varyasyonu fazla
+  # SUSE:   45  — daha az çeşitlilik, hızlı dolar
+  thresholds:
+    debian:   50
+    ubuntu:   50
+    rhel:     60
+    centos:   60
+    fedora:   55
+    suse:     45
+    opensuse: 45
+    unknown:  50
+  # Platt → isotonic geçiş eşiği (scikit-learn: ≥1000 isotonic daha iyi)
+  isotonic_threshold: 1000
+  # Otomatik etiket minimum güven skoru
+  auto_label_min_confidence: 0.70
+  # Ağırlık geçiş çarpanları
+  synthetic_retire_multiplier: 2.0
+  historic_retire_multiplier: 3.0
+  # Geçmiş log tarama
+  historic_scan:
+    enabled: true
+    max_age_days: 30
+    max_file_mb: 500
+    max_total_mb: 2048

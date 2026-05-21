@@ -1,0 +1,844 @@
+- id: NET-001
+  name: SSH from Low Port
+  severity: low
+  score: 30
+  category: network
+  message: Düşük numaralı port'tan SSH bağlantısı
+  summary: SSH oturumu alışılmadık derecede düşük bir kaynak porttan geldi.
+  operator_note: Kaynağın ağ cihazı/health-check mi yoksa sıradışı uzak erişim mi olduğunu doğrulayın.
+  cooldown: 300
+  cooldown_entity: ip_user
+  condition:
+    action: ssh_login
+    fields:
+      src_port_lt: 1024
+  mitre_tactic: TA0011
+  mitre_technique: T1571
+  tags:
+  - command-and-control
+  - non-standard-port
+  - ssh
+  - remote-access
+  - network-abuse
+  pack: core
+  pack_version: '1.0'
+  message_en: SSH from Low Port
+  message_tr: Düşük numaralı port'tan SSH bağlantısı
+  summary_en: This rule highlights ssh from low port and may indicate suspicious or unauthorized network activity. Review the surrounding context to confirm the impact.
+  summary_tr: SSH oturumu alışılmadık derecede düşük bir kaynak porttan geldi.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding network activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kaynağın ağ cihazı/health-check mi yoksa sıradışı uzak erişim mi olduğunu doğrulayın.
+- id: FW-001
+  name: Firewall Block Or Reject
+  severity: low
+  score: 25
+  category: network
+  message: Firewall bir trafiği engelledi veya reddetti
+  summary: Düşük gürültülü temel ağ savunma sinyali; aynı kaynakta takip eden erişim/kimlik olayları ile birlikte değerlendirin.
+  operator_note: Karar türünü, kaynak IP'yi ve kısa süre sonraki auth/vpn başarılarını kontrol edin.
+  cooldown: 120
+  cooldown_entity: firewall_flow
+  condition:
+    action:
+    - firewall_block
+    - firewall_reject
+  mitre_tactic: TA0043
+  mitre_technique: T1595.001
+  tags:
+  - reconnaissance
+  - scanning-ip-blocks
+  - firewall
+  - block
+  - reject
+  - network-defense
+  - access-abuse
+  pack: core
+  pack_version: '1.0'
+  message_en: Firewall Block Or Reject
+  message_tr: Firewall bir trafiği engelledi veya reddetti
+  summary_en: This rule highlights firewall block or reject and may indicate suspicious or unauthorized network activity. Review the surrounding context to confirm the impact.
+  summary_tr: Düşük gürültülü temel ağ savunma sinyali; aynı kaynakta takip eden erişim/kimlik olayları ile birlikte değerlendirin.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding network activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Karar türünü, kaynak IP'yi ve kısa süre sonraki auth/vpn başarılarını kontrol edin.
+- id: FW-ICMP-001
+  name: ICMP Blocked Or Rejected
+  severity: medium
+  score: 45
+  category: network
+  message: Firewall ICMP trafiğini engelledi veya reddetti
+  summary: Log tabanlı ICMP/ping görünürlüğü; tarama veya keşif bağlamında değerlendirin.
+  operator_note: Kaynak IP'yi, hedef IP'yi ve kısa sürede tekrar eden ICMP deny olaylarını kontrol edin.
+  cooldown: 120
+  cooldown_entity: ip_user
+  condition:
+    action:
+    - firewall_block
+    - firewall_reject
+    fields:
+      protocol_contains_any:
+      - ICMP
+      - icmp
+  mitre_tactic: TA0043
+  mitre_technique: T1595.001
+  tags:
+  - reconnaissance
+  - ping
+  - icmp
+  - firewall
+  - network-defense
+  pack: core
+  pack_version: '1.0'
+  message_en: ICMP Blocked Or Rejected
+  message_tr: Firewall ICMP trafiğini engelledi veya reddetti
+  summary_en: This rule highlights icmp blocked or rejected and may indicate suspicious or unauthorized network activity. Review the surrounding context to confirm the impact.
+  summary_tr: Log tabanlı ICMP/ping görünürlüğü; tarama veya keşif bağlamında değerlendirin.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding network activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kaynak IP'yi, hedef IP'yi ve kısa sürede tekrar eden ICMP deny olaylarını kontrol edin.
+- id: FW-002
+  name: Firewall Service Disabled Or Stopped
+  severity: high
+  score: 84
+  category: network
+  message: Firewall servisi durduruldu, devre dışı bırakıldı veya maskelendi
+  summary: UFW, firewalld, nftables veya SuSEfirewall2 servisinin durdurulması ya da devre dışı bırakılması gözlendi. Bu sinyal, ağ savunmasının bilerek zayıflatılmasına veya savunma kaçınmasına işaret edebilir.
+  condition:
+    action:
+    - sudo
+    - process_exec
+    - exec
+    - firewalld_stopped
+    - susefirewall_stopped
+    fields:
+      __any__:
+      - firewall_control_contains_any:
+        - stop
+        - disable
+        - mask
+      - sudo_command_regex: (?:^|\s)(?:ufw(?:\s+--force)?\s+disable\b|systemctl\s+(?:stop|disable|mask)\s+(?:ufw|firewalld|nftables)\b|service\s+(?:ufw|firewalld)\s+stop\b)
+      - cmdline_regex: (?:^|\s)(?:ufw(?:\s+--force)?\s+disable\b|systemctl\s+(?:stop|disable|mask)\s+(?:ufw|firewalld|nftables)\b|service\s+(?:ufw|firewalld)\s+stop\b)
+  mitre_tactic: TA0005
+  mitre_technique: T1562.004
+  tags:
+  - defense-evasion
+  - firewall
+  - service-stop
+  pack: core
+  pack_version: '1.0'
+  operator_note: İşlemi yapan kullanıcıyı, komut bağlamını, hizmet adını ve hemen önceki/sonraki network, auth veya persistence olaylarını inceleyin. Beklenen bakım penceresi dışında görülüyse kritik öncelikle ele alın.
+  message_en: Firewall Service Disabled Or Stopped
+  message_tr: Firewall servisi durduruldu, devre dışı bırakıldı veya maskelendi
+  summary_en: A firewall service such as UFW, firewalld, nftables, or SuSEfirewall2 was stopped, disabled, or masked. This may indicate deliberate weakening of network defenses or defense evasion.
+  summary_tr: UFW, firewalld, nftables veya SuSEfirewall2 servisinin durdurulması ya da devre dışı bırakılması gözlendi. Bu sinyal, ağ savunmasının bilerek zayıflatılmasına veya savunma kaçınmasına işaret edebilir.
+  operator_note_en: Review the acting user, command context, affected service name, and adjacent network, auth, or persistence events. Treat it as high priority if it occurred outside an expected maintenance window.
+  operator_note_tr: İşlemi yapan kullanıcıyı, komut bağlamını, hizmet adını ve hemen önceki/sonraki network, auth veya persistence olaylarını inceleyin. Beklenen bakım penceresi dışında görülüyse kritik öncelikle ele alın.
+- id: FW-003
+  name: Firewall Policy Flush Or Reset
+  severity: critical
+  score: 92
+  category: network
+  message: Firewall kural seti temizlendi, sıfırlandı veya panic modu değiştirildi
+  summary: UFW reset, iptables flush, nft flush ruleset veya firewalld complete-reload/panic kontrolü gibi aktif politika temizleme veya sıfırlama davranışı gözlendi. Bu sinyal koruyucu kuralların kaldırılmasına işaret edebilir.
+  condition:
+    action:
+    - sudo
+    - process_exec
+    - exec
+    fields:
+      __all__:
+      - __any__:
+        - sudo_command_regex: (?:^|\s)(?:ufw\s+reset\b|iptables\s+(?:-F|--flush)\b|nft\s+flush\s+ruleset\b|firewall-cmd\s+--complete-reload\b|firewall-cmd\s+--panic-(?:on|off)\b)
+        - cmdline_regex: (?:^|\s)(?:ufw\s+reset\b|iptables\s+(?:-F|--flush)\b|nft\s+flush\s+ruleset\b|firewall-cmd\s+--complete-reload\b|firewall-cmd\s+--panic-(?:on|off)\b)
+      - __not__:
+          __any__:
+          - sudo_command_contains_any:
+            - ufw status
+            - firewall-cmd --state
+            - firewall-cmd --list-all
+            - firewall-cmd --get-active-zones
+          - cmdline_contains_any:
+            - ufw status
+            - firewall-cmd --state
+            - firewall-cmd --list-all
+            - firewall-cmd --get-active-zones
+  mitre_tactic: TA0005
+  mitre_technique: T1562.004
+  tags:
+  - defense-evasion
+  - firewall
+  - flush
+  - reset
+  pack: core
+  pack_version: '1.0'
+  operator_note: Komutun bakım bağlamını, aynı zaman penceresindeki service stop/disable sinyallerini ve ardından beklenmedik inbound/outbound erişim artışı olup olmadığını kontrol edin.
+  message_en: Firewall Policy Flush Or Reset
+  message_tr: Firewall kural seti temizlendi, sıfırlandı veya panic modu değiştirildi
+  summary_en: A firewall policy flush or reset operation such as UFW reset, iptables flush, nft flush ruleset, or firewalld complete-reload/panic control was observed. This may indicate removal of protective rules.
+  summary_tr: UFW reset, iptables flush, nft flush ruleset veya firewalld complete-reload/panic kontrolü gibi aktif politika temizleme veya sıfırlama davranışı gözlendi. Bu sinyal koruyucu kuralların kaldırılmasına işaret edebilir.
+  operator_note_en: Review the maintenance context of the command, any adjacent service stop or disable signals, and whether unexpected inbound or outbound access increased afterwards.
+  operator_note_tr: Komutun bakım bağlamını, aynı zaman penceresindeki service stop/disable sinyallerini ve ardından beklenmedik inbound/outbound erişim artışı olup olmadığını kontrol edin.
+- id: FW-004
+  name: Broad Firewall Allow Rule
+  severity: high
+  score: 82
+  category: network
+  message: Aşırı geniş kapsamlı firewall allow/accept kuralı eklendi
+  summary: Any/any veya 0.0.0.0/0 benzeri geniş kapsama sahip bir UFW, firewalld, iptables veya nftables allow kuralı gözlendi. Bu durum istemeden geniş açıklık yaratabilir veya kasıtlı savunma zayıflatma belirtisi olabilir.
+  condition:
+    action:
+    - sudo
+    - process_exec
+    - exec
+    fields:
+      __any__:
+      - sudo_command_regex: (?:^|\s)ufw\s+allow\b.*\bfrom\s+any\b.*\bto\s+any\b
+      - cmdline_regex: (?:^|\s)ufw\s+allow\b.*\bfrom\s+any\b.*\bto\s+any\b
+      - sudo_command_regex: firewall-cmd\b.*--add-rich-rule=.*(?:0\.0\.0\.0/0|::/0|source address="?any"?).*\baccept\b
+      - cmdline_regex: firewall-cmd\b.*--add-rich-rule=.*(?:0\.0\.0\.0/0|::/0|source address="?any"?).*\baccept\b
+      - sudo_command_regex: (?:^|\s)iptables\b.*(?:-P\s+(?:INPUT|FORWARD)\s+ACCEPT\b|-A\s+(?:INPUT|FORWARD)\b.*(?:0\.0\.0\.0/0|::/0).*\s-j\s+ACCEPT\b)
+      - cmdline_regex: (?:^|\s)iptables\b.*(?:-P\s+(?:INPUT|FORWARD)\s+ACCEPT\b|-A\s+(?:INPUT|FORWARD)\b.*(?:0\.0\.0\.0/0|::/0).*\s-j\s+ACCEPT\b)
+      - sudo_command_regex: (?:^|\s)nft\b.*\b(?:add|insert)\s+rule\b.*\b(?:ip\s+saddr\s+0\.0\.0\.0/0|ip6\s+saddr\s+::/0)\b.*\baccept\b
+      - cmdline_regex: (?:^|\s)nft\b.*\b(?:add|insert)\s+rule\b.*\b(?:ip\s+saddr\s+0\.0\.0\.0/0|ip6\s+saddr\s+::/0)\b.*\baccept\b
+  mitre_tactic: TA0005
+  mitre_technique: T1562.004
+  tags:
+  - firewall
+  - policy-change
+  - broad-allow
+  pack: core
+  pack_version: '1.0'
+  operator_note: Eklenen kuralın scope'unu, hedef zone/interface'i, kaynak aralığını ve değişikliğin bakım süreci kapsamında olup olmadığını doğrulayın.
+  message_en: Broad Firewall Allow Rule
+  message_tr: Aşırı geniş kapsamlı firewall allow/accept kuralı eklendi
+  summary_en: A broad firewall allow or accept rule covering any/any or 0.0.0.0/0 style scope was added. This may create unintended exposure or indicate intentional weakening of defenses.
+  summary_tr: Any/any veya 0.0.0.0/0 benzeri geniş kapsama sahip bir UFW, firewalld, iptables veya nftables allow kuralı gözlendi. Bu durum istemeden geniş açıklık yaratabilir veya kasıtlı savunma zayıflatma belirtisi olabilir.
+  operator_note_en: Validate the scope of the added rule, the target zone or interface, the source range, and whether the change was part of a legitimate maintenance process.
+  operator_note_tr: Eklenen kuralın scope'unu, hedef zone/interface'i, kaynak aralığını ve değişikliğin bakım süreci kapsamında olup olmadığını doğrulayın.
+- id: FW-005
+  name: Firewall Security Rule Removal
+  severity: high
+  score: 80
+  category: network
+  message: Firewall rich-rule veya güvenlik kuralı kaldırıldı
+  summary: firewalld rich-rule kaldırma, iptables delete veya nft delete rule benzeri bir firewall kural silme davranışı gözlendi. Bu durum mevcut güvenlik politikasını gevşetebilir.
+  condition:
+    action:
+    - sudo
+    - process_exec
+    - exec
+    fields:
+      __any__:
+      - sudo_command_regex: firewall-cmd\b.*--remove-rich-rule=
+      - cmdline_regex: firewall-cmd\b.*--remove-rich-rule=
+      - sudo_command_regex: (?:^|\s)iptables\b.*\s-D\s+(?:INPUT|FORWARD|OUTPUT)\b
+      - cmdline_regex: (?:^|\s)iptables\b.*\s-D\s+(?:INPUT|FORWARD|OUTPUT)\b
+      - sudo_command_regex: (?:^|\s)nft\b.*\bdelete\s+rule\b
+      - cmdline_regex: (?:^|\s)nft\b.*\bdelete\s+rule\b
+  mitre_tactic: TA0005
+  mitre_technique: T1562.004
+  tags:
+  - firewall
+  - policy-removal
+  - defense-evasion
+  pack: core
+  pack_version: '1.0'
+  operator_note: Silinen kuralın hangi threat veya erişim kontrolünü sağladığını, değişikliğin kim tarafından yapıldığını ve hemen sonrasında beklenmedik erişim artışı olup olmadığını kontrol edin.
+  message_en: Firewall Security Rule Removal
+  message_tr: Firewall rich-rule veya güvenlik kuralı kaldırıldı
+  summary_en: A firewall rule removal operation such as firewalld rich-rule deletion, iptables delete, or nft delete rule was observed. This may weaken the existing security policy.
+  summary_tr: firewalld rich-rule kaldırma, iptables delete veya nft delete rule benzeri bir firewall kural silme davranışı gözlendi. Bu durum mevcut güvenlik politikasını gevşetebilir.
+  operator_note_en: Determine which threat or access control the removed rule enforced, who made the change, and whether unexpected access increased immediately afterwards.
+  operator_note_tr: Silinen kuralın hangi threat veya erişim kontrolünü sağladığını, değişikliğin kim tarafından yapıldığını ve hemen sonrasında beklenmedik erişim artışı olup olmadığını kontrol edin.
+- id: FW-006
+  name: Firewall Config Tamper
+  severity: high
+  score: 86
+  category: filesystem
+  message: Firewall yapılandırma dosyasında yazma/değiştirme görüldü
+  summary: auditd üzerinden `/etc/ufw`, `/etc/firewalld`, `/etc/sysconfig/iptables` veya `/etc/nftables.conf` altında yazma/değiştirme sinyali görüldü. Bu durum politika manipülasyonu veya savunma kaçınma hazırlığı olabilir.
+  condition:
+    source: auditd
+    action: sensitive_file_access
+    fields:
+      __all__:
+      - write_access: true
+      - file_path_contains_any:
+        - /etc/ufw
+        - /etc/firewalld
+        - /etc/sysconfig/iptables
+        - /etc/nftables.conf
+  mitre_tactic: TA0005
+  mitre_technique: T1562.004
+  tags:
+  - firewall
+  - config-tamper
+  - auditd
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen dosya yolunu, yazan process/uid bağlamını, bakım penceresi bilgisini ve hemen sonrasında gelen rule reload, service stop veya broad allow sinyallerini kontrol edin.
+  message_en: Firewall Config Tamper
+  message_tr: Firewall yapılandırma dosyasında yazma/değiştirme görüldü
+  summary_en: auditd reported write or modification activity under `/etc/ufw`, `/etc/firewalld`, `/etc/sysconfig/iptables`, or `/etc/nftables.conf`. This may indicate policy manipulation or preparation for defense evasion.
+  summary_tr: auditd üzerinden `/etc/ufw`, `/etc/firewalld`, `/etc/sysconfig/iptables` veya `/etc/nftables.conf` altında yazma/değiştirme sinyali görüldü. Bu durum politika manipülasyonu veya savunma kaçınma hazırlığı olabilir.
+  operator_note_en: Review the modified file path, the writing process or UID context, the maintenance-window context, and any adjacent rule reload, service stop, or broad allow signals.
+  operator_note_tr: Değiştirilen dosya yolunu, yazan process/uid bağlamını, bakım penceresi bilgisini ve hemen sonrasında gelen rule reload, service stop veya broad allow sinyallerini kontrol edin.
+- id: NET-DB-001
+  name: Database Service Port Probe
+  severity: medium
+  score: 52
+  category: network
+  message: Veritabanı servis portuna yönelik probe veya engellenmiş erişim denemesi tespit edildi
+  summary: Firewall tarafından engellenen trafik, PostgreSQL/MySQL/Redis/MongoDB gibi veritabanı servis portlarını hedefliyor. Bu sinyal çoğunlukla keşif, servis doğrulama veya yanlış yapılandırma arayışıyla ilişkilidir.
+  operator_note: Hedef portu, kaynak IP'yi, hedef host'u ve kısa süre içindeki auth, SSH tünel veya ek servis tarama sinyallerini birlikte kontrol edin.
+  cooldown: 120
+  cooldown_entity: ip_user
+  condition:
+    action:
+    - firewall_block
+    - firewall_reject
+    fields:
+      __any__:
+      - dst_port_eq: 5432
+      - dst_port_eq: 3306
+      - dst_port_eq: 6379
+      - dst_port_eq: 27017
+      - __all__:
+        - raw_contains: DPT=
+        - __any__:
+          - raw_contains: DPT=5432
+          - raw_contains: DPT=3306
+          - raw_contains: DPT=6379
+          - raw_contains: DPT=27017
+  mitre_tactic: TA0043
+  mitre_technique: T1595.001
+  tags:
+  - reconnaissance
+  - service-scan
+  - database
+  - firewall
+  - postgres
+  - mysql
+  - redis
+  - mongodb
+  pack: core
+  pack_version: '1.0'
+  message_en: Database Service Port Probe
+  message_tr: Veritabanı servis portuna yönelik probe veya engellenmiş erişim denemesi tespit edildi
+  summary_en: This rule highlights database service port probe and may indicate suspicious or unauthorized network activity. Review the surrounding context to confirm the impact.
+  summary_tr: Firewall tarafından engellenen trafik, PostgreSQL/MySQL/Redis/MongoDB gibi veritabanı servis portlarını hedefliyor. Bu sinyal çoğunlukla keşif, servis doğrulama veya yanlış yapılandırma arayışıyla ilişkilidir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding network activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Hedef portu, kaynak IP'yi, hedef host'u ve kısa süre içindeki auth, SSH tünel veya ek servis tarama sinyallerini birlikte kontrol edin.
+- id: NET-WEB-001
+  name: SQL Injection
+  severity: high
+  score: 80
+  category: web_attack
+  message: SQL injection deseni içeren web isteği tespit edildi
+  summary: HTTP isteği içinde sorgu manipülasyonu, veri sızdırma veya kimlik doğrulama atlatma amacı taşıyabilecek SQL injection göstergeleri bulundu.
+  operator_note: İsteğin hedef URL ve parametrelerini, kaynak IP'yi, uygulama loglarında eşleşen hata/200 yanıtlarını ve aynı istemciden gelen sonraki exploit denemelerini inceleyin.
+  condition:
+    fields:
+      attack: sql_injection
+  mitre_tactic: TA0001
+  mitre_technique: T1190
+  tags:
+  - initial-access
+  - exploit-public-facing
+  pack: core
+  pack_version: '1.0'
+  message_en: SQL Injection
+  message_tr: SQL injection deseni içeren web isteği tespit edildi
+  summary_en: This rule highlights sql injection and may indicate suspicious or unauthorized web attack activity. Review the surrounding context to confirm the impact.
+  summary_tr: HTTP isteği içinde sorgu manipülasyonu, veri sızdırma veya kimlik doğrulama atlatma amacı taşıyabilecek SQL injection göstergeleri bulundu.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding web_attack activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: İsteğin hedef URL ve parametrelerini, kaynak IP'yi, uygulama loglarında eşleşen hata/200 yanıtlarını ve aynı istemciden gelen sonraki exploit denemelerini inceleyin.
+- id: NET-WEB-002
+  name: Path Traversal
+  severity: high
+  score: 75
+  category: web_attack
+  message: Dizin aşma/path traversal deseni içeren web isteği tespit edildi
+  summary: İstek, uygulamanın normal erişim alanı dışındaki dosya veya dizinlere ulaşmaya çalışan traversal göstergeleri içeriyor; bu durum hassas dosya okuma ve keşif riskini artırır.
+  operator_note: İstenen path'i, hedeflenen dosya isimlerini, dönüş HTTP kodunu ve aynı kaynaktan gelen `/etc/passwd`, config veya credential yolu denemelerini doğrulayın.
+  condition:
+    fields:
+      attack: path_traversal
+  mitre_tactic: TA0007
+  mitre_technique: T1083
+  tags:
+  - discovery
+  - file-directory-discovery
+  pack: core
+  pack_version: '1.0'
+  message_en: Path Traversal
+  message_tr: Dizin aşma/path traversal deseni içeren web isteği tespit edildi
+  summary_en: This rule highlights path traversal and may indicate suspicious or unauthorized web attack activity. Review the surrounding context to confirm the impact.
+  summary_tr: İstek, uygulamanın normal erişim alanı dışındaki dosya veya dizinlere ulaşmaya çalışan traversal göstergeleri içeriyor; bu durum hassas dosya okuma ve keşif riskini artırır.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding web_attack activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: İstenen path'i, hedeflenen dosya isimlerini, dönüş HTTP kodunu ve aynı kaynaktan gelen `/etc/passwd`, config veya credential yolu denemelerini doğrulayın.
+- id: NET-WEB-003
+  name: Scanner Detected
+  severity: medium
+  score: 60
+  category: network
+  message: Aktif web tarayıcı/scanner davranışı tespit edildi
+  summary: İstek örüntüsü veya user-agent bilgisi, otomatik zafiyet tarayıcısı ya da keşif aracına benzer bir davranış gösteriyor; bu genellikle daha hedefli saldırıların ön aşamasıdır.
+  operator_note: Kaynak IP'yi, user-agent değerini, taranan yol çeşitliliğini ve bu kaynaktan gelen exploit, login veya upload denemelerini birlikte inceleyin.
+  cooldown: 120
+  cooldown_entity: ip_user
+  condition:
+    fields:
+      attack: scanner
+  mitre_tactic: TA0043
+  mitre_technique: T1595
+  tags:
+  - reconnaissance
+  - active-scanning
+  pack: core
+  pack_version: '1.0'
+  message_en: Scanner Detected
+  message_tr: Aktif web tarayıcı/scanner davranışı tespit edildi
+  summary_en: This rule highlights scanner detected and may indicate suspicious or unauthorized network activity. Review the surrounding context to confirm the impact.
+  summary_tr: İstek örüntüsü veya user-agent bilgisi, otomatik zafiyet tarayıcısı ya da keşif aracına benzer bir davranış gösteriyor; bu genellikle daha hedefli saldırıların ön aşamasıdır.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding network activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kaynak IP'yi, user-agent değerini, taranan yol çeşitliliğini ve bu kaynaktan gelen exploit, login veya upload denemelerini birlikte inceleyin.
+- id: WEB-004
+  name: Shell Upload
+  severity: critical
+  score: 95
+  category: web_attack
+  message: Web shell yükleme girişimi
+  summary: Bu kural, normalize edilen olay alanlarında `shell_upload` sınıflandırması oluştuğunda Shell Upload davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  condition:
+    fields:
+      attack: shell_upload
+  mitre_tactic: TA0002
+  mitre_technique: T1505.003
+  tags:
+  - execution
+  - web-shell
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+  message_en: Shell Upload
+  message_tr: Web shell yükleme girişimi
+  summary_en: A web request matched shell upload behavior. This may indicate public-facing application exploitation or server access attempts.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `shell_upload` sınıflandırması oluştuğunda Shell Upload davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  operator_note_en: Review the source IP, target host, URL or path, query or payload parameters, HTTP status code, user-agent, and the immediately preceding or following upload, exploit, process, file-access, or persistence events.
+  operator_note_tr: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+- id: WEB-005
+  name: 404 Scan
+  severity: low
+  score: 35
+  category: network
+  message: Çoklu 404 ile sonuçlanan web dizin/dosya yoklama davranışı görüldü
+  summary: Tekil olay düzeyinde bu kayıt, mevcut olmayan web yolu veya dosyaların denendiğini gösterir; art arda geldiğinde otomatik içerik keşfi veya wordlist taramasının parçası olabilir.
+  operator_note: İstenen yolu, aynı IP'nin kısa süredeki 404 yoğunluğunu, user-agent bilgisini ve isteğin admin/upload/config gibi hassas endpoint'lere yönelip yönelmediğini kontrol edin.
+  cooldown: 180
+  cooldown_entity: web_source_path_class
+  condition:
+    source:
+    - apache2
+    - nginx
+    fields:
+      status: 404
+  mitre_tactic: TA0043
+  mitre_technique: T1595.003
+  tags:
+  - reconnaissance
+  - wordlist-scanning
+  pack: core
+  pack_version: '1.0'
+  message_en: 404 Scan
+  message_tr: Çoklu 404 ile sonuçlanan web dizin/dosya yoklama davranışı görüldü
+  summary_en: This rule highlights 404 scan and may indicate suspicious or unauthorized network activity. Review the surrounding context to confirm the impact.
+  summary_tr: Tekil olay düzeyinde bu kayıt, mevcut olmayan web yolu veya dosyaların denendiğini gösterir; art arda geldiğinde otomatik içerik keşfi veya wordlist taramasının parçası olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding network activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: İstenen yolu, aynı IP'nin kısa süredeki 404 yoğunluğunu, user-agent bilgisini ve isteğin admin/upload/config gibi hassas endpoint'lere yönelip yönelmediğini kontrol edin.
+- id: DB-001
+  name: Database Auth Failure
+  severity: medium
+  score: 55
+  category: auth
+  message: Veritabanı giriş başarısız
+  summary: Bu kural, normalize edilen olayda `db_login` aksiyonu gözlendiğinde Database Auth Failure davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  condition:
+    source:
+    - mysql
+    - postgresql
+    action: db_login
+    outcome: failure
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - brute-force
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: Database Auth Failure
+  message_tr: Veritabanı giriş başarısız
+  summary_en: A database authentication failure was observed. Repeated events may indicate password attacks or unauthorized access attempts.
+  summary_tr: Bu kural, normalize edilen olayda `db_login` aksiyonu gözlendiğinde Database Auth Failure davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: DB-002
+  name: Invalid Database Role Attempt
+  severity: high
+  score: 68
+  category: auth
+  message: Geçersiz veya var olmayan veritabanı rolü ile erişim denemesi
+  summary: PostgreSQL üzerinde var olmayan bir rol veya kullanıcı ile erişim denemesi gözlendi. Bu durum hesap keşfi, rol enumerasyonu veya hatalı ama potansiyel olarak kötü niyetli kimlik denemelerine işaret edebilir.
+  condition:
+    source: postgresql
+    action: db_invalid_role
+    outcome: failure
+  mitre_tactic: TA0006
+  mitre_technique: T1087
+  tags:
+  - credential-access
+  - discovery
+  - database
+  pack: core
+  pack_version: '1.0'
+  operator_note: Hedef rol adını, istemci adresini, kısa zaman penceresindeki benzer denemeleri ve aynı kaynaktan gelen diğer PostgreSQL auth başarısızlıklarını inceleyin.
+  message_en: Invalid Database Role Attempt
+  message_tr: Geçersiz veya var olmayan veritabanı rolü ile erişim denemesi
+  summary_en: A PostgreSQL access attempt used a non-existent role or user. This may indicate account discovery, role enumeration, or suspicious authentication probing.
+  summary_tr: PostgreSQL üzerinde var olmayan bir rol veya kullanıcı ile erişim denemesi gözlendi. Bu durum hesap keşfi, rol enumerasyonu veya hatalı ama potansiyel olarak kötü niyetli kimlik denemelerine işaret edebilir.
+  operator_note_en: Review the target role name, client address, similar attempts in the same time window, and adjacent PostgreSQL authentication failures from the same source.
+  operator_note_tr: Hedef rol adını, istemci adresini, kısa zaman penceresindeki benzer denemeleri ve aynı kaynaktan gelen diğer PostgreSQL auth başarısızlıklarını inceleyin.
+- id: DB-003
+  name: PostgreSQL HBA/Auth Reject
+  severity: high
+  score: 72
+  category: auth
+  message: PostgreSQL erişimi pg_hba veya auth politikası nedeniyle reddedildi
+  summary: PostgreSQL, istemciyi pg_hba veya benzeri auth yapılandırması nedeniyle reddetti. Beklenmeyen uzak istemciler veya hassas veritabanı hedefleriyle birlikte görüldüğünde bu durum yetkisiz erişim girişimine işaret edebilir.
+  condition:
+    source: postgresql
+    action: db_hba_reject
+    outcome: failure
+  mitre_tactic: TA0001
+  mitre_technique: T1190
+  tags:
+  - initial-access
+  - database
+  - configuration
+  pack: core
+  pack_version: '1.0'
+  operator_note: İstemci IP'sini, hedef veritabanını ve kullanıcıyı, ilgili pg_hba politikasını ve aynı kaynaktan gelen diğer auth başarısızlıklarını kontrol edin.
+  message_en: PostgreSQL HBA/Auth Reject
+  message_tr: PostgreSQL erişimi pg_hba veya auth politikası nedeniyle reddedildi
+  summary_en: PostgreSQL rejected the client because of pg_hba or related authentication policy. Combined with unexpected remote clients or sensitive targets, this may indicate unauthorized access attempts.
+  summary_tr: PostgreSQL, istemciyi pg_hba veya benzeri auth yapılandırması nedeniyle reddetti. Beklenmeyen uzak istemciler veya hassas veritabanı hedefleriyle birlikte görüldüğünde bu durum yetkisiz erişim girişimine işaret edebilir.
+  operator_note_en: Review the client IP, target database and user, the relevant pg_hba policy, and adjacent authentication failures from the same source.
+  operator_note_tr: İstemci IP'sini, hedef veritabanını ve kullanıcıyı, ilgili pg_hba politikasını ve aynı kaynaktan gelen diğer auth başarısızlıklarını kontrol edin.
+- id: DB-004
+  name: Database Superuser Role Escalation
+  severity: critical
+  score: 92
+  category: auth
+  message: PostgreSQL üzerinde superuser veya yönetim yetkisi yükseltme denemesi görüldü
+  summary: ALTER ROLE, CREATE ROLE SUPERUSER veya güçlü yönetici rolü ataması içeren PostgreSQL ifadesi gözlendi. Bu durum doğrudan yetki yükseltme veya kalıcı yönetim yetkisi elde etme girişimi olabilir.
+  condition:
+    source: postgresql
+    action: db_role_escalation
+    outcome: success
+  mitre_tactic: TA0004
+  mitre_technique: T1068
+  tags:
+  - privilege-escalation
+  - database
+  - account-manipulation
+  pack: core
+  pack_version: '1.0'
+  operator_note: İfadeyi, çalıştıran hesabı, istemci bağlamını, değiştirilen rolü ve hemen önceki/sonraki PostgreSQL auth veya admin olaylarını inceleyin.
+  message_en: Database Superuser Role Escalation
+  message_tr: PostgreSQL üzerinde superuser veya yönetim yetkisi yükseltme denemesi görüldü
+  summary_en: A PostgreSQL statement attempted superuser-level role escalation or assignment of a powerful administrative role. This may indicate direct privilege escalation or persistent admin access creation.
+  summary_tr: ALTER ROLE, CREATE ROLE SUPERUSER veya güçlü yönetici rolü ataması içeren PostgreSQL ifadesi gözlendi. Bu durum doğrudan yetki yükseltme veya kalıcı yönetim yetkisi elde etme girişimi olabilir.
+  operator_note_en: Review the statement, the acting account, client context, the modified role, and adjacent PostgreSQL authentication or admin events.
+  operator_note_tr: İfadeyi, çalıştıran hesabı, istemci bağlamını, değiştirilen rolü ve hemen önceki/sonraki PostgreSQL auth veya admin olaylarını inceleyin.
+- id: DB-005
+  name: Destructive Database Command
+  severity: high
+  score: 85
+  category: database
+  message: PostgreSQL üzerinde yıkıcı komut gözlendi
+  summary: DROP DATABASE, DROP TABLE, DROP SCHEMA veya TRUNCATE TABLE içeren PostgreSQL ifadesi gözlendi. Bu sinyal veri tahribatı, yanlış yapılandırılmış bakım veya yetkisiz etki oluşturma girişimine işaret edebilir.
+  condition:
+    source: postgresql
+    action: db_destructive_command
+    outcome: success
+  mitre_tactic: TA0040
+  mitre_technique: T1485
+  tags:
+  - impact
+  - data-destruction
+  - database
+  pack: core
+  pack_version: '1.0'
+  operator_note: Etkilenen veritabanı veya şemayı, komut zamanını, bakım penceresi bağlamını, çalıştıran hesabı ve ilgili istemci erişimini doğrulayın.
+  message_en: Destructive Database Command
+  message_tr: PostgreSQL üzerinde yıkıcı komut gözlendi
+  summary_en: A PostgreSQL statement contained DROP DATABASE, DROP TABLE, DROP SCHEMA, or TRUNCATE TABLE. This may indicate data destruction, mis-scoped maintenance, or unauthorized impact activity.
+  summary_tr: DROP DATABASE, DROP TABLE, DROP SCHEMA veya TRUNCATE TABLE içeren PostgreSQL ifadesi gözlendi. Bu sinyal veri tahribatı, yanlış yapılandırılmış bakım veya yetkisiz etki oluşturma girişimine işaret edebilir.
+  operator_note_en: Validate the affected database or schema, the command timing, maintenance-window context, the acting account, and related client access.
+  operator_note_tr: Etkilenen veritabanı veya şemayı, komut zamanını, bakım penceresi bağlamını, çalıştıran hesabı ve ilgili istemci erişimini doğrulayın.
+- id: DB-006
+  name: Database Configuration Tamper
+  severity: high
+  score: 82
+  category: system
+  message: PostgreSQL yapılandırma değişikliği veya reload denemesi gözlendi
+  summary: ALTER SYSTEM veya pg_reload_conf() içeren PostgreSQL ifadesi gözlendi. Yetkisiz veya beklenmeyen bağlamda bu durum logging, erişim kontrolü veya replikasyon davranışını değiştirmeye yönelik bir müdahaleye işaret edebilir.
+  condition:
+    source: postgresql
+    action: db_config_tamper
+    outcome: success
+  mitre_tactic: TA0005
+  mitre_technique: T1562.001
+  tags:
+  - defense-evasion
+  - configuration
+  - database
+  pack: core
+  pack_version: '1.0'
+  operator_note: İfadeyi, değiştirilen parametreyi, bakım bağlamını, istemci kaynağını ve bunu izleyen auth veya servis değişikliklerini kontrol edin.
+  message_en: Database Configuration Tamper
+  message_tr: PostgreSQL yapılandırma değişikliği veya reload denemesi gözlendi
+  summary_en: A PostgreSQL statement contained ALTER SYSTEM or pg_reload_conf(). In an unexpected context, this may indicate tampering with logging, access control, replication, or other database controls.
+  summary_tr: ALTER SYSTEM veya pg_reload_conf() içeren PostgreSQL ifadesi gözlendi. Yetkisiz veya beklenmeyen bağlamda bu durum logging, erişim kontrolü veya replikasyon davranışını değiştirmeye yönelik bir müdahaleye işaret edebilir.
+  operator_note_en: Review the statement, the changed parameter, maintenance context, client source, and any subsequent authentication or service changes.
+  operator_note_tr: İfadeyi, değiştirilen parametreyi, bakım bağlamını, istemci kaynağını ve bunu izleyen auth veya servis değişikliklerini kontrol edin.
+- id: DB-007
+  name: Suspicious Remote Privileged DB Auth Failure
+  severity: high
+  score: 74
+  category: auth
+  message: Uzak istemciden ayrıcalıklı PostgreSQL hesabına başarısız giriş denemesi
+  summary: Uzak istemciden `postgres`, `admin`, `root`, `replication` veya benzeri ayrıcalıklı hesaplara yönelik başarısız PostgreSQL auth denemesi gözlendi. Bu durum hesap keşfi veya brute-force öncesi hassas hedef yoklamasına işaret edebilir.
+  condition:
+    source: postgresql
+    action: db_login
+    outcome: failure
+    fields:
+      remote_client: true
+      privileged_user: true
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - database
+  - privileged-account
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP'yi, hedef ayrıcalıklı hesabı, aynı IP'den gelen diğer başarısız denemeleri ve bağlantının beklenen yönetim ağından gelip gelmediğini inceleyin.
+  message_en: Suspicious Remote Privileged DB Auth Failure
+  message_tr: Uzak istemciden ayrıcalıklı PostgreSQL hesabına başarısız giriş denemesi
+  summary_en: A remote client failed to authenticate to a privileged PostgreSQL account such as `postgres`, `admin`, `root`, or `replication`. This may indicate account discovery or pre-brute-force probing of sensitive targets.
+  summary_tr: Uzak istemciden `postgres`, `admin`, `root`, `replication` veya benzeri ayrıcalıklı hesaplara yönelik başarısız PostgreSQL auth denemesi gözlendi. Bu durum hesap keşfi veya brute-force öncesi hassas hedef yoklamasına işaret edebilir.
+  operator_note_en: Review the source IP, targeted privileged account, other failures from the same IP, and whether the connection originated from an expected administrative network.
+  operator_note_tr: Kaynak IP'yi, hedef ayrıcalıklı hesabı, aynı IP'den gelen diğer başarısız denemeleri ve bağlantının beklenen yönetim ağından gelip gelmediğini inceleyin.
+- id: FIM-001
+  name: Critical File Modified
+  severity: critical
+  score: 95
+  category: filesystem
+  message: Kritik sistem dosyası değiştirildi
+  summary: Bu kural, normalize edilen olayda `file_modified` aksiyonu gözlendiğinde Critical File Modified davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  condition:
+    category: filesystem
+    action: file_modified
+  mitre_tactic: TA0005
+  mitre_technique: T1565.001
+  tags:
+  - impact
+  - stored-data-manipulation
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+  message_en: Critical File Modified
+  message_tr: Kritik sistem dosyası değiştirildi
+  summary_en: A critical file was modified. This may indicate tampering or follow-on exploitation.
+  summary_tr: Bu kural, normalize edilen olayda `file_modified` aksiyonu gözlendiğinde Critical File Modified davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  operator_note_en: Review the source and destination IPs and ports, host, event time, relevant URL or protocol context, and the immediately preceding or following auth, web, process, firewall, or DNS events.
+  operator_note_tr: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+- id: FIM-002
+  name: New File in Critical Path
+  severity: high
+  score: 70
+  category: filesystem
+  message: Kritik dizinde yeni dosya
+  summary: Bu kural, normalize edilen olayda `file_created` aksiyonu gözlendiğinde New File in Critical Path davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  condition:
+    category: filesystem
+    action: file_created
+  mitre_tactic: TA0003
+  mitre_technique: T1574
+  tags:
+  - persistence
+  - hijack-execution-flow
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen dosya, servis, cron, kullanıcı veya anahtar artefact’ını; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, process ve network olaylarını kontrol edin.
+  message_en: New File in Critical Path
+  message_tr: Kritik dizinde yeni dosya
+  summary_en: A new file appeared in a critical path. This may indicate persistence or unauthorized modification.
+  summary_tr: Bu kural, normalize edilen olayda `file_created` aksiyonu gözlendiğinde New File in Critical Path davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the modified file, service, cron entry, user, or key artifact, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, process, and network events.
+  operator_note_tr: Değiştirilen dosya, servis, cron, kullanıcı veya anahtar artefact’ını; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, process ve network olaylarını kontrol edin.
+- id: MON-001
+  name: Suspicious Process
+  severity: critical
+  score: 90
+  category: process
+  message: Şüpheli process tespit edildi
+  summary: Bu kural, normalize edilen olayda `suspicious_process` aksiyonu gözlendiğinde Suspicious Process davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    category: process
+    action: suspicious_process
+  mitre_tactic: TA0002
+  mitre_technique: T1059
+  tags:
+  - execution
+  - command-scripting-interpreter
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Suspicious Process
+  message_tr: Şüpheli process tespit edildi
+  summary_en: A suspicious process was observed. This may indicate post-compromise execution.
+  summary_tr: Bu kural, normalize edilen olayda `suspicious_process` aksiyonu gözlendiğinde Suspicious Process davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: MON-002
+  name: Crontab Modified
+  severity: high
+  score: 80
+  category: persistence
+  message: Crontab değişikliği tespit edildi
+  summary: Bu kural, olay aksiyonu `cron` kalıbıyla eşleştiğinde Crontab Modified davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  condition:
+    category: persistence
+    action_contains: cron
+  mitre_tactic: TA0003
+  mitre_technique: T1053.003
+  tags:
+  - persistence
+  - cron
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen dosya, servis, cron, kullanıcı veya anahtar artefact’ını; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, process ve network olaylarını kontrol edin.
+  message_en: Crontab Modified
+  message_tr: Crontab değişikliği tespit edildi
+  summary_en: This rule highlights crontab modified and may indicate suspicious or unauthorized persistence activity. Review the surrounding context to confirm the impact.
+  summary_tr: Bu kural, olay aksiyonu `cron` kalıbıyla eşleştiğinde Crontab Modified davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the modified file, service, cron entry, user, or key artifact, identify the acting user, host, and timestamp, and examine the immediately preceding or following auth, process, and network events.
+  operator_note_tr: Değiştirilen dosya, servis, cron, kullanıcı veya anahtar artefact’ını; işlemi yapan kullanıcıyı, host ve zaman bilgisini; ayrıca hemen önceki/sonraki auth, process ve network olaylarını kontrol edin.
+- id: MON-003
+  name: Suspicious Outbound
+  severity: critical
+  score: 85
+  category: network
+  message: Şüpheli dış bağlantı tespit edildi
+  summary: Bu kural, normalize edilen olayda `suspicious_outbound` aksiyonu gözlendiğinde Suspicious Outbound davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  condition:
+    category: network
+    action: suspicious_outbound
+  mitre_tactic: TA0011
+  mitre_technique: T1041
+  tags:
+  - command-and-control
+  - exfiltration-over-c2
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+  message_en: Suspicious Outbound
+  message_tr: Şüpheli dış bağlantı tespit edildi
+  summary_en: Suspicious outbound network activity was observed. This may indicate command-and-control or data transfer behavior.
+  summary_tr: Bu kural, normalize edilen olayda `suspicious_outbound` aksiyonu gözlendiğinde Suspicious Outbound davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  operator_note_en: Review the source and destination IPs and ports, host, event time, relevant URL or protocol context, and the immediately preceding or following auth, web, process, firewall, or DNS events.
+  operator_note_tr: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+- id: NET-PROC-001
+  name: Scripting dili reverse shell
+  description: Python/Perl/Ruby ile ağ bağlantısı — çoğunlukla LotL
+  message: Scripting dili LotL komutu ile ağ bağlantısı
+  summary: Bu kural, normalize edilen olay alanlarında `python_shell` sınıflandırması oluştuğunda Scripting dili reverse shell davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  severity: high
+  score: 80
+  condition:
+    action: lotl_exec
+    fields:
+      attack: python_shell
+  mitre_tactic: TA0011
+  mitre_technique: T1071.001
+  tags:
+  - scripting_outbound
+  - reverse_shell
+  cooldown: 120
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+  message_en: Scripting dili reverse shell
+  message_tr: Scripting dili LotL komutu ile ağ bağlantısı
+  summary_en: A scripting-language reverse shell pattern was observed. This may indicate remote command execution.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `python_shell` sınıflandırması oluştuğunda Scripting dili reverse shell davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  operator_note_en: Review the source and destination IPs and ports, host, event time, relevant URL or protocol context, and the immediately preceding or following auth, web, process, firewall, or DNS events.
+  operator_note_tr: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+- id: NET-PROC-002
+  name: Netcat/Socat reverse shell
+  description: nc/ncat/socat ile dış bağlantı
+  message: Netcat/Socat ile reverse shell girişimi tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Netcat/Socat reverse shell davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  severity: critical
+  score: 95
+  condition:
+    action: lotl_exec
+    fields:
+      attack_contains_any:
+      - nc_reverse_shell
+      - socat_reverse_shell
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - reverse_shell
+  - netcat
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+  message_en: Netcat/Socat reverse shell
+  message_tr: Netcat/Socat ile reverse shell girişimi tespit edildi
+  summary_en: This rule highlights Netcat/Socat reverse shell when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of network discovery, exploitation, or abnormal connection behavior.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Netcat/Socat reverse shell davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  operator_note_en: Review the source and destination IPs and ports, host, event time, relevant URL or protocol context, and the immediately preceding or following auth, web, process, firewall, or DNS events.
+  operator_note_tr: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+- id: NET-PROC-003
+  name: Wget/curl ile şüpheli indirme
+  description: wget/curl ile persistence veya payload indirme
+  message: wget/curl ile şüpheli dosya indirme girişimi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Wget/curl ile şüpheli indirme davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  severity: medium
+  score: 65
+  condition:
+    action: lotl_exec
+    fields:
+      attack_contains_any:
+      - wget_pipe
+      - curl_pipe
+  mitre_tactic: TA0011
+  mitre_technique: T1105
+  tags:
+  - downloader
+  - wget_curl
+  cooldown: 180
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+  message_en: Suspicious Download with wget/curl
+  message_tr: wget/curl ile şüpheli dosya indirme girişimi
+  summary_en: A suspicious download with wget or curl was observed. This may indicate payload delivery or follow-on exploitation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Wget/curl ile şüpheli indirme davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  operator_note_en: Review the source and destination IPs and ports, host, event time, relevant URL or protocol context, and the immediately preceding or following auth, web, process, firewall, or DNS events.
+  operator_note_tr: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.

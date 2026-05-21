@@ -1,0 +1,78 @@
+- id: ATK-PE-001
+  name: Sudo ile Root
+  severity: medium
+  score: 55
+  category: auth
+  message: Kullanıcı sudo ile root yetkisi aldı
+  summary: Bu kural, normalize edilen olayda `sudo` aksiyonu gözlendiğinde Sudo ile Root davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0004
+  mitre_technique: T1548
+  mitre_subtechnique: T1548.003
+  tags:
+  - privilege-escalation
+  - sudo
+  - root
+  pack: attacks
+  pack_version: '1.0'
+  condition:
+    action: sudo
+    outcome: success
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: Sudo to Root
+  message_tr: Kullanıcı sudo ile root yetkisi aldı
+  summary_en: A sudo action reached root privileges. This may indicate privilege escalation and should be verified.
+  summary_tr: Bu kural, normalize edilen olayda `sudo` aksiyonu gözlendiğinde Sudo ile Root davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: ATK-PE-002
+  name: Sudo Başarısız — Yetkisiz Deneme
+  severity: high
+  score: 70
+  category: auth
+  message: Sudo yetkisi olmayan kullanıcı root olmaya çalıştı
+  summary: Bu kural, normalize edilen olayda `sudo` aksiyonu gözlendiğinde Sudo Başarısız — Yetkisiz Deneme davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0004
+  mitre_technique: T1548
+  mitre_subtechnique: T1548.003
+  tags:
+  - privilege-escalation
+  - sudo
+  - unauthorized
+  pack: attacks
+  pack_version: '1.0'
+  condition:
+    action: sudo
+    outcome: failure
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: Failed sudo Privilege Escalation Attempt
+  message_tr: Sudo yetkisi olmayan kullanıcı root olmaya çalıştı
+  summary_en: A failed sudo attempt was observed. This may indicate unauthorized privilege escalation activity.
+  summary_tr: Bu kural, normalize edilen olayda `sudo` aksiyonu gözlendiğinde Sudo Başarısız — Yetkisiz Deneme davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: ATK-PE-003
+  name: Su ile Root Oturumu
+  severity: high
+  score: 70
+  category: auth
+  message: Kullanıcı su komutuyla root oturumu açtı — yetki yükseltme
+  summary: Bu kural, normalize edilen olayda `su` aksiyonu gözlendiğinde Su ile Root Oturumu davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  mitre_tactic: TA0004
+  mitre_technique: T1548
+  mitre_subtechnique: T1548.003
+  tags:
+  - privilege-escalation
+  - su
+  - root
+  pack: attacks
+  pack_version: '1.0'
+  condition:
+    action: su
+    outcome: success
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: Su to Root Session
+  message_tr: Kullanıcı su komutuyla root oturumu açtı — yetki yükseltme
+  summary_en: An su session reached the root account. This may indicate privilege escalation and should be verified.
+  summary_tr: Bu kural, normalize edilen olayda `su` aksiyonu gözlendiğinde Su ile Root Oturumu davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.

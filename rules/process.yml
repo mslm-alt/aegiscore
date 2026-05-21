@@ -1,0 +1,1344 @@
+- id: PROC-001
+  name: Dangerous Sudo Command
+  severity: critical
+  score: 90
+  category: process
+  message: Tehlikeli komut sudo ile çalıştırıldı
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Dangerous Sudo Command davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - /bin/bash
+      - /bin/sh
+      - /usr/bin/python
+      - chmod 777
+      - wget
+      - curl
+      - 'nc '
+      - netcat
+      - /dev/tcp
+      - base64
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - unix-shell
+  mitre_subtechnique: T1059.004
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Dangerous Sudo Command
+  message_tr: Tehlikeli komut sudo ile çalıştırıldı
+  summary_en: This rule highlights Dangerous Sudo Command when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Dangerous Sudo Command davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-002
+  name: Cron Job by Root
+  severity: medium
+  score: 40
+  category: process
+  message: Root cron job çalıştırdı
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Cron Job by Root davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  condition:
+    action: cron_exec
+    user: root
+    fields:
+      exclude_if_field: cron_safe
+  mitre_tactic: TA0003
+  mitre_technique: T1053.003
+  tags:
+  - persistence
+  - cron
+  mitre_subtechnique: T1059.004
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Cron Job by Root
+  message_tr: Root cron job çalıştırdı
+  summary_en: This rule highlights Cron Job by Root when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of persistence or privilege escalation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Cron Job by Root davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-003
+  name: Suspicious Shell Spawn from Service
+  severity: high
+  score: 75
+  category: process
+  message: Servis sürecinden beklenmedik shell oluşturuldu
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Suspicious Shell Spawn from Service davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  condition:
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __any__:
+      - attack_contains_any:
+        - webserver_shell_spawn
+        - db_shell_spawn
+      - __all__:
+        - parent_process_contains_any:
+          - apache2
+          - nginx
+          - httpd
+          - mysqld
+          - postgres
+          - php-fpm
+          - tomcat
+        - command_contains_any:
+          - /bin/bash
+          - /bin/sh
+          - /bin/dash
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - web-shell
+  - initial-access
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+  message_en: Suspicious Shell Spawn from Service
+  message_tr: Servis sürecinden beklenmedik shell oluşturuldu
+  summary_en: A service spawned a shell. This may indicate exploitation of a public-facing application or remote command execution.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Suspicious Shell Spawn from Service davranışını görünür kılar; bu sinyal kamuya açık uygulama istismarı, içerik manipülasyonu veya sunucu erişimi riskini gösterir.
+  operator_note_en: Review the source IP, target host, URL or path, query or payload parameters, HTTP status code, user-agent, and the immediately preceding or following upload, exploit, process, file-access, or persistence events.
+  operator_note_tr: Kaynak IP, hedef host, URL/path, query veya payload parametreleri, HTTP durum kodu, user-agent ve hemen önceki/sonraki upload, exploit, process, file-access veya persistence olaylarını kontrol edin.
+- id: PROC-004
+  name: Reverse Shell Pipe/Exec
+  severity: critical
+  score: 95
+  category: process
+  message: Reverse shell pipe veya exec zinciri tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Reverse Shell Pipe/Exec davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __any__:
+      - command_contains: mkfifo
+      - attack_contains_any:
+        - nc_reverse_shell
+        - socat_reverse_shell
+  mitre_tactic: TA0011
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - reverse-shell
+  - command-and-control
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Reverse Shell Pipe/Exec
+  message_tr: Reverse shell pipe veya exec zinciri tespit edildi
+  summary_en: This rule highlights Reverse Shell Pipe/Exec when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Reverse Shell Pipe/Exec davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-005
+  name: Script Interpreter Running from Temp
+  severity: high
+  score: 80
+  category: process
+  message: Betik yorumlayıcısı geçici dizinden çalıştırılıyor
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Script Interpreter Running from Temp davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    action:
+    - exec
+    - process_exec
+    fields:
+      command_contains_any:
+      - python /tmp/
+      - python3 /tmp/
+      - perl /tmp/
+      - ruby /tmp/
+      - bash /tmp/
+      - sh /tmp/
+      - php /tmp/
+      - /var/tmp/
+  mitre_tactic: TA0002
+  mitre_technique: T1059
+  tags:
+  - execution
+  - suspicious-path
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Script Interpreter Running from Temp
+  message_tr: Betik yorumlayıcısı geçici dizinden çalıştırılıyor
+  summary_en: This rule highlights Script Interpreter Running from Temp when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Script Interpreter Running from Temp davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-006
+  name: Base64 Encoded Payload Execution
+  severity: high
+  score: 85
+  category: process
+  message: Base64 ile kodlanmış komut yürütme tespit edildi (obfuscation)
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Base64 Encoded Payload Execution davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  condition:
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __any__:
+      - attack: base64_exec
+      - command_contains_any:
+        - echo * | base64 -d
+        - base64 -d |
+        - '| base64 --decode |'
+        - base64 -di
+        - python -c 'import base64
+        - python3 -c 'import base64
+  mitre_tactic: TA0005
+  mitre_technique: T1140
+  tags:
+  - defense-evasion
+  - obfuscation
+  - execution
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Base64 Encoded Payload Execution
+  message_tr: Base64 ile kodlanmış komut yürütme tespit edildi (obfuscation)
+  summary_en: This rule highlights Base64 Encoded Payload Execution when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Base64 Encoded Payload Execution davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-007
+  name: Process Injection via ptrace
+  severity: critical
+  score: 95
+  category: process
+  message: ptrace ile süreç enjeksiyonu tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Process Injection via ptrace davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  condition:
+    source: auditd
+    action: syscall
+    fields:
+      syscall_name: ptrace
+  mitre_tactic: TA0005
+  mitre_technique: T1055.008
+  tags:
+  - defense-evasion
+  - process-injection
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Process Injection via ptrace
+  message_tr: ptrace ile süreç enjeksiyonu tespit edildi
+  summary_en: This rule highlights Process Injection via ptrace when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of log evasion, reduced visibility, or disabled security controls.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Process Injection via ptrace davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-008
+  name: Suspicious Named Pipe Communication
+  severity: high
+  score: 70
+  category: process
+  message: İsimlendirilmiş pipe (FIFO) üzerinden şüpheli iletişim
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Suspicious Named Pipe Communication davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    action:
+    - exec
+    - process_exec
+    fields:
+      command_contains_any:
+      - /tmp/f
+      - 0<&
+      - '>&'
+      - 2>&1
+      - 1>/dev/null
+  mitre_tactic: TA0011
+  mitre_technique: T1071
+  tags:
+  - command-and-control
+  - evasion
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Suspicious Named Pipe Communication
+  message_tr: İsimlendirilmiş pipe (FIFO) üzerinden şüpheli iletişim
+  summary_en: This rule highlights Suspicious Named Pipe Communication when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Suspicious Named Pipe Communication davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-009
+  name: Port Knocking / Backdoor Port Listener
+  severity: critical
+  score: 90
+  category: process
+  message: Bilinmeyen port dinleyici başlatıldı (backdoor/port knocking)
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Port Knocking / Backdoor Port Listener davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __any__:
+      - attack_contains_any:
+        - nc_reverse_shell
+        - socat_reverse_shell
+      - command_contains_any:
+        - nc -l
+        - nc -lvp
+        - ncat -l
+        - socat TCP-LISTEN
+        - python -m SimpleHTTPServer
+        - python3 -m http.server
+        - php -S 0.0.0.0
+  mitre_tactic: TA0011
+  mitre_technique: T1571
+  tags:
+  - command-and-control
+  - backdoor
+  - non-standard-port
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Port Knocking / Backdoor Port Listener
+  message_tr: Bilinmeyen port dinleyici başlatıldı (backdoor/port knocking)
+  summary_en: This rule highlights Port Knocking / Backdoor Port Listener when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Port Knocking / Backdoor Port Listener davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-010
+  name: Unusual SUID Binary Execution
+  severity: high
+  score: 75
+  category: process
+  message: SUID bit ile çalışan alışılmadık binary tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Unusual SUID Binary Execution davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  condition:
+    action:
+    - exec
+    - process_exec
+    fields:
+      command_contains_any:
+      - find / -perm -4000
+      - find / -perm -u=s
+      - find . -perm /4000
+  mitre_tactic: TA0004
+  mitre_technique: T1548.001
+  tags:
+  - privilege-escalation
+  - suid
+  - discovery
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Unusual SUID Binary Execution
+  message_tr: SUID bit ile çalışan alışılmadık binary tespit edildi
+  summary_en: This rule highlights Unusual SUID Binary Execution when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of persistence or privilege escalation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Unusual SUID Binary Execution davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-LOLBIN-001
+  name: Suspicious curl Pipe Execution
+  severity: high
+  score: 75
+  category: execution
+  message: curl pipe bash/sh — living-off-the-land şüphesi
+  summary: Bu kural, normalize edilen olay alanlarında `curl_pipe` sınıflandırması oluştuğunda Suspicious curl Pipe Execution davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action: lotl_exec
+    fields:
+      attack: curl_pipe
+  mitre_tactic: TA0002
+  mitre_technique: T1059
+  tags:
+  - lolbin
+  - execution
+  - living-off-the-land
+  pack: core
+  pack_version: \'1.0\'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Suspicious curl Pipe Execution
+  message_tr: curl pipe bash/sh — living-off-the-land şüphesi
+  summary_en: A suspicious curl pipe execution pattern was observed. This may indicate payload delivery or shell execution.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `curl_pipe` sınıflandırması oluştuğunda Suspicious curl Pipe Execution davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-LOLBIN-002
+  name: wget Pipe Execution
+  severity: high
+  score: 75
+  category: execution
+  message: wget pipe shell — living-off-the-land şüphesi
+  summary: Bu kural, normalize edilen olay alanlarında `wget_pipe` sınıflandırması oluştuğunda wget Pipe Execution davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action: lotl_exec
+    fields:
+      attack: wget_pipe
+  mitre_tactic: TA0002
+  mitre_technique: T1059
+  tags:
+  - lolbin
+  - execution
+  - living-off-the-land
+  pack: core
+  pack_version: \'1.0\'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: wget Pipe Execution
+  message_tr: wget pipe shell — living-off-the-land şüphesi
+  summary_en: A suspicious wget pipe execution pattern was observed. This may indicate payload delivery or shell execution.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `wget_pipe` sınıflandırması oluştuğunda wget Pipe Execution davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-LOLBIN-003
+  name: Base64 Decode + Execute
+  severity: high
+  score: 80
+  category: execution
+  message: base64 decode + exec — obfuscated payload şüphesi
+  summary: Bu kural, normalize edilen olay alanlarında `base64_exec` sınıflandırması oluştuğunda Base64 Decode + Execute davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action: lotl_exec
+    fields:
+      attack: base64_exec
+  mitre_tactic: TA0002
+  mitre_technique: T1027
+  tags:
+  - lolbin
+  - obfuscation
+  - living-off-the-land
+  pack: core
+  pack_version: \'1.0\'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Base64 Decode + Execute
+  message_tr: base64 decode + exec — obfuscated payload şüphesi
+  summary_en: A Base64 decode-and-execute pattern was observed. This may indicate obfuscated command execution.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `base64_exec` sınıflandırması oluştuğunda Base64 Decode + Execute davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-LOLBIN-004
+  name: Python Reverse Shell
+  severity: critical
+  score: 90
+  category: execution
+  message: Python ile reverse shell girişimi
+  summary: Bu kural, normalize edilen olay alanlarında `python_shell` sınıflandırması oluştuğunda Python Reverse Shell davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action: lotl_exec
+    fields:
+      attack: python_inline
+  mitre_tactic: TA0002
+  mitre_technique: T1059
+  tags:
+  - lolbin
+  - reverse-shell
+  - living-off-the-land
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Python Reverse Shell
+  message_tr: Python ile reverse shell girişimi
+  summary_en: A Python reverse shell pattern was observed. This may indicate interactive remote command execution.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `python_shell` sınıflandırması oluştuğunda Python Reverse Shell davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-CRED-001
+  name: Secret and Credential File Read/Staging from Process Logs
+  severity: high
+  score: 80
+  category: process
+  message: Secret veya credential dosyasına process log üzerinden okuma/staging erişimi tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Secret and Credential File Read/Staging from Process Logs davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  condition:
+    source:
+    - syslog
+    - journald
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - command_contains_any:
+          - /.env
+          - /.netrc
+          - .pgpass
+          - .my.cnf
+          - wp-config.php
+          - /.kube/config
+          - kubeconfig
+          - /docker/config.json
+          - /.aws/credentials
+          - /application_default_credentials.json
+          - /etc/apt/auth.conf
+          - /etc/apt/auth.conf.d/
+          - /etc/apt/auth.conf.d
+          - /legacy_credentials/
+          - /credentials.db
+          - /krb5.keytab
+          - /etc/rhsm/rhsm.conf
+          - /etc/zypp/credentials.d/
+          - /etc/zypp/credentials.d
+          - .keytab
+          - /run/secrets/
+          - /var/run/secrets/
+          - /etc/secrets/
+          - service-account.json
+          - serviceaccount.json
+      - __any__:
+        - command_token_contains_any:
+          - cat
+          - head
+          - tail
+          - grep
+          - awk
+          - sed
+          - strings
+          - base64
+          - python
+          - python3
+          - perl
+          - cp
+          - rsync
+          - tar
+          - zip
+          - unzip
+        - command_contains_any:
+          - /bin/cat
+          - /bin/cp
+          - /usr/bin/rsync
+          - /bin/tar
+          - /usr/bin/base64
+      - __not__:
+          __any__:
+          - command_token_contains_any:
+            - vim
+            - vi
+            - nano
+            - less
+            - more
+            - stat
+            - test
+            - ls
+            - kubectl
+            - docker
+            - aws
+            - gcloud
+            - mysql
+            - mysqladmin
+            - my_print_defaults
+            - psql
+            - pg_dump
+            - kinit
+            - klist
+            - ssh-keygen
+          - command_contains_any:
+            - docker login
+            - kubectl config view
+            - kubectl config use-context
+            - aws configure
+            - gcloud auth application-default login
+            - gcloud auth login
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - restic
+            - borg
+            - rsnapshot
+            - duplicity
+            - backup
+            - healthcheck
+  mitre_tactic: TA0006
+  mitre_technique: T1552
+  tags:
+  - credential-access
+  - secrets
+  - cloud
+  - keytab
+  - process-log
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Secret and Credential File Read/Staging from Process Logs
+  message_tr: Secret veya credential dosyasına process log üzerinden okuma/staging erişimi tespit edildi
+  summary_en: This rule highlights Secret and Credential File Read/Staging from Process Logs when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Secret and Credential File Read/Staging from Process Logs davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-EXFIL-001
+  name: Sensitive Archive or Staging in Temp Paths
+  severity: high
+  score: 84
+  category: process
+  message: Hassas dosya veya dizin geçici dizinde arşivleniyor/stage ediliyor
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Sensitive Archive or Staging in Temp Paths davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  condition:
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - command_token_contains_any:
+          - tar
+          - zip
+          - 7z
+          - gzip
+          - xz
+          - split
+          - base64
+          - gpg
+          - openssl
+        - command_contains_any:
+          - openssl enc
+          - gpg -c
+          - gpg --symmetric
+          - 7z a
+          - zip -r
+          - tar -c
+          - tar cz
+          - tar -z
+          - xz -z
+          - gzip -c
+          - split -b
+          - 'base64 '
+      - command_contains_any:
+        - /tmp/
+        - /var/tmp/
+        - /dev/shm/
+      - __any__:
+        - command_contains_any:
+          - /.env
+          - .pgpass
+          - .my.cnf
+          - wp-config.php
+          - /.kube/config
+          - kubeconfig
+          - /docker/config.json
+          - /.aws/credentials
+          - /application_default_credentials.json
+          - /etc/apt/auth.conf
+          - /etc/apt/auth.conf.d/
+          - /etc/apt/auth.conf.d
+          - /krb5.keytab
+          - /etc/rhsm/rhsm.conf
+          - /etc/zypp/credentials.d/
+          - /etc/zypp/credentials.d
+          - .keytab
+          - /run/secrets/
+          - /var/run/secrets/
+          - /etc/secrets/
+          - /etc/ssh/
+          - /etc/ssl/private/
+          - /etc/kubernetes/
+          - /var/lib/kubelet/
+        - command_regex: (?:^|\s)/(?:etc|home|var/www)(?:/|\s|$)
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - /var/backups/
+            - /srv/backup/
+            - /backup/
+            - /backups/
+            - rsnapshot
+            - borg
+            - restic
+            - duplicity
+            - timeshift
+            - logrotate
+          - command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - /health
+            - /healthz
+            - /readyz
+            - /livez
+          - command_token_contains_any:
+            - backup
+            - dpkg-deb
+            - rpmbuild
+            - debuild
+            - podman
+            - docker
+            - healthcheck
+  mitre_tactic: TA0010
+  mitre_technique: T1560
+  tags:
+  - archive
+  - staging
+  - exfiltration
+  - temp-path
+  - sensitive-data
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Sensitive Archive or Staging in Temp Paths
+  message_tr: Hassas dosya veya dizin geçici dizinde arşivleniyor/stage ediliyor
+  summary_en: This rule highlights Sensitive Archive or Staging in Temp Paths when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of credential access, data exfiltration, or lateral movement.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Sensitive Archive or Staging in Temp Paths davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-EXFIL-002
+  name: Outbound Transfer from Temp Staging Paths
+  severity: high
+  score: 86
+  category: process
+  message: Geçici dizinden dosya dışa aktarımı tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Outbound Transfer from Temp Staging Paths davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  condition:
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - command_contains_any:
+        - /tmp/
+        - /var/tmp/
+        - /dev/shm/
+      - __any__:
+        - __all__:
+          - __any__:
+            - command_token_contains_any:
+              - scp
+              - sftp
+              - rsync
+              - rclone
+              - curl
+              - wget
+            - command_regex: (?:^|\s)(?:\S+/)?(?:scp|sftp|rsync|rclone|curl|wget)\b
+          - command_contains_any:
+            - '@'
+            - ://
+            - rsync://
+            - s3://
+            - gs://
+            - 'remote:'
+        - __all__:
+          - command_token_contains_any:
+            - aws
+          - command_contains_any:
+            - aws s3 cp
+            - ' s3://'
+        - __all__:
+          - command_token_contains_any:
+            - nc
+            - ncat
+          - __not__:
+              command_contains_any:
+              - ' -l'
+              - ' --listen'
+              - ' -k -l'
+              - ' -lv'
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - /var/backups/
+            - /srv/backup/
+            - /backup/
+            - /backups/
+            - rsnapshot
+            - borg
+            - restic
+            - duplicity
+            - timeshift
+          - command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - /health
+            - /healthz
+            - /readyz
+            - /livez
+            - aws configure
+            - aws s3 sync
+            - --profile admin
+            - --profile ops
+            - backup
+            - restore
+            - sosreport
+            - supportconfig
+            - apport
+            - ubuntu-bug
+          - command_token_contains_any:
+            - backup
+            - healthcheck
+  mitre_tactic: TA0010
+  mitre_technique: T1041
+  tags:
+  - exfiltration
+  - transfer
+  - staging
+  - temp-path
+  - outbound
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Outbound Transfer from Temp Staging Paths
+  message_tr: Geçici dizinden dosya dışa aktarımı tespit edildi
+  summary_en: This rule highlights Outbound Transfer from Temp Staging Paths when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of credential access, data exfiltration, or lateral movement.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Outbound Transfer from Temp Staging Paths davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-CONT-001
+  name: Suspicious Container Exec or Host-Mounted Container Access
+  severity: high
+  score: 87
+  category: process
+  message: Container exec/start/cp veya host-mount erişimi ile şüpheli container davranışı tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Suspicious Container Exec or Host-Mounted Container Access davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - command_contains_any:
+          - 'docker exec '
+          - 'podman exec '
+          - 'kubectl exec '
+          - 'docker cp '
+          - 'podman cp '
+          - docker run --privileged
+          - podman run --privileged
+          - 'docker start '
+          - 'podman start '
+          - ctr task exec
+          - crictl exec
+          - --privileged
+          - -v /:/host
+          - --mount type=bind,src=/,dst=/host
+          - /host/etc/
+          - /var/lib/kubelet/
+          - hostPath
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - kubectl exec -n kube-system
+            - kubectl exec --namespace kube-system
+            - kubectl exec metrics-server
+            - 'kubectl logs '
+            - 'kubectl rollout '
+            - 'docker pull '
+            - 'podman pull '
+            - 'docker image pull '
+            - 'podman image pull '
+            - 'docker inspect '
+            - 'podman inspect '
+            - 'docker ps '
+            - 'podman ps '
+            - docker start kube-proxy
+            - docker start pause
+            - podman start infra
+            - podman start pause
+            - /health
+            - /healthz
+            - /readyz
+            - /livez
+            - -- /bin/true
+            - -- printenv
+          - command_token_contains_any:
+            - healthcheck
+  mitre_tactic: TA0002
+  mitre_technique: T1611
+  tags:
+  - container
+  - execution
+  - kubernetes
+  - docker
+  - host-mount
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Suspicious Container Exec or Host-Mounted Container Access
+  message_tr: Container exec/start/cp veya host-mount erişimi ile şüpheli container davranışı tespit edildi
+  summary_en: This rule highlights Suspicious Container Exec or Host-Mounted Container Access when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Suspicious Container Exec or Host-Mounted Container Access davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-C2-001
+  name: Reverse Shell or Covert Remote Channel Launcher
+  severity: critical
+  score: 93
+  category: process
+  message: Reverse shell veya covert remote channel launcher komutu tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Reverse Shell or Covert Remote Channel Launcher davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __any__:
+      - command_contains_any:
+        - /dev/tcp/
+        - 'mkfifo '
+        - pty.spawn
+        - socket.socket(
+        - IO::Socket
+        - TCPSocket
+        - fsockopen(
+        - passthru(
+        - shell_exec(
+        - proc_open(
+      - command_regex: (?:^|\s)(?:nc|netcat|ncat)\b.*(?:-(?:e|c)\s*(?:/bin/)?(?:bash|sh|dash)|-(?:e|c)\s+/bin)
+      - command_regex: mkfifo\s+\S+\s*(?:;|\|\|?|\&\&)\s*(?:cat\s+\S+\s*\|)?\s*(?:nc|ncat|bash|sh|python|python3|perl)
+      - command_regex: python[23]?\s+-c\s+["\x27]?.*(?:socket\s*\.\s*socket|pty\.spawn|subprocess\.call)
+      - command_regex: perl\s+-e\s+["\x27]?.*(?:IO::Socket|exec\s*/bin/(?:bash|sh))
+      - command_regex: ruby\s+-rsocket\s+-e|ruby\s+-e\s+["\x27]?.*TCPSocket
+      - command_regex: php\s+-r\s+["\x27]?.*(?:fsockopen|popen|exec|system|passthru|shell_exec|proc_open)
+      - command_regex: socat\s+.*(?:EXEC:|SYSTEM:|TCP(?:4)?(?:-LISTEN|-CONNECT)?|OPENSSL:).*(?:/bin/(?:bash|sh)|pty)
+  mitre_tactic: TA0011
+  mitre_technique: T1059.004
+  tags:
+  - reverse-shell
+  - tunnel
+  - covert-channel
+  - command-and-control
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Reverse Shell or Covert Remote Channel Launcher
+  message_tr: Reverse shell veya covert remote channel launcher komutu tespit edildi
+  summary_en: This rule highlights Reverse Shell or Covert Remote Channel Launcher when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Reverse Shell or Covert Remote Channel Launcher davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-C2-002
+  name: Suspicious SSH Tunnel or Port Forward
+  severity: high
+  score: 84
+  category: process
+  message: Şüpheli SSH tunnel veya port-forward komutu tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Suspicious SSH Tunnel or Port Forward davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - command_token_contains: ssh
+        - command_regex: (?:^|\s)(?:\S+/)?ssh\b
+      - __any__:
+        - command_regex: (?:^|\s)(?:\S+/)?ssh\b.*\s-D\s+\d+
+        - command_regex: (?:^|\s)(?:\S+/)?ssh\b.*\s-R\s+(?:0\.0\.0\.0:)?\d+:\S+
+        - command_regex: (?:^|\s)(?:\S+/)?ssh\b.*\s-L\s+0\.0\.0\.0:\d+:\S+
+        - command_contains_any:
+          - GatewayPorts=yes
+          - UserKnownHostsFile=/dev/null
+          - StrictHostKeyChecking=no
+          - ProxyCommand=
+          - PermitLocalCommand
+          - ' -Nf '
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - 'localhost:'
+            - '127.0.0.1:'
+            - '::1:'
+            - kubectl port-forward
+            - 'docker run -p '
+            - docker compose port
+            - ssh -L 5432:127.0.0.1:5432
+            - ssh -L 3306:127.0.0.1:3306
+            - ssh -L 8080:127.0.0.1:8080
+            - ssh -L 8443:127.0.0.1:8443
+            - /health
+            - /healthz
+            - /readyz
+            - /livez
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - 'puppet '
+            - 'salt-call '
+            - 'salt-minion '
+          - command_token_contains_any:
+            - debug
+            - healthcheck
+  mitre_tactic: TA0011
+  mitre_technique: T1571
+  tags:
+  - ssh
+  - tunnel
+  - port-forward
+  - covert-channel
+  - command-and-control
+  cooldown: 120
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: Suspicious SSH Tunnel or Port Forward
+  message_tr: Şüpheli SSH tunnel veya port-forward komutu tespit edildi
+  summary_en: This rule highlights Suspicious SSH Tunnel or Port Forward when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Suspicious SSH Tunnel or Port Forward davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: PROC-DL-001
+  name: Downloader Pipe or Inline Fetch Execute
+  severity: critical
+  score: 91
+  category: process
+  message: Downloader ile pipe/inline payload fetch ve execute davranışı tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Downloader Pipe or Inline Fetch Execute davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - command_regex: (?:curl|wget)\s+[^\n|;]*\|\s*(?:bash|sh|dash|python[23]?|perl|ruby|php)\b
+        - command_regex: bash\s+-c\s+["\x27]?\$\((?:curl|wget)\s+
+        - command_regex: wget\s+(?:-[qO]-|-O-)\s+[^\n|;]*\|\s*(?:bash|sh|dash)\b
+        - command_regex: python[23]?\s+-c\s+["\x27]?.*(?:urllib\.request|requests\.get|urlopen).*(?:exec|compile|eval)\(
+        - command_regex: perl\s+-e\s+["\x27]?.*(?:LWP::Simple|HTTP::Tiny|getstore|get).*(?:system|exec)
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - 'apt '
+            - 'apt-get '
+            - 'dpkg '
+            - 'dnf '
+            - 'yum '
+            - 'rpm '
+            - 'zypper '
+            - packagekit
+            - pip install
+            - pip3 install
+            - npm install
+            - go install
+            - cargo install
+            - composer install
+            - composer update
+            - 'git clone '
+            - 'git pull '
+            - 'git fetch '
+            - .deb
+            - .udeb
+            - .ddeb
+            - .rpm
+            - .repo
+            - /Packages.gz
+            - /Packages.xz
+            - /Release
+            - /InRelease
+            - /repodata/repomd.xml
+            - /repodata/primary.xml
+            - /repodata/filelists.xml
+            - /suse/setup/descr
+            - /content
+            - bootstrap
+            - repo
+            - /health
+            - /healthz
+            - /readyz
+            - /livez
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - 'puppet '
+            - 'salt-call '
+            - 'salt-minion '
+          - command_token_contains_any:
+            - bootstrap
+            - debug
+            - healthcheck
+  mitre_tactic: TA0002
+  mitre_technique: T1059
+  tags:
+  - downloader
+  - stager
+  - fetch-exec
+  - curl
+  - wget
+  - python
+  - perl
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Downloader Pipe or Inline Fetch Execute
+  message_tr: Downloader ile pipe/inline payload fetch ve execute davranışı tespit edildi
+  summary_en: This rule highlights Downloader Pipe or Inline Fetch Execute when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Downloader Pipe or Inline Fetch Execute davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-DL-002
+  name: Temp Payload Download and Stage
+  severity: high
+  score: 83
+  category: process
+  message: Geçici dizine payload indirme ve stage davranışı tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Temp Payload Download and Stage davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - command_regex: (?:^|\s)(?:\S+/)?(?:curl|wget)\b[^\n;]*(?:-o|--output|-(?:q)?O)\s*(?:/tmp/|/var/tmp/|/dev/shm/)\S+
+        - command_regex: (?:python[23]?|perl)\s+-c\s+["\x27]?.*(?:urllib\.request|requests\.get|urlopen|LWP::Simple|HTTP::Tiny).*(?:/tmp/|/var/tmp/|/dev/shm/)
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - 'apt '
+            - 'apt-get '
+            - 'dpkg '
+            - 'dnf '
+            - 'yum '
+            - 'rpm '
+            - 'zypper '
+            - packagekit
+            - 'git clone '
+            - 'git pull '
+            - 'git fetch '
+            - .deb
+            - .udeb
+            - .ddeb
+            - .rpm
+            - .repo
+            - /Packages.gz
+            - /Packages.xz
+            - /Release
+            - /InRelease
+            - /repodata/repomd.xml
+            - /repodata/primary.xml
+            - /repodata/filelists.xml
+            - /suse/setup/descr
+            - /content
+            - bootstrap
+            - repo
+            - /health
+            - /healthz
+            - /readyz
+            - /livez
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - 'puppet '
+            - 'salt-call '
+            - 'salt-minion '
+          - command_token_contains_any:
+            - bootstrap
+            - debug
+            - healthcheck
+  mitre_tactic: TA0002
+  mitre_technique: T1105
+  tags:
+  - downloader
+  - stager
+  - temp-path
+  - fetch
+  - payload
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Temp Payload Download and Stage
+  message_tr: Geçici dizine payload indirme ve stage davranışı tespit edildi
+  summary_en: This rule highlights Temp Payload Download and Stage when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Temp Payload Download and Stage davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-IMP-001
+  name: Destructive Delete or Wipe on High-Value Paths
+  severity: critical
+  score: 92
+  category: process
+  message: Yüksek değerli dizin veya veride destructive delete/wipe davranışı tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Destructive Delete or Wipe on High-Value Paths davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - command_regex: (?:^|\s)rm\s+-rf?\s+(?:/home/|/var/www/|/srv/|/var/backups/|/srv/backup/|/backup/|/backups/|/snapshots?/|/\.snapshots?/|/var/lib/(?:restic|borg|snapper|rsnapshot)/)\S*
+        - command_regex: find\s+.*(?:/home/|/var/www/|/srv/|/var/backups/?|/srv/backup/?|/backup/?|/backups/?|/snapshots?/|/\.snapshots?/)\S*\s+.*-delete
+        - command_regex: (?:shred|wipe|srm|dd\s+if=/dev/(?:zero|null|urandom))\s+.*(?:/home/|/var/www/|/srv/|/var/backups/|/srv/backup/|/backup/|/backups/|/snapshots?/|/\.snapshots?/)
+        - command_regex: (?:^|\s)btrfs\s+sub(?:volume|vol)\s+delete\s+/\.snapshots?/\S+
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - rm -rf /tmp/
+            - rm -rf /var/tmp/
+            - rm -rf /dev/shm/
+            - find /tmp
+            - find /var/tmp
+            - find /dev/shm
+            - tmpreaper
+            - tmpwatch
+            - systemd-tmpfiles
+            - apt clean
+            - apt-get clean
+            - apt autoremove
+            - apt-get autoremove
+            - dnf clean
+            - yum clean
+            - zypper clean
+            - snapper cleanup
+            - transactional-update cleanup
+            - packagekit
+            - logrotate
+            - journalctl --vacuum
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - 'puppet '
+            - 'salt-call '
+            - 'salt-minion '
+            - maintenance
+            - /health
+            - /healthz
+            - /readyz
+            - /livez
+          - command_token_contains_any:
+            - cleanup
+            - healthcheck
+  mitre_tactic: TA0005
+  mitre_technique: T1070.004
+  tags:
+  - impact
+  - destructive
+  - delete
+  - wipe
+  - anti-recovery
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Destructive Delete or Wipe on High-Value Paths
+  message_tr: Yüksek değerli dizin veya veride destructive delete/wipe davranışı tespit edildi
+  summary_en: This rule highlights Destructive Delete or Wipe on High-Value Paths when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Destructive Delete or Wipe on High-Value Paths davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PROC-IMP-002
+  name: Backup or Snapshot Recovery Tamper
+  severity: high
+  score: 86
+  category: process
+  message: Backup/snapshot artefact silme veya immutable abuse davranışı tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Backup or Snapshot Recovery Tamper davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - command_regex: (?:^|\s)(?:rm\s+-rf?|shred|wipe|srm)\s+.*(?:/var/backups/|/srv/backup/|/backup/|/backups/|/snapshots?/|/\.snapshots?/|/var/lib/(?:restic|borg|snapper|rsnapshot)/|\.snapshot)
+        - command_regex: (?:^|\s)chattr\s+[+-]i\s+.*(?:/var/backups/|/srv/backup/|/backup/|/backups/|/snapshots?/|/\.snapshots?/|/var/lib/(?:restic|borg|snapper|rsnapshot)/|\.snapshot)
+        - command_regex: find\s+.*(?:/var/backups/?|/srv/backup/?|/backup/?|/backups/?|/snapshots?/|/\.snapshots?/)\S*\s+.*-delete
+        - command_regex: (?:^|\s)btrfs\s+sub(?:volume|vol)\s+delete\s+/\.snapshots?/\S+
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - restic backup
+            - restic snapshots
+            - borg create
+            - borg list
+            - rsnapshot
+            - snapper list
+            - snapper cleanup
+            - transactional-update cleanup
+            - logrotate
+            - journalctl --vacuum
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - 'puppet '
+            - 'salt-call '
+            - 'salt-minion '
+            - maintenance
+          - command_token_contains_any:
+            - healthcheck
+  mitre_tactic: TA0005
+  mitre_technique: T1070.004
+  tags:
+  - impact
+  - anti-recovery
+  - backup
+  - snapshot
+  - immutable
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Backup or Snapshot Recovery Tamper
+  message_tr: Backup/snapshot artefact silme veya immutable abuse davranışı tespit edildi
+  summary_en: This rule highlights Backup or Snapshot Recovery Tamper when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Backup or Snapshot Recovery Tamper davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.

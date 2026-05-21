@@ -1,0 +1,375 @@
+- id: DNS-001
+  name: DGA Domain Detected
+  severity: high
+  score: 80
+  category: network
+  message: DGA (otomatik üretilen) domain tespit edildi — olası C2
+  summary: Bu kural, normalize edilen olayda `dga_detected` aksiyonu gözlendiğinde DGA Domain Detected davranışını görünür kılar; bu sinyal komuta-kontrol, tünelleme veya dış iletişim hazırlığı riskini gösterir.
+  condition:
+    source:
+    - dns
+    - dnsmasq
+    - named
+    - syslog
+    action: dga_detected
+  mitre_tactic: TA0011
+  mitre_technique: T1568.002
+  tags:
+  - command-and-control
+  - dga
+  pack: core
+  pack_version: '1.0'
+  operator_note: Sorguyu yapan host veya kaynak IP’yi, alan adını, sorgu türünü, zaman penceresini ve hemen önceki/sonraki outbound bağlantı, auth, process veya web olaylarını kontrol edin.
+  message_en: DGA Domain Detected
+  message_tr: DGA (otomatik üretilen) domain tespit edildi — olası C2
+  summary_en: This rule highlights DGA Domain Detected when the normalized event shows the `dga_detected` action. This signal indicates a risk of command-and-control, tunneling, or outbound communication staging.
+  summary_tr: Bu kural, normalize edilen olayda `dga_detected` aksiyonu gözlendiğinde DGA Domain Detected davranışını görünür kılar; bu sinyal komuta-kontrol, tünelleme veya dış iletişim hazırlığı riskini gösterir.
+  operator_note_en: Review the querying host or source IP, domain name, query type, time window, and the immediately preceding or following outbound connection, auth, process, or web events.
+  operator_note_tr: Sorguyu yapan host veya kaynak IP’yi, alan adını, sorgu türünü, zaman penceresini ve hemen önceki/sonraki outbound bağlantı, auth, process veya web olaylarını kontrol edin.
+- id: DNS-002
+  name: Suspicious TLD Query
+  severity: medium
+  score: 50
+  category: network
+  message: Şüpheli TLD'ye DNS sorgusu
+  summary: Bu kural, normalize edilen olayda `suspicious_tld` aksiyonu gözlendiğinde Suspicious TLD Query davranışını görünür kılar; bu sinyal komuta-kontrol, tünelleme veya dış iletişim hazırlığı riskini gösterir.
+  condition:
+    source:
+    - dns
+    - dnsmasq
+    - named
+    - syslog
+    action: suspicious_tld
+  mitre_tactic: TA0011
+  mitre_technique: T1071.004
+  tags:
+  - command-and-control
+  - dns
+  pack: core
+  pack_version: '1.0'
+  operator_note: Sorguyu yapan host veya kaynak IP’yi, alan adını, sorgu türünü, zaman penceresini ve hemen önceki/sonraki outbound bağlantı, auth, process veya web olaylarını kontrol edin.
+  message_en: Suspicious TLD Query
+  message_tr: Şüpheli TLD'ye DNS sorgusu
+  summary_en: This rule highlights Suspicious TLD Query when the normalized event shows the `suspicious_tld` action. This signal indicates a risk of command-and-control, tunneling, or outbound communication staging.
+  summary_tr: Bu kural, normalize edilen olayda `suspicious_tld` aksiyonu gözlendiğinde Suspicious TLD Query davranışını görünür kılar; bu sinyal komuta-kontrol, tünelleme veya dış iletişim hazırlığı riskini gösterir.
+  operator_note_en: Review the querying host or source IP, domain name, query type, time window, and the immediately preceding or following outbound connection, auth, process, or web events.
+  operator_note_tr: Sorguyu yapan host veya kaynak IP’yi, alan adını, sorgu türünü, zaman penceresini ve hemen önceki/sonraki outbound bağlantı, auth, process veya web olaylarını kontrol edin.
+- id: DNS-003
+  name: Long TXT/NULL Subdomain Query
+  severity: high
+  score: 78
+  category: network
+  message: Uzun ve çok katmanlı TXT/NULL DNS sorgusu — olası exfiltration tünelleme
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Long TXT/NULL Subdomain Query davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  condition:
+    source:
+    - dns
+    - dnsmasq
+    - named
+    - syslog
+    action: dns_query
+    fields:
+      __all__:
+      - domain_len_gte: 40
+      - domain_label_count_gte: 4
+      - domain_label_max_len_gte: 24
+      - __any__:
+        - qtype: TXT
+        - qtype: null
+  mitre_tactic: TA0010
+  mitre_technique: T1071.004
+  tags:
+  - exfiltration
+  - dns
+  - tunneling
+  pack: core
+  pack_version: '1.0'
+  operator_note: Sorguyu yapan host veya kaynak IP’yi, alan adını, sorgu türünü, zaman penceresini ve hemen önceki/sonraki outbound bağlantı, auth, process veya web olaylarını kontrol edin.
+  message_en: Long TXT/NULL Subdomain Query
+  message_tr: Uzun ve çok katmanlı TXT/NULL DNS sorgusu — olası exfiltration tünelleme
+  summary_en: This rule highlights Long TXT/NULL Subdomain Query when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of credential access, data exfiltration, or lateral movement.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Long TXT/NULL Subdomain Query davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  operator_note_en: Review the querying host or source IP, domain name, query type, time window, and the immediately preceding or following outbound connection, auth, process, or web events.
+  operator_note_tr: Sorguyu yapan host veya kaynak IP’yi, alan adını, sorgu türünü, zaman penceresini ve hemen önceki/sonraki outbound bağlantı, auth, process veya web olaylarını kontrol edin.
+- id: DNS-004
+  name: NXDOMAIN DGA Lookup
+  severity: high
+  score: 82
+  category: network
+  message: NXDOMAIN ile sonuçlanan DGA-benzeri DNS sorgusu — olası C2 veya reconnaissance
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde NXDOMAIN DGA Lookup davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  condition:
+    source:
+    - dns
+    - dnsmasq
+    - named
+    - syslog
+    action: dga_detected
+    outcome: failure
+    fields:
+      entropy_gte: 3.5
+  mitre_tactic: TA0011
+  mitre_technique: T1568.002
+  tags:
+  - command-and-control
+  - dns
+  - dga
+  - reconnaissance
+  pack: core
+  pack_version: '1.0'
+  operator_note: Sorguyu yapan host veya kaynak IP’yi, alan adını, sorgu türünü, zaman penceresini ve hemen önceki/sonraki outbound bağlantı, auth, process veya web olaylarını kontrol edin.
+  message_en: NXDOMAIN DGA Lookup
+  message_tr: NXDOMAIN ile sonuçlanan DGA-benzeri DNS sorgusu — olası C2 veya reconnaissance
+  summary_en: This rule highlights NXDOMAIN DGA Lookup when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of discovery, surface mapping, and preparation for follow-on attack activity.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde NXDOMAIN DGA Lookup davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the querying host or source IP, domain name, query type, time window, and the immediately preceding or following outbound connection, auth, process, or web events.
+  operator_note_tr: Sorguyu yapan host veya kaynak IP’yi, alan adını, sorgu türünü, zaman penceresini ve hemen önceki/sonraki outbound bağlantı, auth, process veya web olaylarını kontrol edin.
+- id: DNS-005
+  name: Suspicious Long DNS Query
+  severity: medium
+  score: 58
+  category: network
+  message: Anormal derecede uzun ve çok katmanlı DNS sorgusu görüldü
+  summary: Bu kural, aşırı uzun ve çok katmanlı DNS sorgularını görünür kılar. Sinyal, DNS tünelleme hazırlığı, beaconing veya veri dışa aktarma denemesi ile ilişkili olabilir; ancak reverse lookup ve captive portal benzeri gürültüler hariç tutulur.
+  condition:
+    source:
+    - dns
+    - dnsmasq
+    - named
+    - syslog
+    action: dns_query
+    fields:
+      __all__:
+      - domain_len_gte: 60
+      - domain_label_count_gte: 5
+      - domain_label_max_len_gte: 22
+      - domain_regex: (?:^|\.)[A-Za-z0-9_-]{22,}(?:\.|$)
+      - __not__:
+          __any__:
+          - qtype: PTR
+          - domain_contains_any:
+            - .local
+            - .localdomain
+            - .in-addr.arpa
+            - .ip6.arpa
+            - connectivitycheck.gstatic.com
+            - detectportal.firefox.com
+            - captive.apple.com
+            - msftconnecttest.com
+            - msftncsi.com
+  mitre_tactic: TA0011
+  mitre_technique: T1071.004
+  tags:
+  - dns
+  - tunneling
+  - anomaly
+  pack: core
+  pack_version: '1.0'
+  operator_note: Alan adının hangi host tarafından sorgulandığını, label uzunluklarını, qtype bilgisini ve aynı zaman aralığında tekrar eden benzer DNS veya outbound aktivite olup olmadığını kontrol edin.
+  message_en: Suspicious Long DNS Query
+  message_tr: Anormal derecede uzun ve çok katmanlı DNS sorgusu görüldü
+  summary_en: This rule highlights unusually long and deeply nested DNS lookups. The signal may indicate DNS tunneling preparation, beaconing, or data exfiltration attempts, while excluding reverse-lookup and captive-portal noise.
+  summary_tr: Bu kural, aşırı uzun ve çok katmanlı DNS sorgularını görünür kılar. Sinyal, DNS tünelleme hazırlığı, beaconing veya veri dışa aktarma denemesi ile ilişkili olabilir; ancak reverse lookup ve captive portal benzeri gürültüler hariç tutulur.
+  operator_note_en: Review which host queried the domain, the label lengths, the query type, and whether similar DNS or outbound activity repeated in the same time window.
+  operator_note_tr: Alan adının hangi host tarafından sorgulandığını, label uzunluklarını, qtype bilgisini ve aynı zaman aralığında tekrar eden benzer DNS veya outbound aktivite olup olmadığını kontrol edin.
+- id: DNS-006
+  name: High-Entropy DNS Query Pattern
+  severity: high
+  score: 84
+  category: network
+  message: Yüksek entropili DNS sorgu kalıbı görüldü — olası DGA veya staged C2
+  summary: Bu kural, ilk label kısmı yüksek entropi taşıyan ve uzun rastgele görünümlü alan adlarını görünür kılar. Sinyal, DGA tabanlı çözümleme, staging veya keşif sonrası C2 hazırlığına işaret edebilir.
+  condition:
+    source:
+    - dns
+    - dnsmasq
+    - named
+    - syslog
+    action: dns_query
+    fields:
+      __all__:
+      - entropy_gte: 3.8
+      - domain_label_max_len_gte: 18
+      - domain_regex: (?:^|\.)[A-Za-z0-9]{18,}(?:\.|$)
+      - __not__:
+          __any__:
+          - qtype: PTR
+          - domain_contains_any:
+            - .local
+            - .localdomain
+            - .in-addr.arpa
+            - .ip6.arpa
+            - connectivitycheck.gstatic.com
+            - detectportal.firefox.com
+            - captive.apple.com
+            - msftconnecttest.com
+            - msftncsi.com
+          - domain_regex: (^|\.)(?:_dmarc|_spf|_acme-challenge)(\.|$)
+          - domain_contains: ._domainkey.
+  mitre_tactic: TA0011
+  mitre_technique: T1568.002
+  tags:
+  - dns
+  - dga
+  - command-and-control
+  pack: core
+  pack_version: '1.0'
+  operator_note: Aynı hosttan gelen diğer lookup’ları, NXDOMAIN/failure oranını, hemen sonrasındaki outbound bağlantıları ve sorgulanan alanın tehdit istihbaratı bağlamını kontrol edin.
+  message_en: High-Entropy DNS Query Pattern
+  message_tr: Yüksek entropili DNS sorgu kalıbı görüldü — olası DGA veya staged C2
+  summary_en: This rule highlights long random-looking domains whose leading label has high entropy. The signal can indicate DGA-based resolution, staging, or post-reconnaissance C2 preparation.
+  summary_tr: Bu kural, ilk label kısmı yüksek entropi taşıyan ve uzun rastgele görünümlü alan adlarını görünür kılar. Sinyal, DGA tabanlı çözümleme, staging veya keşif sonrası C2 hazırlığına işaret edebilir.
+  operator_note_en: Review adjacent lookups from the same host, the NXDOMAIN or failure rate, the immediate outbound connections, and any threat-intelligence context on the queried domain.
+  operator_note_tr: Aynı hosttan gelen diğer lookup’ları, NXDOMAIN/failure oranını, hemen sonrasındaki outbound bağlantıları ve sorgulanan alanın tehdit istihbaratı bağlamını kontrol edin.
+- id: DNS-007
+  name: Suspicious TXT Lookup
+  severity: high
+  score: 86
+  category: network
+  message: Şüpheli uzun TXT sorgusu görüldü — olası DNS tabanlı exfil/C2
+  summary: Bu kural, uzun ve yüksek entropili TXT sorgularını görünür kılar. SPF, DKIM, DMARC ve ACME challenge gibi yaygın meşru TXT kullanımları hariç tutulur.
+  condition:
+    source:
+    - dns
+    - dnsmasq
+    - named
+    - syslog
+    action: dns_query
+    fields:
+      __all__:
+      - qtype: TXT
+      - domain_len_gte: 45
+      - domain_label_count_gte: 4
+      - domain_label_max_len_gte: 18
+      - __any__:
+        - entropy_gte: 3.5
+        - domain_regex: (?:^|\.)[A-Za-z0-9_-]{20,}(?:\.|$)
+      - __not__:
+          __any__:
+          - domain_regex: (^|\.)_dmarc\.
+          - domain_contains: ._domainkey.
+          - domain_regex: (^|\.)(?:_acme-challenge|_spf)(\.|$)
+          - domain_contains_any:
+            - amazonses
+            - google-site-verification
+            - selector1._domainkey
+            - selector2._domainkey
+  mitre_tactic: TA0010
+  mitre_technique: T1071.004
+  tags:
+  - dns
+  - txt
+  - exfiltration
+  pack: core
+  pack_version: '1.0'
+  operator_note: TXT sorgusunun alan adı yapısını, aynı hosttan gelen tekrarlarını, sorgu öncesi veri toplama veya arşivleme activity’sini ve sonrasındaki outbound sinyalleri birlikte değerlendirin.
+  message_en: Suspicious TXT Lookup
+  message_tr: Şüpheli uzun TXT sorgusu görüldü — olası DNS tabanlı exfil/C2
+  summary_en: This rule highlights long, high-entropy TXT lookups. Common legitimate TXT uses such as SPF, DKIM, DMARC, and ACME challenges are excluded.
+  summary_tr: Bu kural, uzun ve yüksek entropili TXT sorgularını görünür kılar. SPF, DKIM, DMARC ve ACME challenge gibi yaygın meşru TXT kullanımları hariç tutulur.
+  operator_note_en: Evaluate the TXT lookup structure, repetition from the same host, any preceding collection or archiving activity, and the outbound signals that followed.
+  operator_note_tr: TXT sorgusunun alan adı yapısını, aynı hosttan gelen tekrarlarını, sorgu öncesi veri toplama veya arşivleme activity’sini ve sonrasındaki outbound sinyalleri birlikte değerlendirin.
+- id: DNS-008
+  name: Possible DNS Tunneling Pattern
+  severity: high
+  score: 90
+  category: network
+  message: DNS tünelleme ile uyumlu yüksek güvenli sorgu kalıbı görüldü
+  summary: Bu kural, çok uzun, çok katmanlı ve birden fazla uzun label içeren DNS sorgularını görünür kılar. Sinyal yalnızca yüksek güvenli tünelleme veya exfiltration desenlerine odaklanır.
+  condition:
+    source:
+    - dns
+    - dnsmasq
+    - named
+    - syslog
+    action: dns_query
+    fields:
+      __all__:
+      - domain_len_gte: 72
+      - domain_label_count_gte: 6
+      - domain_label_max_len_gte: 20
+      - domain_regex: (?:^|\.)[A-Za-z0-9_-]{18,}\.[A-Za-z0-9_-]{18,}(?:\.|$)
+      - __any__:
+        - qtype: TXT
+        - qtype: CNAME
+        - qtype: 'NULL'
+      - __not__:
+          __any__:
+          - domain_regex: (^|\.)_dmarc\.
+          - domain_contains: ._domainkey.
+          - domain_regex: (^|\.)(?:_acme-challenge|_spf)(\.|$)
+          - domain_contains_any:
+            - connectivitycheck.gstatic.com
+            - detectportal.firefox.com
+            - captive.apple.com
+            - msftconnecttest.com
+            - msftncsi.com
+  mitre_tactic: TA0010
+  mitre_technique: T1071.004
+  tags:
+  - dns
+  - tunneling
+  - exfiltration
+  - command-and-control
+  pack: core
+  pack_version: '1.0'
+  operator_note: Aynı kaynak için kısa zaman aralığındaki tekrar sayısını, sorgulanan apex domain’i, qtype dağılımını ve eşlik eden process/network sinyallerini kontrol ederek beacon mı exfil mi olduğunu ayırın.
+  message_en: Possible DNS Tunneling Pattern
+  message_tr: DNS tünelleme ile uyumlu yüksek güvenli sorgu kalıbı görüldü
+  summary_en: This rule highlights very long, deeply nested DNS lookups that contain multiple long labels. The signal is intentionally scoped to high-confidence tunneling or exfiltration patterns.
+  summary_tr: Bu kural, çok uzun, çok katmanlı ve birden fazla uzun label içeren DNS sorgularını görünür kılar. Sinyal yalnızca yüksek güvenli tünelleme veya exfiltration desenlerine odaklanır.
+  operator_note_en: For the same source, review the short-window repetition count, the apex domain, the query-type distribution, and adjacent process or network signals to separate beaconing from exfiltration.
+  operator_note_tr: Aynı kaynak için kısa zaman aralığındaki tekrar sayısını, sorgulanan apex domain’i, qtype dağılımını ve eşlik eden process/network sinyallerini kontrol ederek beacon mı exfil mi olduğunu ayırın.
+- id: DNS-009
+  name: DNS Resolver Configuration Tamper
+  severity: high
+  score: 88
+  category: filesystem
+  message: DNS resolver veya named yapılandırmasında yazma/değiştirme görüldü
+  summary: auditd üzerinden resolver veya named yapılandırma yollarında yazma/değiştirme sinyali görüldü. Bu durum resolver yönlendirmesi, DNS visibility kaybı veya ad çözümleme manipülasyonu anlamına gelebilir.
+  condition:
+    source: auditd
+    action: sensitive_file_access
+    fields:
+      __all__:
+      - write_access: true
+      - file_path_contains_any:
+        - /etc/resolv.conf
+        - /etc/systemd/resolved.conf
+        - /etc/systemd/resolved.conf.d/
+        - /etc/dnsmasq.conf
+        - /etc/dnsmasq.d/
+        - /etc/named.conf
+        - /etc/named/
+        - /etc/bind/
+      - __not__:
+          comm_contains_any:
+          - dpkg
+          - rpm
+          - dnf
+          - yum
+          - zypper
+          - packagekit
+          - needrestart
+          - unattended-upgrades
+          - ansible
+          - puppet
+          - chef-client
+          - salt-call
+          - salt-minion
+  mitre_tactic: TA0005
+  mitre_technique: T1565.001
+  tags:
+  - dns
+  - resolver
+  - config-tamper
+  - auditd
+  pack: core
+  pack_version: '1.0'
+  operator_note: Değiştirilen dosya yolunu, yazan process veya uid bağlamını, yeni nameserver/zone içeriğini ve hemen sonrasında görülen DNS hata artışı veya outbound yön değişimini kontrol edin.
+  message_en: DNS Resolver Configuration Tamper
+  message_tr: DNS resolver veya named yapılandırmasında yazma/değiştirme görüldü
+  summary_en: auditd reported write or modification activity under resolver or named configuration paths. This can indicate resolver redirection, DNS visibility loss, or name-resolution manipulation.
+  summary_tr: auditd üzerinden resolver veya named yapılandırma yollarında yazma/değiştirme sinyali görüldü. Bu durum resolver yönlendirmesi, DNS visibility kaybı veya ad çözümleme manipülasyonu anlamına gelebilir.
+  operator_note_en: Review the modified file path, the writing process or UID context, the new nameserver or zone content, and any immediate increase in DNS failures or outbound destination changes.
+  operator_note_tr: Değiştirilen dosya yolunu, yazan process veya uid bağlamını, yeni nameserver/zone içeriğini ve hemen sonrasında görülen DNS hata artışı veya outbound yön değişimini kontrol edin.

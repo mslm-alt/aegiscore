@@ -1,0 +1,785 @@
+- id: AUDIT-001
+  name: Living off the Land - Python Shell
+  severity: critical
+  score: 90
+  category: process
+  message: Python ile shell/socket komutu çalıştırıldı
+  summary: Bu kural, normalize edilen olay alanlarında `python_shell` sınıflandırması oluştuğunda Living off the Land - Python Shell davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source: auditd
+    action: lotl_exec
+    fields:
+      attack: python_inline
+  mitre_tactic: TA0002
+  mitre_technique: T1059.006
+  tags:
+  - execution
+  - python
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Living off the Land - Python Shell
+  message_tr: Python ile shell/socket komutu çalıştırıldı
+  summary_en: Python shell behavior was observed. This may indicate suspicious command execution or post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `python_shell` sınıflandırması oluştuğunda Living off the Land - Python Shell davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-002
+  name: Living off the Land - Netcat Shell
+  severity: critical
+  score: 95
+  category: process
+  message: Netcat ile reverse shell girişimi
+  summary: Bu kural, normalize edilen olay alanlarında `netcat_shell` sınıflandırması oluştuğunda Living off the Land - Netcat Shell davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source: auditd
+    action: lotl_exec
+    fields:
+      attack: nc_reverse_shell
+  mitre_tactic: TA0011
+  mitre_technique: T1059.004
+  tags:
+  - command-and-control
+  - unix-shell
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Living off the Land - Netcat Shell
+  message_tr: Netcat ile reverse shell girişimi
+  summary_en: Netcat shell behavior was observed. This may indicate suspicious command execution or post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `netcat_shell` sınıflandırması oluştuğunda Living off the Land - Netcat Shell davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-003
+  name: Living off the Land - Curl/Wget Pipe
+  severity: critical
+  score: 90
+  category: process
+  message: İnternetten indirip doğrudan çalıştırma
+  summary: Bu kural, normalize edilen olay alanlarında `['curl_pipe', 'wget_pipe']` sınıflandırması oluştuğunda Living off the Land - Curl/Wget Pipe davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source: auditd
+    action: lotl_exec
+    fields:
+      attack: curl_pipe
+  mitre_tactic: TA0002
+  mitre_technique: T1059.004
+  tags:
+  - execution
+  - unix-shell
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Living off the Land - Curl/Wget Pipe
+  message_tr: İnternetten indirip doğrudan çalıştırma
+  summary_en: A curl or wget pipe-to-shell pattern was observed. This may indicate payload delivery or post-compromise execution.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `['curl_pipe', 'wget_pipe']` sınıflandırması oluştuğunda Living off the Land - Curl/Wget Pipe davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-004
+  name: Living off the Land - Web Attack Tool
+  severity: high
+  score: 80
+  category: process
+  message: Web saldırı aracı çalıştırıldı
+  summary: Bu kural, normalize edilen olay alanlarında `web_attack_tool` sınıflandırması oluştuğunda Living off the Land - Web Attack Tool davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  condition:
+    source: auditd
+    action: lotl_exec
+    fields:
+      attack: web_attack_tool
+  mitre_tactic: TA0043
+  mitre_technique: T1595
+  tags:
+  - reconnaissance
+  - active-scanning
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Living off the Land - Web Attack Tool
+  message_tr: Web saldırı aracı çalıştırıldı
+  summary_en: A known web attack tool was observed. This may indicate active reconnaissance or exploitation.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `web_attack_tool` sınıflandırması oluştuğunda Living off the Land - Web Attack Tool davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-005
+  name: Living off the Land - Brute Force Tool
+  severity: high
+  score: 85
+  category: process
+  message: Brute force aracı çalıştırıldı (hydra/medusa)
+  summary: Bu kural, normalize edilen olay alanlarında `brute_force_tool` sınıflandırması oluştuğunda Living off the Land - Brute Force Tool davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  condition:
+    source: auditd
+    action: lotl_exec
+    fields:
+      attack: brute_force_tool
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - brute-force
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Living off the Land - Brute Force Tool
+  message_tr: Brute force aracı çalıştırıldı (hydra/medusa)
+  summary_en: A brute-force tool was observed. This may indicate credential attacks or unauthorized access attempts.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `brute_force_tool` sınıflandırması oluştuğunda Living off the Land - Brute Force Tool davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-006
+  name: Living off the Land - Port Scanner
+  severity: medium
+  score: 65
+  category: network
+  message: Port tarama aracı çalıştırıldı (nmap)
+  summary: Bu kural, normalize edilen olay alanlarında `nmap_scan` sınıflandırması oluştuğunda Living off the Land - Port Scanner davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  condition:
+    source: auditd
+    action: lotl_exec
+    fields:
+      attack: nmap_scan
+  mitre_tactic: TA0043
+  mitre_technique: T1595.001
+  tags:
+  - reconnaissance
+  - scanning-ip-blocks
+  pack: core
+  pack_version: '1.0'
+  operator_note: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+  message_en: Living off the Land - Port Scanner
+  message_tr: Port tarama aracı çalıştırıldı (nmap)
+  summary_en: Port scanning activity was observed. This may indicate reconnaissance or target enumeration.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `nmap_scan` sınıflandırması oluştuğunda Living off the Land - Port Scanner davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the process or execution context, AUID, UID, and tty details, accessed path or syscall details, host and event time, and the immediately preceding or following process, auth, file-access, or persistence events.
+  operator_note_tr: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+- id: AUDIT-007
+  name: Living off the Land - Metasploit
+  severity: critical
+  score: 99
+  category: process
+  message: Metasploit çalıştırıldı
+  summary: Bu kural, normalize edilen olay alanlarında `metasploit` sınıflandırması oluştuğunda Living off the Land - Metasploit davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source: auditd
+    action: lotl_exec
+    fields:
+      attack: metasploit
+  mitre_tactic: TA0002
+  mitre_technique: T1072
+  tags:
+  - execution
+  - software-deployment-tools
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Living off the Land - Metasploit
+  message_tr: Metasploit çalıştırıldı
+  summary_en: Metasploit-related activity was observed. This may indicate exploitation or post-compromise abuse.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `metasploit` sınıflandırması oluştuğunda Living off the Land - Metasploit davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-008
+  name: Living off the Land - Base64 Decode Pipe
+  severity: high
+  score: 80
+  category: process
+  message: Base64 decode + pipe ile komut çalıştırma
+  summary: Bu kural, normalize edilen olay alanlarında `base64_decode_pipe` sınıflandırması oluştuğunda Living off the Land - Base64 Decode Pipe davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  condition:
+    source: auditd
+    action: lotl_exec
+    fields:
+      attack: base64_exec
+  mitre_tactic: TA0005
+  mitre_technique: T1027
+  tags:
+  - defense-evasion
+  - obfuscated-files
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Living off the Land - Base64 Decode Pipe
+  message_tr: Base64 decode + pipe ile komut çalıştırma
+  summary_en: A Base64 decode-and-pipe pattern was observed. This may indicate obfuscated execution or defense evasion.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `base64_decode_pipe` sınıflandırması oluştuğunda Living off the Land - Base64 Decode Pipe davranışını görünür kılar; bu sinyal iz silme, görünürlüğü azaltma veya güvenlik kontrollerini devre dışı bırakma riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-009
+  name: Living off the Land - Packet Capture
+  severity: medium
+  score: 60
+  category: network
+  message: Ağ trafiği yakalanıyor (tcpdump/wireshark)
+  summary: Bu kural, normalize edilen olay alanlarında `packet_capture` sınıflandırması oluştuğunda Living off the Land - Packet Capture davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  condition:
+    source: auditd
+    action: lotl_exec
+    fields:
+      attack: packet_capture
+  mitre_tactic: TA0007
+  mitre_technique: T1040
+  tags:
+  - discovery
+  - network-sniffing
+  pack: core
+  pack_version: '1.0'
+  operator_note: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+  message_en: Living off the Land - Packet Capture
+  message_tr: Ağ trafiği yakalanıyor (tcpdump/wireshark)
+  summary_en: Packet capture activity was observed. This may indicate reconnaissance or credential collection.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `packet_capture` sınıflandırması oluştuğunda Living off the Land - Packet Capture davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the process or execution context, AUID, UID, and tty details, accessed path or syscall details, host and event time, and the immediately preceding or following process, auth, file-access, or persistence events.
+  operator_note_tr: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+- id: AUDIT-010
+  name: Sensitive File Access via Auditd
+  severity: high
+  score: 75
+  category: filesystem
+  message: Kritik sistem dosyasına erişim tespit edildi
+  summary: Bu kural, normalize edilen olayda `sensitive_file_access` aksiyonu gözlendiğinde Sensitive File Access via Auditd davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  condition:
+    source: auditd
+    action: sensitive_file_access
+  mitre_tactic: TA0006
+  mitre_technique: T1003.008
+  tags:
+  - credential-access
+  - passwd-and-shadow
+  pack: core
+  pack_version: '1.0'
+  operator_note: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+  message_en: Sensitive File Access via Auditd
+  message_tr: Kritik sistem dosyasına erişim tespit edildi
+  summary_en: Sensitive file access was observed through auditd. This may indicate credential access or unauthorized inspection.
+  summary_tr: Bu kural, normalize edilen olayda `sensitive_file_access` aksiyonu gözlendiğinde Sensitive File Access via Auditd davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the process or execution context, AUID, UID, and tty details, accessed path or syscall details, host and event time, and the immediately preceding or following process, auth, file-access, or persistence events.
+  operator_note_tr: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+- id: AUDIT-CRED-001
+  name: Shadow File Read via Auditd EXECVE
+  severity: critical
+  score: 92
+  category: process
+  message: /etc/shadow erişimi için okuma/staging komutu çalıştırıldı
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Shadow File Read via Auditd EXECVE davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  condition:
+    source: auditd
+    action: exec
+    fields:
+      __all__:
+      - cmdline_contains: /etc/shadow
+      - __any__:
+        - cmdline_token_contains_any:
+          - cat
+          - head
+          - tail
+          - grep
+          - awk
+          - sed
+          - strings
+          - base64
+          - python
+          - python3
+          - perl
+        - cmdline_contains: unshadow
+      - __not__:
+          __any__:
+          - cmdline_token_contains_any:
+            - passwd
+            - chage
+            - vipw
+            - usermod
+            - pwconv
+            - pwunconv
+          - cmdline_contains_any:
+            - authselect
+            - osqueryi
+            - aide
+            - tripwire
+  mitre_tactic: TA0006
+  mitre_technique: T1003.008
+  tags:
+  - credential-access
+  - shadow
+  - hash-dumping
+  - auditd
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Shadow File Read via Auditd EXECVE
+  message_tr: /etc/shadow erişimi için okuma/staging komutu çalıştırıldı
+  summary_en: This rule highlights Shadow File Read via Auditd EXECVE when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Shadow File Read via Auditd EXECVE davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-CRED-002
+  name: Passwd and Shadow Pair Staging
+  severity: critical
+  score: 94
+  category: process
+  message: /etc/passwd ve /etc/shadow birlikte işlendi — unshadow/hash hazırlığı olabilir
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Passwd and Shadow Pair Staging davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  condition:
+    source: auditd
+    action: exec
+    fields:
+      __all__:
+      - cmdline_contains: /etc/passwd
+      - cmdline_contains: /etc/shadow
+      - __any__:
+        - cmdline_token_contains_any:
+          - unshadow
+          - paste
+          - awk
+          - python
+          - python3
+          - perl
+        - cmdline_contains: unshadow
+  mitre_tactic: TA0006
+  mitre_technique: T1003.008
+  tags:
+  - credential-access
+  - passwd-and-shadow
+  - staging
+  - auditd
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Passwd and Shadow Pair Staging
+  message_tr: /etc/passwd ve /etc/shadow birlikte işlendi — unshadow/hash hazırlığı olabilir
+  summary_en: This rule highlights Passwd and Shadow Pair Staging when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Passwd and Shadow Pair Staging davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-CRED-003
+  name: SSH Private Key Material Read
+  severity: high
+  score: 88
+  category: process
+  message: SSH private key materyaline erişim için okuma/staging komutu çalıştırıldı
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SSH Private Key Material Read davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  condition:
+    source: auditd
+    action: exec
+    fields:
+      __all__:
+      - __any__:
+        - cmdline_contains_any:
+          - .ssh/id_rsa
+          - .ssh/id_dsa
+          - .ssh/id_ecdsa
+          - .ssh/id_ed25519
+      - __any__:
+        - cmdline_token_contains_any:
+          - cat
+          - head
+          - tail
+          - grep
+          - strings
+          - base64
+          - openssl
+          - python
+          - python3
+          - perl
+      - __not__:
+          __any__:
+          - cmdline_contains_any:
+            - ssh-keygen
+            - ssh-copy-id
+            - 'ssh -i '
+            - 'scp -i '
+            - rsync -e ssh
+  mitre_tactic: TA0006
+  mitre_technique: T1552.004
+  tags:
+  - credential-access
+  - ssh
+  - private-key
+  - key-material
+  - auditd
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: SSH Private Key Material Read
+  message_tr: SSH private key materyaline erişim için okuma/staging komutu çalıştırıldı
+  summary_en: This rule highlights SSH Private Key Material Read when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SSH Private Key Material Read davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: AUDIT-CRED-004
+  name: Authorized Keys Abuse via Auditd EXECVE
+  severity: critical
+  score: 90
+  category: process
+  message: authorized_keys dosyasına yazım/staging komutu çalıştırıldı
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Authorized Keys Abuse via Auditd EXECVE davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  condition:
+    source: auditd
+    action: exec
+    fields:
+      __all__:
+      - cmdline_contains: .ssh/authorized_keys
+      - __any__:
+        - cmdline_token_contains_any:
+          - echo
+          - printf
+          - tee
+          - cp
+          - mv
+          - install
+          - sed
+          - perl
+          - python
+          - python3
+        - cmdline_contains_any:
+          - /usr/bin/tee
+          - /bin/cp
+          - /bin/mv
+          - /usr/bin/install
+      - __not__:
+          cmdline_contains: ssh-copy-id
+  mitre_tactic: TA0003
+  mitre_technique: T1098.004
+  tags:
+  - credential-access
+  - ssh
+  - authorized-keys
+  - persistence
+  - auditd
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: Authorized Keys Abuse via Auditd EXECVE
+  message_tr: authorized_keys dosyasına yazım/staging komutu çalıştırıldı
+  summary_en: This rule highlights Authorized Keys Abuse via Auditd EXECVE when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Authorized Keys Abuse via Auditd EXECVE davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: AUDIT-CRED-005
+  name: Gcore or GDB Against Credential Processes
+  severity: critical
+  score: 93
+  category: process
+  message: Gcore/GDB ile credential-bearing process dump girişimi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Gcore or GDB Against Credential Processes davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  condition:
+    source: auditd
+    action: exec
+    fields:
+      __all__:
+      - __any__:
+        - cmdline_token_contains_any:
+          - gcore
+          - gdb
+        - cmdline_contains_any:
+          - /usr/bin/gcore
+          - /usr/bin/gdb
+      - __any__:
+        - cmdline_contains_any:
+          - ssh-agent
+          - gpg-agent
+          - gnome-keyring
+          - sshd
+        - cmdline_contains: /proc/
+  mitre_tactic: TA0006
+  mitre_technique: T1003.007
+  tags:
+  - credential-access
+  - memory-dump
+  - ssh-agent
+  - gdb
+  - gcore
+  - auditd
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Gcore or GDB Against Credential Processes
+  message_tr: Gcore/GDB ile credential-bearing process dump girişimi
+  summary_en: This rule highlights Gcore or GDB Against Credential Processes when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Gcore or GDB Against Credential Processes davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-CRED-006
+  name: Secret and Credential File Read/Staging via Auditd EXECVE
+  severity: high
+  score: 89
+  category: process
+  message: Secret veya credential dosyasına okuma/staging erişimi için komut çalıştırıldı
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Secret and Credential File Read/Staging via Auditd EXECVE davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  condition:
+    source: auditd
+    action: exec
+    fields:
+      __all__:
+      - __any__:
+        - command_contains_any:
+          - /.env
+          - .pgpass
+          - .my.cnf
+          - wp-config.php
+          - /.kube/config
+          - kubeconfig
+          - /docker/config.json
+          - /.aws/credentials
+          - /application_default_credentials.json
+          - /etc/apt/auth.conf
+          - /etc/apt/auth.conf.d/
+          - /etc/apt/auth.conf.d
+          - /legacy_credentials/
+          - /credentials.db
+          - /krb5.keytab
+          - /etc/rhsm/rhsm.conf
+          - /etc/zypp/credentials.d/
+          - /etc/zypp/credentials.d
+          - .keytab
+          - /run/secrets/
+          - /var/run/secrets/
+          - /etc/secrets/
+          - service-account.json
+          - serviceaccount.json
+      - __any__:
+        - command_token_contains_any:
+          - cat
+          - head
+          - tail
+          - grep
+          - awk
+          - sed
+          - strings
+          - base64
+          - python
+          - python3
+          - perl
+          - cp
+          - rsync
+          - tar
+          - zip
+          - unzip
+        - command_contains_any:
+          - /bin/cat
+          - /bin/cp
+          - /usr/bin/rsync
+          - /bin/tar
+          - /usr/bin/base64
+      - __not__:
+          __any__:
+          - command_token_contains_any:
+            - vim
+            - vi
+            - nano
+            - less
+            - more
+            - stat
+            - test
+            - ls
+            - kubectl
+            - docker
+            - aws
+            - gcloud
+            - mysql
+            - mysqladmin
+            - my_print_defaults
+            - psql
+            - pg_dump
+            - kinit
+            - klist
+            - ssh-keygen
+          - command_contains_any:
+            - docker login
+            - kubectl config view
+            - kubectl config use-context
+            - aws configure
+            - gcloud auth application-default login
+            - gcloud auth login
+  mitre_tactic: TA0006
+  mitre_technique: T1552
+  tags:
+  - credential-access
+  - secrets
+  - cloud
+  - keytab
+  - auditd
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Secret and Credential File Read/Staging via Auditd EXECVE
+  message_tr: Secret veya credential dosyasına okuma/staging erişimi için komut çalıştırıldı
+  summary_en: This rule highlights Secret and Credential File Read/Staging via Auditd EXECVE when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Secret and Credential File Read/Staging via Auditd EXECVE davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-011
+  name: Living off the Land - Disk Copy
+  severity: critical
+  score: 90
+  category: process
+  message: Disk kopyalama komutu (dd) tespit edildi
+  summary: Bu kural, normalize edilen olay alanlarında `disk_copy` sınıflandırması oluştuğunda Living off the Land - Disk Copy davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  condition:
+    source: auditd
+    action: lotl_exec
+    fields:
+      attack: disk_copy
+  mitre_tactic: TA0009
+  mitre_technique: T1005
+  tags:
+  - collection
+  - data-from-local-system
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Living off the Land - Disk Copy
+  message_tr: Disk kopyalama komutu (dd) tespit edildi
+  summary_en: Disk copy activity was observed. This may indicate staging for exfiltration or offline analysis.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `disk_copy` sınıflandırması oluştuğunda Living off the Land - Disk Copy davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-012
+  name: Living off the Land - Bash Reverse Shell
+  severity: critical
+  score: 99
+  category: process
+  message: Bash reverse shell girişimi
+  summary: Bu kural, normalize edilen olay alanlarında `bash_reverse_shell` sınıflandırması oluştuğunda Living off the Land - Bash Reverse Shell davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  condition:
+    source: auditd
+    action: lotl_exec
+    fields:
+      attack: bash_reverse_shell
+  mitre_tactic: TA0011
+  mitre_technique: T1059.004
+  tags:
+  - command-and-control
+  - unix-shell
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Living off the Land - Bash Reverse Shell
+  message_tr: Bash reverse shell girişimi
+  summary_en: A Bash reverse shell pattern was observed. This may indicate interactive remote command execution.
+  summary_tr: Bu kural, normalize edilen olay alanlarında `bash_reverse_shell` sınıflandırması oluştuğunda Living off the Land - Bash Reverse Shell davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: AUDIT-PERSIST-001
+  name: ld.so.preload erişimi
+  description: LD preload injection persistence mekanizması
+  message: ld.so.preload dosyasına erişim tespit edildi — LD preload injection girişimi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde ld.so.preload erişimi davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  severity: critical
+  score: 95
+  condition:
+    source: auditd
+    action: sensitive_file_access
+    fields:
+      file_path: /etc/ld.so.preload
+  mitre_tactic: TA0003
+  mitre_technique: T1574.006
+  tags:
+  - persistence
+  - ld_preload
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+  message_en: ld.so.preload Access
+  message_tr: ld.so.preload dosyasına erişim tespit edildi — LD preload injection girişimi
+  summary_en: Access to ld.so.preload was observed. This may indicate persistence or privilege escalation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde ld.so.preload erişimi davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the process or execution context, AUID, UID, and tty details, accessed path or syscall details, host and event time, and the immediately preceding or following process, auth, file-access, or persistence events.
+  operator_note_tr: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+- id: AUDIT-PERSIST-002
+  name: PAM config değişimi
+  description: PAM yapılandırmasına yazma erişimi
+  message: PAM konfigürasyon dosyasına yazma girişimi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde PAM config değişimi davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  severity: high
+  score: 85
+  condition:
+    source: auditd
+    action: sensitive_file_access
+    fields:
+      sensitive: true
+      file_path_contains:
+      - /etc/pam.d
+      - /etc/pam.conf
+  mitre_tactic: TA0003
+  mitre_technique: T1556.003
+  tags:
+  - persistence
+  - pam
+  cooldown: 120
+  pack: core
+  pack_version: '1.0'
+  operator_note: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+  message_en: PAM Configuration Modification
+  message_tr: PAM konfigürasyon dosyasına yazma girişimi
+  summary_en: A PAM configuration change was observed. This may indicate persistence or privilege escalation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde PAM config değişimi davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the process or execution context, AUID, UID, and tty details, accessed path or syscall details, host and event time, and the immediately preceding or following process, auth, file-access, or persistence events.
+  operator_note_tr: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+- id: AUDIT-PERSIST-003
+  name: Bash profile değişimi
+  description: Shell profile dosyasına yazma erişimi
+  message: Shell profile/bashrc dosyasına değişiklik tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Bash profile değişimi davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  severity: high
+  score: 80
+  condition:
+    source: auditd
+    action: sensitive_file_access
+    fields:
+      sensitive: true
+      file_path_contains:
+      - /etc/bash.bashrc
+      - /etc/profile
+      - /etc/environment
+      - .bashrc
+      - .bash_profile
+      - .profile
+  mitre_tactic: TA0003
+  mitre_technique: T1546.004
+  tags:
+  - persistence
+  - shell_profile
+  cooldown: 120
+  pack: core
+  pack_version: '1.0'
+  operator_note: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+  message_en: Bash Profile Modification
+  message_tr: Shell profile/bashrc dosyasına değişiklik tespit edildi
+  summary_en: A Bash profile change was observed. This may indicate persistence or privilege escalation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Bash profile değişimi davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the process or execution context, AUID, UID, and tty details, accessed path or syscall details, host and event time, and the immediately preceding or following process, auth, file-access, or persistence events.
+  operator_note_tr: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+- id: AUDIT-PRIVESC-001
+  name: LotL privilege escalation
+  description: Living-off-the-land tarzı yetki yükseltme girişimi
+  message: LotL komutu ile privilege escalation girişimi
+  summary: Bu kural, normalize edilen olayda `lotl_exec` aksiyonu gözlendiğinde LotL privilege escalation davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  severity: high
+  score: 80
+  condition:
+    source: auditd
+    action: lotl_exec
+  mitre_tactic: TA0004
+  mitre_technique: T1548.001
+  tags:
+  - privilege_escalation
+  - lotl
+  cooldown: 60
+  pack: core
+  pack_version: '1.0'
+  operator_note: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.
+  message_en: LotL privilege escalation
+  message_tr: LotL komutu ile privilege escalation girişimi
+  summary_en: Living-off-the-land privilege escalation activity was observed. This may indicate attack progression.
+  summary_tr: Bu kural, normalize edilen olayda `lotl_exec` aksiyonu gözlendiğinde LotL privilege escalation davranışını görünür kılar; bu sinyal kötüye kullanım veya saldırı zincirinin ilerlemesi riskini gösterir.
+  operator_note_en: Review the process or execution context, AUID, UID, and tty details, accessed path or syscall details, host and event time, and the immediately preceding or following process, auth, file-access, or persistence events.
+  operator_note_tr: Process/exec bağlamını, auid/uid/tty bilgilerini, erişilen path veya syscall detaylarını, host ve olay zamanını ve hemen önceki/sonraki process, auth, file-access veya persistence olaylarını kontrol edin.

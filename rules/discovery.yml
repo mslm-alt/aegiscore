@@ -1,0 +1,445 @@
+- id: DISC-001
+  name: Sistem Bilgisi Toplu Keşfi
+  severity: medium
+  score: 55
+  category: process
+  message: Birden fazla sistem keşif komutu çalıştırıldı — post-exploitation keşif aşaması
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Sistem Bilgisi Toplu Keşfi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  cooldown: 300
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - uname -a
+      - cat /etc/os-release
+      - cat /etc/issue
+      - hostnamectl
+      - dmidecode
+  mitre_tactic: TA0007
+  mitre_technique: T1082
+  tags:
+  - discovery
+  - system-info
+  - recon
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Bulk System Information Discovery
+  message_tr: Birden fazla sistem keşif komutu çalıştırıldı — post-exploitation keşif aşaması
+  summary_en: Batch system information discovery was observed. This may indicate reconnaissance before follow-on activity.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Sistem Bilgisi Toplu Keşfi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: DISC-002
+  name: Kullanıcı ve Grup Keşfi
+  severity: low
+  score: 25
+  category: auth
+  message: Sistem kullanıcıları ve grupları listelendi — hesap keşfi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Kullanıcı ve Grup Keşfi davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  cooldown: 300
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - cat /etc/passwd
+      - cat /etc/group
+      - getent passwd
+      - getent group
+      - who
+      - last
+      - lastlog
+      - id
+      - whoami
+  mitre_tactic: TA0007
+  mitre_technique: T1087.001
+  tags:
+  - discovery
+  - account-discovery
+  - user-enum
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: User and Group Discovery
+  message_tr: Sistem kullanıcıları ve grupları listelendi — hesap keşfi
+  summary_en: User and group discovery was observed. This may indicate account enumeration or attack preparation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Kullanıcı ve Grup Keşfi davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: DISC-003
+  name: Aktif Ağ Bağlantıları Keşfi
+  severity: medium
+  score: 50
+  category: network
+  message: Ağ bağlantıları ve dinleme portları listelendi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Aktif Ağ Bağlantıları Keşfi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  cooldown: 300
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - netstat -tulpn
+      - netstat -an
+      - ss -tulpn
+      - ss -an
+      - lsof -i
+  mitre_tactic: TA0007
+  mitre_technique: T1049
+  tags:
+  - discovery
+  - network-connections
+  - port-scan
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+  message_en: Active Network Connection Discovery
+  message_tr: Ağ bağlantıları ve dinleme portları listelendi
+  summary_en: Active network connection discovery was observed. This may indicate reconnaissance or surface mapping.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Aktif Ağ Bağlantıları Keşfi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the source and destination IPs and ports, host, event time, relevant URL or protocol context, and the immediately preceding or following auth, web, process, firewall, or DNS events.
+  operator_note_tr: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+- id: DISC-004
+  name: Process Listesi Keşfi
+  severity: low
+  score: 35
+  category: process
+  message: Çalışan tüm processler listelendi — post-exploitation keşfi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Process Listesi Keşfi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  cooldown: 300
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - ps aux
+      - ps -ef
+      - ps -wwaux
+      - pstree
+  mitre_tactic: TA0007
+  mitre_technique: T1057
+  tags:
+  - discovery
+  - process-list
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Process List Discovery
+  message_tr: Çalışan tüm processler listelendi — post-exploitation keşfi
+  summary_en: Process listing activity was observed. This may indicate host reconnaissance.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Process Listesi Keşfi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: DISC-005
+  name: Sudo Yetkili Kullanıcı Keşfi
+  severity: medium
+  score: 60
+  category: auth
+  message: sudo grubundaki kullanıcılar listelendi — privilege escalation hedefi arama
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Sudo Yetkili Kullanıcı Keşfi davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  cooldown: 300
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - getent group sudo
+      - getent group wheel
+      - getent group admin
+      - grep sudo /etc/group
+      - grep wheel /etc/group
+  mitre_tactic: TA0007
+  mitre_technique: T1069.001
+  tags:
+  - discovery
+  - group-enumeration
+  - privilege-escalation-recon
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: sudo-Capable User Discovery
+  message_tr: sudo grubundaki kullanıcılar listelendi — privilege escalation hedefi arama
+  summary_en: Discovery of sudo-capable users was observed. This may indicate privilege escalation preparation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Sudo Yetkili Kullanıcı Keşfi davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: DISC-006
+  name: Hassas Dizin Taraması
+  severity: medium
+  score: 60
+  category: filesystem
+  message: Hassas sistem dizinleri tarandı — kimlik bilgisi ve yapılandırma arama
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Hassas Dizin Taraması davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - find / -name
+      - find /home -name
+      - find /root -name
+      - find /etc -name
+      - find /var -name *.conf
+      - find /etc -name *.key
+      - find /etc -name *.pem
+      - find / -name id_rsa
+  mitre_tactic: TA0007
+  mitre_technique: T1083
+  tags:
+  - discovery
+  - file-search
+  - credential-files
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+  message_en: Sensitive Directory Scan
+  message_tr: Hassas sistem dizinleri tarandı — kimlik bilgisi ve yapılandırma arama
+  summary_en: Sensitive directory scanning was observed. This may indicate reconnaissance for credentials or configuration data.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Hassas Dizin Taraması davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the source IP, user, process or command, path or target artifact, host, and event time, and correlate the activity with the immediately preceding or following auth, process, network, persistence, and defense-evasion events on the same asset.
+  operator_note_tr: Kaynak IP, kullanıcı, process/komut, path veya hedef artefact, host ve olay zamanını kontrol edin; aynı varlıkta hemen önceki/sonraki auth, process, network, persistence ve defense-evasion olaylarıyla ilişki kurun.
+- id: DISC-007
+  name: Zamanlanmış Görev Keşfi
+  severity: low
+  score: 40
+  category: process
+  message: Cron görevleri ve zamanlanmış işler listelendi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Zamanlanmış Görev Keşfi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  cooldown: 300
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - crontab -l
+      - ls /etc/cron
+      - cat /etc/crontab
+      - atq
+      - systemctl list-timers
+  mitre_tactic: TA0007
+  mitre_technique: T1053.003
+  tags:
+  - discovery
+  - scheduled-tasks
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Scheduled Task Discovery
+  message_tr: Cron görevleri ve zamanlanmış işler listelendi
+  summary_en: Scheduled task discovery was observed. This may indicate reconnaissance for persistence or execution paths.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Zamanlanmış Görev Keşfi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: DISC-008
+  name: SSH Özel Anahtar Arama
+  severity: high
+  score: 80
+  category: auth
+  message: SSH özel anahtarları arandı — lateral movement kimlik bilgisi toplama
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SSH Özel Anahtar Arama davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - find / -name id_rsa
+      - find / -name id_ed25519
+      - find / -name id_ecdsa
+      - find / -name *.pem
+      - find / -name *.key
+      - cat ~/.ssh/id_rsa
+      - cat /root/.ssh/id_rsa
+  mitre_tactic: TA0006
+  mitre_technique: T1552.004
+  tags:
+  - credential-access
+  - ssh-private-key
+  - lateral-movement-prep
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: SSH Private Key Search
+  message_tr: SSH özel anahtarları arandı — lateral movement kimlik bilgisi toplama
+  summary_en: SSH private key search activity was observed. This may indicate credential access preparation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SSH Özel Anahtar Arama davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: DISC-009
+  name: ARP Tablosu ve Komşu Keşfi
+  severity: medium
+  score: 55
+  category: network
+  message: Yerel ağ komşuları keşfedildi — lateral movement hedef arama
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde ARP Tablosu ve Komşu Keşfi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  cooldown: 300
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - arp -a
+      - arp -n
+      - ip neigh
+      - ip neighbor
+      - nmap -sn
+      - nmap -PR
+      - ping -c 1
+  mitre_tactic: TA0007
+  mitre_technique: T1018
+  tags:
+  - discovery
+  - network-scan
+  - arp
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+  message_en: ARP Table and Neighbor Discovery
+  message_tr: Yerel ağ komşuları keşfedildi — lateral movement hedef arama
+  summary_en: ARP table or neighbor discovery was observed. This may indicate local network reconnaissance.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde ARP Tablosu ve Komşu Keşfi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the source and destination IPs and ports, host, event time, relevant URL or protocol context, and the immediately preceding or following auth, web, process, firewall, or DNS events.
+  operator_note_tr: Kaynak/hedef IP ve portları, host, olay zamanı, ilgili URL veya protocol bağlamını ve hemen önceki/sonraki auth, web, process, firewall veya DNS olaylarını kontrol edin.
+- id: DISC-010
+  name: DNS Bölge Transferi Denemesi
+  severity: high
+  score: 75
+  category: network
+  message: DNS zone transfer denemesi — ağ haritası çıkarma
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde DNS Bölge Transferi Denemesi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - dig axfr
+      - dig AXFR
+      - host -t axfr
+      - nslookup -type=axfr
+  mitre_tactic: TA0007
+  mitre_technique: T1590.002
+  tags:
+  - discovery
+  - dns
+  - zone-transfer
+  pack: core
+  pack_version: '1.0'
+  operator_note: Sorguyu yapan host veya kaynak IP’yi, alan adını, sorgu türünü, zaman penceresini ve hemen önceki/sonraki outbound bağlantı, auth, process veya web olaylarını kontrol edin.
+  message_en: DNS Zone Transfer Attempt
+  message_tr: DNS zone transfer denemesi — ağ haritası çıkarma
+  summary_en: A DNS zone transfer attempt was observed. This may indicate reconnaissance against internal naming infrastructure.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde DNS Bölge Transferi Denemesi davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the querying host or source IP, domain name, query type, time window, and the immediately preceding or following outbound connection, auth, process, or web events.
+  operator_note_tr: Sorguyu yapan host veya kaynak IP’yi, alan adını, sorgu türünü, zaman penceresini ve hemen önceki/sonraki outbound bağlantı, auth, process veya web olaylarını kontrol edin.
+- id: DISC-011
+  name: Post-Login Suspicious Discovery via Process Logs
+  severity: medium
+  score: 62
+  category: process
+  message: Başarılı erişim sonrası şüpheli discovery komutu process loglarda görüldü
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Post-Login Suspicious Discovery via Process Logs davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  cooldown: 180
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    fields:
+      __all__:
+      - __any__:
+        - command_contains_any:
+          - sudo -l
+          - sudo --list
+          - doas -L
+          - getent group sudo
+          - getent group wheel
+          - getent group admin
+          - grep sudo /etc/group
+          - grep wheel /etc/group
+          - cat /etc/sudoers
+          - cat /etc/sudoers.d
+          - ls /etc/sudoers.d
+          - cat /etc/doas.conf
+          - find / -name id_rsa
+          - find / -name id_ed25519
+          - find /etc -name *.pem
+          - find /etc -name *.key
+          - find / -name kubeconfig
+          - find /var/lib/kubelet
+          - ss -tulpn
+          - netstat -tulpn
+          - ip neigh
+          - arp -a
+          - grep COMMAND= /var/log/auth.log
+          - grep COMMAND= /var/log/secure
+          - 'journalctl -u ssh '
+          - 'journalctl -u sshd '
+          - dpkg -l sudo
+          - rpm -q sudo
+          - zypper search -i sudo
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - tail -f /var/log/secure
+            - tail -f /var/log/auth.log
+            - tail -n 100 /var/log/secure
+            - tail -n 100 /var/log/auth.log
+            - journalctl -u ssh -f
+            - journalctl -u sshd -f
+            - journalctl -fu ssh
+            - journalctl -fu sshd
+            - journalctl --unit ssh --follow
+            - journalctl --unit sshd --follow
+          - command_contains_any:
+            - /var/backups/
+            - /srv/backup/
+            - rsnapshot
+            - borg
+            - restic
+            - duplicity
+            - timeshift
+            - ansible
+            - chef-client
+            - puppet
+            - salt-call
+            - apt
+            - apt-get
+            - dpkg
+            - rpm
+            - dnf
+            - yum
+            - zypper
+            - packagekit
+            - needrestart
+            - landscape-sysinfo
+            - motd-news
+          - command_token_contains_any:
+            - backup
+            - logrotate
+            - dpkg-deb
+            - rpmbuild
+            - debuild
+  mitre_tactic: TA0007
+  mitre_technique: T1083
+  tags:
+  - discovery
+  - post-auth
+  - recon
+  - privilege-escalation-prep
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Post-Login Suspicious Discovery via Process Logs
+  message_tr: Başarılı erişim sonrası şüpheli discovery komutu process loglarda görüldü
+  summary_en: This rule highlights Post-Login Suspicious Discovery via Process Logs when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of discovery, surface mapping, and preparation for follow-on attack activity.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Post-Login Suspicious Discovery via Process Logs davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.

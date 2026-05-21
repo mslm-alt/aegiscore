@@ -1,0 +1,718 @@
+- id: THR-001
+  name: SSH Brute Force
+  severity: high
+  score: 80
+  category: auth
+  message: 'SSH Brute Force: {count} başarısız giriş ({window} sn)'
+  summary: Bu kural, aynı src ip üzerinde 60 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında SSH Brute Force davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    action: ssh_login
+    outcome: failure
+    fields:
+      __not__:
+        invalid_user: true
+  group_by: src_ip
+  window_seconds: 60
+  threshold: 5
+  cooldown: 300
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - brute-force
+  - auth
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: SSH Brute Force
+  message_tr: 'SSH Brute Force: {count} başarısız giriş ({window} sn)'
+  summary_en: This rule highlights SSH Brute Force when similar events on the same src ip exceed the threshold of 5 within a 60-second window. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, aynı src ip üzerinde 60 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında SSH Brute Force davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `src ip`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-002
+  name: Sudo Brute Force
+  severity: high
+  score: 75
+  category: auth
+  message: 'Sudo Brute Force: {count} başarısız deneme ({window} sn)'
+  summary: Bu kural, aynı user üzerinde 120 saniyelik pencerede benzer olay sayısı 3 eşiğini aştığında Sudo Brute Force davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    action: sudo_fail
+    fields:
+      auth_service: sudo
+  group_by: user
+  window_seconds: 120
+  threshold: 3
+  cooldown: 300
+  mitre_tactic: TA0004
+  mitre_technique: T1548
+  tags:
+  - brute-force
+  - privilege-escalation
+  operator_note: Önce `user` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Sudo Brute Force
+  message_tr: 'Sudo Brute Force: {count} başarısız deneme ({window} sn)'
+  summary_en: This rule highlights Sudo Brute Force when similar events on the same user exceed the threshold of 3 within a 120-second window. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, aynı user üzerinde 120 saniyelik pencerede benzer olay sayısı 3 eşiğini aştığında Sudo Brute Force davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `user`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `user` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-003
+  name: SSH Connection Flood
+  severity: medium
+  score: 60
+  category: network
+  message: 'SSH bağlantı fırtınası: {count} bağlantı ({window} sn)'
+  summary: Bu kural, aynı src ip üzerinde 60 saniyelik pencerede benzer olay sayısı 20 eşiğini aştığında SSH Connection Flood davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  type: count
+  event_match:
+    action: ssh_login
+    outcome: '*'
+  group_by: src_ip
+  window_seconds: 60
+  threshold: 20
+  cooldown: 120
+  mitre_tactic: TA0011
+  mitre_technique: T1499
+  tags:
+  - flood
+  - network
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: SSH Connection Flood
+  message_tr: 'SSH bağlantı fırtınası: {count} bağlantı ({window} sn)'
+  summary_en: This rule highlights SSH Connection Flood when similar events on the same src ip exceed the threshold of 20 within a 60-second window. This signal indicates a risk of network discovery, exploitation, or abnormal connection behavior.
+  summary_tr: Bu kural, aynı src ip üzerinde 60 saniyelik pencerede benzer olay sayısı 20 eşiğini aştığında SSH Connection Flood davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  operator_note_en: Start with the events clustered by `src ip`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-004
+  name: SSH User Enumeration
+  severity: high
+  score: 70
+  category: auth
+  message: 'SSH kullanıcı keşfi şüphesi: {window} sn içinde {count} farklı geçersiz kullanıcı denemesi'
+  summary: Kısa zaman penceresinde aynı kaynaktan çok sayıda geçersiz SSH kullanıcı adı denenmesi, saldırganın geçerli hesap isimlerini topladığını ve sonraki brute force aşamasına hazırlandığını gösterir.
+  operator_note: Kaynak IP'nin başka hostlara da aynı denemeleri yapıp yapmadığını, denenen kullanıcıların kurumdaki gerçek hesaplarla benzerliğini ve hemen ardından gelen başarılı auth olaylarını inceleyin.
+  type: count
+  event_match:
+    action: ssh_invalid_user
+    outcome: '*'
+  group_by: src_ip
+  window_seconds: 60
+  threshold: 10
+  cooldown: 300
+  mitre_tactic: TA0043
+  mitre_technique: T1592
+  tags:
+  - enumeration
+  - recon
+  message_en: SSH User Enumeration
+  message_tr: 'SSH kullanıcı keşfi şüphesi: {window} sn içinde {count} farklı geçersiz kullanıcı denemesi'
+  summary_en: This rule highlights ssh user enumeration and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Kısa zaman penceresinde aynı kaynaktan çok sayıda geçersiz SSH kullanıcı adı denenmesi, saldırganın geçerli hesap isimlerini topladığını ve sonraki brute force aşamasına hazırlandığını gösterir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kaynak IP'nin başka hostlara da aynı denemeleri yapıp yapmadığını, denenen kullanıcıların kurumdaki gerçek hesaplarla benzerliğini ve hemen ardından gelen başarılı auth olaylarını inceleyin.
+- id: THR-005
+  name: Slow Brute Force (Daily)
+  severity: medium
+  score: 60
+  category: auth
+  message: 'Yavaş brute force: {count} başarısız giriş ({window} sn)'
+  summary: Bu kural, aynı src ip üzerinde 86400 saniyelik pencerede benzer olay sayısı 10 eşiğini aştığında Slow Brute Force (Daily) davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    action: ssh_login
+    outcome: failure
+  group_by: src_ip
+  window_seconds: 86400
+  threshold: 10
+  cooldown: 3600
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - slow-brute
+  - auth
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Slow Brute Force (Daily)
+  message_tr: 'Yavaş brute force: {count} başarısız giriş ({window} sn)'
+  summary_en: This rule highlights Slow Brute Force (Daily) when similar events on the same src ip exceed the threshold of 10 within a 86400-second window. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, aynı src ip üzerinde 86400 saniyelik pencerede benzer olay sayısı 10 eşiğini aştığında Slow Brute Force (Daily) davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `src ip`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-006
+  name: Web 404 Scan
+  severity: medium
+  score: 55
+  category: web
+  message: 'Web keşif/tarama şüphesi: {window} sn içinde {count} adet 404 yanıtı'
+  summary: Aynı kaynaktan kısa sürede çok sayıda 404 yanıtı alınması, dizin keşfi, wordlist tabanlı içerik arama veya saldırı öncesi yüzey haritalama aktivitesine işaret eder.
+  operator_note: Kaynak IP'yi, istenen yolların hassas endpoint içerip içermediğini, user-agent bilgisini ve aynı kaynaktan gelen exploit denemeleri veya başarıyla dönen istekleri kontrol edin.
+  type: count
+  event_match:
+    source:
+    - apache2
+    - nginx
+    category: network
+    fields:
+      status: 404
+  group_by: src_ip
+  window_seconds: 60
+  threshold: 8
+  cooldown: 300
+  mitre_tactic: TA0043
+  mitre_technique: T1595
+  tags:
+  - web-scan
+  - recon
+  message_en: Web 404 Scan
+  message_tr: 'Web keşif/tarama şüphesi: {window} sn içinde {count} adet 404 yanıtı'
+  summary_en: This rule highlights web 404 scan and may indicate suspicious or unauthorized web activity. Review the surrounding context to confirm the impact.
+  summary_tr: Aynı kaynaktan kısa sürede çok sayıda 404 yanıtı alınması, dizin keşfi, wordlist tabanlı içerik arama veya saldırı öncesi yüzey haritalama aktivitesine işaret eder.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding web activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kaynak IP'yi, istenen yolların hassas endpoint içerip içermediğini, user-agent bilgisini ve aynı kaynaktan gelen exploit denemeleri veya başarıyla dönen istekleri kontrol edin.
+- id: THR-007
+  name: Process Spawn Burst
+  severity: medium
+  score: 55
+  category: process
+  message: 'Anormal process patlaması: {count} yeni process ({window} sn)'
+  summary: Bu kural, aynı user üzerinde 30 saniyelik pencerede benzer olay sayısı 15 eşiğini aştığında Process Spawn Burst davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  type: count
+  event_match:
+    action: exec
+    outcome: '*'
+  group_by: user
+  window_seconds: 30
+  threshold: 15
+  cooldown: 120
+  mitre_tactic: TA0002
+  mitre_technique: T1059
+  tags:
+  - process-burst
+  - execution
+  operator_note: Önce `user` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Process Spawn Burst
+  message_tr: 'Anormal process patlaması: {count} yeni process ({window} sn)'
+  summary_en: This rule highlights Process Spawn Burst when similar events on the same user exceed the threshold of 15 within a 30-second window. This signal indicates a risk of suspicious process execution and post-compromise abuse.
+  summary_tr: Bu kural, aynı user üzerinde 30 saniyelik pencerede benzer olay sayısı 15 eşiğini aştığında Process Spawn Burst davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Start with the events clustered by `user`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `user` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-008
+  name: DB Auth Failure Burst
+  severity: high
+  score: 70
+  category: auth
+  message: 'DB brute force: {count} başarısız giriş ({window} sn)'
+  summary: Bu kural, aynı src ip üzerinde 60 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında DB Auth Failure Burst davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    action: db_login
+    outcome: failure
+  group_by: src_ip
+  window_seconds: 60
+  threshold: 5
+  cooldown: 300
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - db-brute
+  - credential-access
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: DB Auth Failure Burst
+  message_tr: 'DB brute force: {count} başarısız giriş ({window} sn)'
+  summary_en: This rule highlights DB Auth Failure Burst when similar events on the same src ip exceed the threshold of 5 within a 60-second window. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, aynı src ip üzerinde 60 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında DB Auth Failure Burst davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `src ip`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-009
+  name: Çok Fazla Sudo Başarısız Deneme
+  severity: high
+  score: 80
+  category: auth
+  message: 'Sudo yetkisiz erişim: {count} başarısız deneme ({window} sn)'
+  summary: Bu kural, aynı user üzerinde 60 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Çok Fazla Sudo Başarısız Deneme davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    source:
+    - auth.log
+    - auth_log
+    - journald
+    - syslog
+    action: sudo_fail
+    outcome: failure
+  group_by: user
+  window_seconds: 60
+  threshold: 5
+  cooldown: 300
+  mitre_tactic: TA0004
+  mitre_technique: T1548.003
+  tags:
+  - privilege-escalation
+  - sudo-abuse
+  operator_note: Önce `user` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Excessive sudo Failures
+  message_tr: 'Sudo yetkisiz erişim: {count} başarısız deneme ({window} sn)'
+  summary_en: Repeated sudo authentication failures exceeded the threshold for the same user. This may indicate a privilege escalation attempt.
+  summary_tr: Bu kural, aynı user üzerinde 60 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Çok Fazla Sudo Başarısız Deneme davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `user`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `user` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-010
+  name: Aynı IP'den Çok Fazla Farklı Kullanıcı Denemesi
+  severity: high
+  score: 75
+  category: auth
+  message: 'Credential stuffing: aynı IP {count} farklı kullanıcı denedi ({window} sn)'
+  summary: Bu kural, aynı src ip üzerinde 300 saniyelik pencerede benzer olay sayısı 15 eşiğini aştığında Aynı IP'den Çok Fazla Farklı Kullanıcı Denemesi davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    action: ssh_login
+    outcome: failure
+  group_by: src_ip
+  distinct_by: user
+  window_seconds: 300
+  threshold: 15
+  cooldown: 600
+  mitre_tactic: TA0006
+  mitre_technique: T1110.004
+  tags:
+  - credential-stuffing
+  - multi-user-brute
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Excessive Distinct User Attempts from the Same IP
+  message_tr: 'Credential stuffing: aynı IP {count} farklı kullanıcı denedi ({window} sn)'
+  summary_en: Multiple username attempts from the same IP exceeded the threshold. This may indicate password spraying or account enumeration.
+  summary_tr: Bu kural, aynı src ip üzerinde 300 saniyelik pencerede benzer olay sayısı 15 eşiğini aştığında Aynı IP'den Çok Fazla Farklı Kullanıcı Denemesi davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `src ip`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-011
+  name: Kısa Sürede Çok Fazla Yeni Process
+  severity: medium
+  score: 60
+  category: process
+  message: 'Anormal process fırtınası: root {count} process ({window} sn)'
+  summary: Bu kural, aynı user üzerinde 60 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Kısa Sürede Çok Fazla Yeni Process davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  type: count
+  event_match:
+    action: cron_exec
+    user: root
+  group_by: user
+  window_seconds: 60
+  threshold: 5
+  cooldown: 120
+  mitre_tactic: TA0002
+  mitre_technique: T1053.003
+  tags:
+  - execution
+  - cron-burst
+  operator_note: Önce `user` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Excessive New Process Creation in a Short Period
+  message_tr: 'Anormal process fırtınası: root {count} process ({window} sn)'
+  summary_en: New process creation volume exceeded the threshold for the same user. This may indicate suspicious post-compromise execution.
+  summary_tr: Bu kural, aynı user üzerinde 60 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Kısa Sürede Çok Fazla Yeni Process davranışını görünür kılar; bu sinyal şüpheli süreç yürütme ve erişim sonrası kötüye kullanım riskini gösterir.
+  operator_note_en: Start with the events clustered by `user`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `user` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-012
+  name: Çok Fazla Su Başarısızlığı
+  severity: high
+  score: 70
+  category: auth
+  message: 'Su brute force: {count} başarısız su denemesi ({window} sn)'
+  summary: Bu kural, aynı user üzerinde 60 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Çok Fazla Su Başarısızlığı davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    action: su
+    outcome: failure
+  group_by: user
+  window_seconds: 60
+  threshold: 5
+  cooldown: 300
+  mitre_tactic: TA0004
+  mitre_technique: T1548.003
+  tags:
+  - privilege-escalation
+  - su-brute
+  operator_note: Önce `user` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Excessive su Failures
+  message_tr: 'Su brute force: {count} başarısız su denemesi ({window} sn)'
+  summary_en: Repeated su failures exceeded the threshold for the same user. This may indicate a privilege escalation attempt.
+  summary_tr: Bu kural, aynı user üzerinde 60 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Çok Fazla Su Başarısızlığı davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `user`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `user` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-013
+  name: DNS DGA Patlaması
+  severity: high
+  score: 80
+  category: network
+  message: 'DGA aktivitesi: {count} DGA domain sorgusu ({window} sn) — C2 beacon'
+  summary: Bu kural, aynı src ip üzerinde 120 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında DNS DGA Patlaması davranışını görünür kılar; bu sinyal komuta-kontrol, tünelleme veya dış iletişim hazırlığı riskini gösterir.
+  type: count
+  event_match:
+    action: dga_detected
+  group_by: src_ip
+  window_seconds: 120
+  threshold: 5
+  cooldown: 600
+  mitre_tactic: TA0011
+  mitre_technique: T1568.002
+  tags:
+  - c2
+  - dga
+  - beacon
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: DNS DGA Burst
+  message_tr: 'DGA aktivitesi: {count} DGA domain sorgusu ({window} sn) — C2 beacon'
+  summary_en: DGA-like DNS activity exceeded the threshold from the same source IP. This may indicate command-and-control staging.
+  summary_tr: Bu kural, aynı src ip üzerinde 120 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında DNS DGA Patlaması davranışını görünür kılar; bu sinyal komuta-kontrol, tünelleme veya dış iletişim hazırlığı riskini gösterir.
+  operator_note_en: Start with the events clustered by `src ip`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-014
+  name: Çok Fazla Web Shell Erişimi
+  severity: critical
+  score: 90
+  category: network
+  message: 'Web shell aktivitesi: {count} istek ({window} sn)'
+  summary: Bu kural, aynı src ip üzerinde 60 saniyelik pencerede benzer olay sayısı 3 eşiğini aştığında Çok Fazla Web Shell Erişimi davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  type: count
+  event_match:
+    action: shell_upload
+  group_by: src_ip
+  window_seconds: 60
+  threshold: 3
+  cooldown: 300
+  mitre_tactic: TA0002
+  mitre_technique: T1505.003
+  tags:
+  - webshell
+  - execution
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Excessive Web Shell Access
+  message_tr: 'Web shell aktivitesi: {count} istek ({window} sn)'
+  summary_en: Repeated web shell access attempts exceeded the threshold from the same source IP. This may indicate active exploitation or post-compromise activity.
+  summary_tr: Bu kural, aynı src ip üzerinde 60 saniyelik pencerede benzer olay sayısı 3 eşiğini aştığında Çok Fazla Web Shell Erişimi davranışını görünür kılar; bu sinyal ağ keşfi, istismar veya anormal bağlantı davranışı riskini gösterir.
+  operator_note_en: Start with the events clustered by `src ip`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-015
+  name: Çok Fazla Kullanıcı Oluşturma
+  severity: critical
+  score: 90
+  category: auth
+  message: Kısa sürede {count} yeni kullanıcı oluşturuldu ({window} sn) — backdoor
+  summary: Bu kural, aynı host üzerinde 300 saniyelik pencerede benzer olay sayısı 3 eşiğini aştığında Çok Fazla Kullanıcı Oluşturma davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    action: useradd
+  group_by: host
+  window_seconds: 300
+  threshold: 3
+  cooldown: 600
+  mitre_tactic: TA0003
+  mitre_technique: T1136.001
+  tags:
+  - persistence
+  - account-creation
+  - critical
+  operator_note: Önce `host` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Excessive User Creation
+  message_tr: Kısa sürede {count} yeni kullanıcı oluşturuldu ({window} sn) — backdoor
+  summary_en: New user creation volume exceeded the threshold on the same host. This may indicate unauthorized account creation.
+  summary_tr: Bu kural, aynı host üzerinde 300 saniyelik pencerede benzer olay sayısı 3 eşiğini aştığında Çok Fazla Kullanıcı Oluşturma davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `host`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `host` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-016
+  name: SSSD Identity Failure Burst
+  severity: medium
+  score: 60
+  category: auth
+  message: 'SSSD auth failure burst: {count} başarısız deneme ({window} sn)'
+  summary: Bu kural, aynı identity.account üzerinde 300 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında SSSD Identity Failure Burst davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    action: identity_login
+    outcome: failure
+    fields:
+      auth_mechanism: sssd
+      identity.phase: auth
+  group_by: identity.account
+  window_seconds: 300
+  threshold: 5
+  cooldown: 300
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - identity
+  - brute-force
+  - sssd
+  operator_note: Önce `identity.account` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: SSSD Identity Failure Burst
+  message_tr: 'SSSD auth failure burst: {count} başarısız deneme ({window} sn)'
+  summary_en: This rule highlights SSSD Identity Failure Burst when similar events on the same identity.account exceed the threshold of 5 within a 300-second window. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, aynı identity.account üzerinde 300 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında SSSD Identity Failure Burst davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `identity.account`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `identity.account` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-017
+  name: Winbind Identity Failure Burst
+  severity: medium
+  score: 60
+  category: auth
+  message: 'Winbind auth failure burst: {count} başarısız deneme ({window} sn)'
+  summary: Bu kural, aynı identity.account üzerinde 300 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Winbind Identity Failure Burst davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    action: identity_login
+    outcome: failure
+    fields:
+      auth_mechanism: winbind
+      identity.phase: auth
+  group_by: identity.account
+  window_seconds: 300
+  threshold: 5
+  cooldown: 300
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - identity
+  - brute-force
+  - winbind
+  operator_note: Önce `identity.account` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Winbind Identity Failure Burst
+  message_tr: 'Winbind auth failure burst: {count} başarısız deneme ({window} sn)'
+  summary_en: This rule highlights Winbind Identity Failure Burst when similar events on the same identity.account exceed the threshold of 5 within a 300-second window. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, aynı identity.account üzerinde 300 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Winbind Identity Failure Burst davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `identity.account`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `identity.account` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-018
+  name: OpenVPN Failure Burst
+  severity: medium
+  score: 60
+  category: auth
+  message: 'OpenVPN auth failure burst: {count} başarısız deneme ({window} sn)'
+  summary: Bu kural, aynı src ip üzerinde 300 saniyelik pencerede benzer olay sayısı 3 eşiğini aştığında OpenVPN Failure Burst davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    action: vpn_login
+    outcome: failure
+    fields:
+      auth_mechanism: openvpn
+  group_by: src_ip
+  window_seconds: 300
+  threshold: 3
+  cooldown: 300
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - vpn
+  - brute-force
+  - openvpn
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: OpenVPN Failure Burst
+  message_tr: 'OpenVPN auth failure burst: {count} başarısız deneme ({window} sn)'
+  summary_en: This rule highlights OpenVPN Failure Burst when similar events on the same src ip exceed the threshold of 3 within a 300-second window. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, aynı src ip üzerinde 300 saniyelik pencerede benzer olay sayısı 3 eşiğini aştığında OpenVPN Failure Burst davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `src ip`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-019
+  name: DNS NXDOMAIN Burst
+  severity: high
+  score: 78
+  category: network
+  message: 'DNS NXDOMAIN burst: {count} başarısız lookup ({window} sn) — olası reconnaissance/DGA'
+  summary: Bu kural, aynı src ip üzerinde 180 saniyelik pencerede benzer olay sayısı 8 eşiğini aştığında DNS NXDOMAIN Burst davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  type: count
+  event_match:
+    source:
+    - dns
+    - dnsmasq
+    - named
+    - syslog
+    action: dns_query
+    outcome: failure
+    fields:
+      __all__:
+      - domain_label_max_len_gte: 12
+      - __not__:
+          qtype: PTR
+  group_by: src_ip
+  window_seconds: 180
+  threshold: 8
+  cooldown: 600
+  mitre_tactic: TA0043
+  mitre_technique: T1595
+  tags:
+  - dns
+  - reconnaissance
+  - dga
+  - nxdomain
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: DNS NXDOMAIN Burst
+  message_tr: 'DNS NXDOMAIN burst: {count} başarısız lookup ({window} sn) — olası reconnaissance/DGA'
+  summary_en: This rule highlights DNS NXDOMAIN Burst when similar events on the same src ip exceed the threshold of 8 within a 180-second window. This signal indicates a risk of discovery, surface mapping, and preparation for follow-on attack activity.
+  summary_tr: Bu kural, aynı src ip üzerinde 180 saniyelik pencerede benzer olay sayısı 8 eşiğini aştığında DNS NXDOMAIN Burst davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Start with the events clustered by `src ip`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-020
+  name: Beacon-Like Long DNS Queries
+  severity: high
+  score: 76
+  category: network
+  message: 'Beacon-vari DNS tekrarları: {count} uzun sorgu ({window} sn) — olası exfiltration/C2'
+  summary: Bu kural, aynı src ip üzerinde 900 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Beacon-Like Long DNS Queries davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  type: count
+  event_match:
+    source:
+    - dns
+    - dnsmasq
+    - named
+    - syslog
+    action: dns_query
+    fields:
+      __all__:
+      - domain_len_gte: 40
+      - domain_label_count_gte: 4
+      - domain_label_max_len_gte: 20
+      - __any__:
+        - qtype: TXT
+        - qtype: null
+        - qtype: CNAME
+  group_by: src_ip
+  window_seconds: 900
+  threshold: 5
+  cooldown: 900
+  mitre_tactic: TA0011
+  mitre_technique: T1071.004
+  tags:
+  - dns
+  - command-and-control
+  - exfiltration
+  - beacon
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Beacon-Like Long DNS Queries
+  message_tr: 'Beacon-vari DNS tekrarları: {count} uzun sorgu ({window} sn) — olası exfiltration/C2'
+  summary_en: This rule highlights Beacon-Like Long DNS Queries when similar events on the same src ip exceed the threshold of 5 within a 900-second window. This signal indicates a risk of credential access, data exfiltration, or lateral movement.
+  summary_tr: Bu kural, aynı src ip üzerinde 900 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Beacon-Like Long DNS Queries davranışını görünür kılar; bu sinyal kimlik bilgisi toplama, veri dışa aktarma veya yanal hareket riskini gösterir.
+  operator_note_en: Start with the events clustered by `src ip`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-021
+  name: Identity Policy Deny Burst
+  severity: medium
+  score: 62
+  category: auth
+  message: 'Identity account policy deny burst: {count} olay ({window} sn)'
+  summary: Bu kural, aynı identity.account üzerinde 1800 saniyelik pencerede benzer olay sayısı 3 eşiğini aştığında Identity Policy Deny Burst davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  type: count
+  event_match:
+    action: account_policy
+    outcome: failure
+    fields:
+      identity.phase: account
+      identity.policy_token_contains_any:
+      - account_disabled
+      - password_expired
+      - password_change_required
+  group_by: identity.account
+  window_seconds: 1800
+  threshold: 3
+  cooldown: 900
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - identity
+  - account-policy
+  - auth-aftermath
+  operator_note: Önce `identity.account` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Identity Policy Deny Burst
+  message_tr: 'Kimlik hesabı policy deny patlaması: {count} olay ({window} sn)'
+  summary_en: This rule highlights Identity Policy Deny Burst when similar events on the same identity.account exceed the threshold of 3 within a 1800-second window. This signal indicates a risk of account discovery, password attacks, or unauthorized access.
+  summary_tr: Bu kural, aynı identity.account üzerinde 1800 saniyelik pencerede benzer olay sayısı 3 eşiğini aştığında Identity Policy Deny Burst davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Start with the events clustered by `identity.account`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `identity.account` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-022
+  name: Firewall Port Scan
+  severity: high
+  score: 78
+  category: network
+  message: 'Port scan şüphesi: aynı IP {count} farklı port denedi ({window} sn)'
+  summary: Bu kural, aynı src ip üzerinde 45 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Firewall Port Scan davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  type: count
+  event_match:
+    action:
+    - firewall_reject
+    - firewall_block
+    outcome:
+    - rejected
+    - blocked
+    fields:
+      __all__:
+      - dst_port_gte: 1
+      - protocol_contains_any:
+        - TCP
+        - UDP
+  group_by: src_ip
+  distinct_by: dst_port
+  window_seconds: 45
+  threshold: 5
+  cooldown: 300
+  mitre_tactic: TA0043
+  mitre_technique: T1595
+  tags:
+  - network
+  - port-scan
+  - reconnaissance
+  - firewall
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+  message_en: Firewall Port Scan
+  message_tr: 'Port scan şüphesi: aynı IP {count} farklı port denedi ({window} sn)'
+  summary_en: This rule highlights Firewall Port Scan when similar events on the same src ip exceed the threshold of 5 within a 45-second window. This signal indicates a risk of discovery, surface mapping, and preparation for follow-on attack activity.
+  summary_tr: Bu kural, aynı src ip üzerinde 45 saniyelik pencerede benzer olay sayısı 5 eşiğini aştığında Firewall Port Scan davranışını görünür kılar; bu sinyal keşif, yüzey haritalama ve sonraki saldırı adımlarına hazırlık riskini gösterir.
+  operator_note_en: Start with the events clustered by `src ip`; review the source IP, user, host, time window, and whether similar auth, process, network, or web events increased before or after the threshold was crossed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; kaynak IP, kullanıcı, host, zaman penceresi ve eşik öncesi/sonrası benzer auth, process, network veya web olaylarının artış gösterip göstermediğini kontrol edin.
+- id: THR-023
+  name: High-Entropy DNS Burst
+  severity: high
+  score: 84
+  category: network
+  message: 'Yüksek entropili DNS burst: {count} sorgu ({window} sn) — olası DGA/C2'
+  summary: Bu kural, aynı src ip üzerinde 300 saniyelik pencerede yüksek entropili DNS sorguları 6 eşiğini aştığında burst davranışını görünür kılar; bu sinyal DGA denemesi, resolver abuse veya staged C2 hazırlığına işaret edebilir.
+  type: count
+  event_match:
+    source:
+    - dns
+    - dnsmasq
+    - named
+    - syslog
+    action: dns_query
+    fields:
+      __all__:
+      - entropy_gte: 3.8
+      - domain_label_max_len_gte: 18
+      - domain_regex: (?:^|\.)[A-Za-z0-9]{18,}(?:\.|$)
+      - __not__:
+          __any__:
+          - qtype: PTR
+          - domain_contains_any:
+            - .local
+            - .localdomain
+            - .in-addr.arpa
+            - .ip6.arpa
+            - connectivitycheck.gstatic.com
+            - detectportal.firefox.com
+            - captive.apple.com
+            - msftconnecttest.com
+            - msftncsi.com
+          - domain_regex: (^|\.)(?:_dmarc|_spf|_acme-challenge)(\.|$)
+          - domain_contains: ._domainkey.
+  group_by: src_ip
+  window_seconds: 300
+  threshold: 6
+  cooldown: 900
+  mitre_tactic: TA0011
+  mitre_technique: T1568.002
+  tags:
+  - dns
+  - dga
+  - burst
+  - command-and-control
+  operator_note: Önce `src ip` boyutunda kümelenen olayları inceleyin; aynı hosttan gelen failure oranını, alan adlarının varyasyonunu ve sonrasında gelen process/outbound sinyallerini birlikte değerlendirin.
+  message_en: High-Entropy DNS Burst
+  message_tr: 'Yüksek entropili DNS burst: {count} sorgu ({window} sn) — olası DGA/C2'
+  summary_en: This rule highlights a burst of high-entropy DNS lookups when similar events from the same source IP exceed 6 within 300 seconds. The signal can indicate DGA activity, resolver abuse, or staged C2 preparation.
+  summary_tr: Bu kural, aynı src ip üzerinde 300 saniyelik pencerede yüksek entropili DNS sorguları 6 eşiğini aştığında burst davranışını görünür kılar; bu sinyal DGA denemesi, resolver abuse veya staged C2 hazırlığına işaret edebilir.
+  operator_note_en: Start with the events clustered by `src ip`; review the failure rate from the same host, the domain variation pattern, and the process or outbound signals that followed.
+  operator_note_tr: Önce `src ip` boyutunda kümelenen olayları inceleyin; aynı hosttan gelen failure oranını, alan adlarının varyasyonunu ve sonrasında gelen process/outbound sinyallerini birlikte değerlendirin.

@@ -1,0 +1,578 @@
+- id: AUTH-001
+  name: Root SSH Login
+  severity: high
+  score: 75
+  category: auth
+  message: Root kullanıcısı SSH ile giriş yaptı
+  summary: Root hesabı ağ üzerinden başarıyla oturum açtı; yönetim faaliyeti değilse yüksek risk taşır.
+  operator_note: Kaynak IP'yi, oturum zamanını ve root erişiminin beklenen olup olmadığını doğrulayın.
+  condition:
+    action: ssh_login
+    outcome: success
+    user: root
+  mitre_tactic: TA0001
+  mitre_technique: T1078
+  tags:
+  - initial-access
+  - valid-accounts
+  - ssh
+  - root
+  - remote-access
+  mitre_subtechnique: T1078.001
+  pack: core
+  pack_version: '1.0'
+  message_en: Root SSH Login
+  message_tr: Root kullanıcısı SSH ile giriş yaptı
+  summary_en: The root account logged in successfully over the network. If this is not expected administrative activity, treat it as high risk.
+  summary_tr: Root hesabı ağ üzerinden başarıyla oturum açtı; yönetim faaliyeti değilse yüksek risk taşır.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kaynak IP'yi, oturum zamanını ve root erişiminin beklenen olup olmadığını doğrulayın.
+- id: AUTH-002
+  name: SSH Login Failure
+  severity: high
+  score: 70
+  category: auth
+  message: SSH giriş başarısız
+  summary: SSH kimlik doğrulaması başarısız oldu; tekrar eden kalıpta brute force olabilir.
+  operator_note: Kaynak IP, hedef kullanıcı ve kısa süre sonraki başarılı girişleri inceleyin.
+  cooldown: 60
+  cooldown_entity: ip_user
+  condition:
+    action: ssh_login
+    outcome: failure
+    fields:
+      __not__:
+        invalid_user: true
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - brute-force
+  - ssh
+  - remote-access
+  mitre_subtechnique: T1110.001
+  pack: core
+  pack_version: '1.0'
+  message_en: SSH Login Failure
+  message_tr: SSH giriş başarısız
+  summary_en: SSH authentication failed. Repeated occurrences may indicate a brute-force attempt.
+  summary_tr: SSH kimlik doğrulaması başarısız oldu; tekrar eden kalıpta brute force olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kaynak IP, hedef kullanıcı ve kısa süre sonraki başarılı girişleri inceleyin.
+- id: AUTH-003
+  name: Invalid SSH User
+  severity: medium
+  score: 60
+  category: auth
+  message: Geçersiz veya mevcut olmayan SSH kullanıcısı ile oturum açma denemesi görüldü
+  summary: İstek, sistemde bulunmayan ya da geçersiz bir hesap adıyla SSH erişimi denendiğini gösterir; bu davranış genellikle kullanıcı keşfi, parola püskürtme veya kaba kuvvet hazırlığı ile ilişkilidir.
+  operator_note: Kaynak IP'yi, denenen kullanıcı adlarını, aynı kaynaktan kısa sürede gelen diğer auth olaylarını ve hemen sonrasında başarılı giriş olup olmadığını kontrol edin.
+  cooldown: 120
+  cooldown_entity: ip_user
+  condition:
+    action: ssh_invalid_user
+  mitre_tactic: TA0006
+  mitre_technique: T1110.001
+  tags:
+  - credential-access
+  - brute-force
+  - ssh
+  - account-enumeration
+  mitre_subtechnique: T1110.001
+  pack: core
+  pack_version: '1.0'
+  message_en: Invalid SSH User
+  message_tr: Geçersiz veya mevcut olmayan SSH kullanıcısı ile oturum açma denemesi görüldü
+  summary_en: This rule highlights invalid ssh user and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: İstek, sistemde bulunmayan ya da geçersiz bir hesap adıyla SSH erişimi denendiğini gösterir; bu davranış genellikle kullanıcı keşfi, parola püskürtme veya kaba kuvvet hazırlığı ile ilişkilidir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kaynak IP'yi, denenen kullanıcı adlarını, aynı kaynaktan kısa sürede gelen diğer auth olaylarını ve hemen sonrasında başarılı giriş olup olmadığını kontrol edin.
+- id: AUTH-004
+  name: Sudo to Root
+  severity: high
+  score: 65
+  category: auth
+  message: Root yetkisine sudo ile geçiş görüldü
+  summary: Kullanıcı sudo ile root yetkisi aldı; yönetici erişimi doğrulanmalı.
+  operator_note: Kullanıcı, tty ve sudo komut bağlamını doğrulayın; beklenmeyen root erişimiyse inceleyin.
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_target_user: root
+  mitre_tactic: TA0004
+  mitre_technique: T1548.003
+  tags:
+  - privilege-escalation
+  - sudo
+  - root
+  - post-auth
+  mitre_subtechnique: T1548.003
+  pack: core
+  pack_version: '1.0'
+  message_en: Sudo to Root
+  message_tr: Root yetkisine sudo ile geçiş görüldü
+  summary_en: This rule highlights sudo to root and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Kullanıcı sudo ile root yetkisi aldı; yönetici erişimi doğrulanmalı.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kullanıcı, tty ve sudo komut bağlamını doğrulayın; beklenmeyen root erişimiyse inceleyin.
+- id: AUTH-005
+  name: Su to Root
+  severity: high
+  score: 65
+  category: auth
+  message: su ile root hesabına geçiş görüldü
+  summary: Kullanıcı su komutuyla root oturumu açtı; yerel yetki yükseltme olabilir.
+  operator_note: Kaynak kullanıcıyı, tty bilgisini ve ilgili oturum bağlamını doğrulayın.
+  condition:
+    action: su
+    outcome: success
+    fields:
+      su_target: root
+  mitre_tactic: TA0004
+  mitre_technique: T1548.003
+  tags:
+  - privilege-escalation
+  - su
+  - root
+  - post-auth
+  mitre_subtechnique: T1548.003
+  pack: core
+  pack_version: '1.0'
+  message_en: Su to Root
+  message_tr: su ile root hesabına geçiş görüldü
+  summary_en: This rule highlights su to root and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Kullanıcı su komutuyla root oturumu açtı; yerel yetki yükseltme olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kaynak kullanıcıyı, tty bilgisini ve ilgili oturum bağlamını doğrulayın.
+- id: AUTH-006
+  name: New User Created
+  severity: high
+  score: 70
+  category: auth
+  message: Yeni kullanıcı oluşturuldu
+  summary: Yerel yeni kullanıcı hesabı oluşturuldu; kalıcılık veya yönetim faaliyeti olabilir.
+  operator_note: Hesabı oluşturan bağlamı, grup üyeliklerini ve takip eden girişleri doğrulayın.
+  condition:
+    action: useradd
+  mitre_tactic: TA0003
+  mitre_technique: T1136.001
+  tags:
+  - persistence
+  - local-account
+  - account-management
+  mitre_subtechnique: T1136.001
+  pack: core
+  pack_version: '1.0'
+  message_en: New User Created
+  message_tr: Yeni kullanıcı oluşturuldu
+  summary_en: This rule highlights new user created and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Yerel yeni kullanıcı hesabı oluşturuldu; kalıcılık veya yönetim faaliyeti olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Hesabı oluşturan bağlamı, grup üyeliklerini ve takip eden girişleri doğrulayın.
+- id: AUTH-007
+  name: User Deleted
+  severity: medium
+  score: 55
+  category: auth
+  message: Kullanıcı silindi
+  summary: Yerel kullanıcı hesabı silindi; iz örtme veya yaşam döngüsü yönetimi olabilir.
+  operator_note: Silinen hesabı, silme nedenini ve hemen öncesindeki yönetici etkinliklerini inceleyin.
+  condition:
+    action: userdel
+  mitre_tactic: TA0005
+  mitre_technique: T1531
+  tags:
+  - impact
+  - account-access-removal
+  - account-management
+  mitre_subtechnique: T1548.003
+  pack: core
+  pack_version: '1.0'
+  message_en: User Deleted
+  message_tr: Kullanıcı silindi
+  summary_en: This rule highlights user deleted and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Yerel kullanıcı hesabı silindi; iz örtme veya yaşam döngüsü yönetimi olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Silinen hesabı, silme nedenini ve hemen öncesindeki yönetici etkinliklerini inceleyin.
+- id: AUTH-008
+  name: Password Changed
+  severity: medium
+  score: 50
+  category: auth
+  message: Kullanıcı şifresi değiştirildi
+  summary: Bir hesabın parolası değiştirildi; meşru self-service değilse hesap ele geçirme sonrası olabilir.
+  operator_note: Etkilenen kullanıcıyı ve değişikliğin erişim sonrası mı yoksa yardım masası işlemi mi olduğunu doğrulayın.
+  condition:
+    action: passwd_change
+  mitre_tactic: TA0004
+  mitre_technique: T1548
+  tags:
+  - privilege-escalation
+  - abuse-elevation
+  - account-access
+  - password-change
+  pack: core
+  pack_version: '1.0'
+  message_en: Password Changed
+  message_tr: Kullanıcı şifresi değiştirildi
+  summary_en: This rule highlights password changed and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Bir hesabın parolası değiştirildi; meşru self-service değilse hesap ele geçirme sonrası olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Etkilenen kullanıcıyı ve değişikliğin erişim sonrası mı yoksa yardım masası işlemi mi olduğunu doğrulayın.
+- id: AUTH-009
+  name: Sudo Authentication Failure
+  severity: medium
+  score: 55
+  category: auth
+  message: Sudo şifre doğrulama başarısız
+  summary: sudo kimlik doğrulaması başarısız oldu; yanlış parola veya yetki yükseltme denemesi olabilir.
+  operator_note: Aynı kullanıcı için takip eden session/sudo başarılarını inceleyin.
+  cooldown: 30
+  cooldown_entity: user
+  condition:
+    action: sudo_fail
+    fields:
+      auth_service: sudo
+  mitre_tactic: TA0004
+  mitre_technique: T1548.003
+  tags:
+  - privilege-escalation
+  - sudo
+  - auth-failure
+  pack: core
+  pack_version: '1.0'
+  message_en: Sudo Authentication Failure
+  message_tr: Sudo şifre doğrulama başarısız
+  summary_en: This rule highlights sudo authentication failure and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: sudo kimlik doğrulaması başarısız oldu; yanlış parola veya yetki yükseltme denemesi olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Aynı kullanıcı için takip eden session/sudo başarılarını inceleyin.
+- id: AUTH-010
+  name: Faillock Account Locked
+  severity: medium
+  score: 65
+  category: auth
+  message: Hesap faillock nedeniyle kilitlendi
+  summary: Hesap tekrar eden başarısız denemeler nedeniyle kilitlendi.
+  operator_note: Kilitlenen hesabın kısa süre sonra açılıp açılmadığını ve kaynağın değişip değişmediğini kontrol edin.
+  cooldown: 300
+  cooldown_entity: user
+  condition:
+    action: account_locked
+    outcome: failure
+    fields:
+      auth_mechanism: faillock
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - brute-force
+  - account-lockout
+  - auth-aftermath
+  mitre_subtechnique: T1110.001
+  pack: core
+  pack_version: '1.0'
+  message_en: Faillock Account Locked
+  message_tr: Hesap faillock nedeniyle kilitlendi
+  summary_en: This rule highlights faillock account locked and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Hesap tekrar eden başarısız denemeler nedeniyle kilitlendi.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kilitlenen hesabın kısa süre sonra açılıp açılmadığını ve kaynağın değişip değişmediğini kontrol edin.
+- id: AUTH-011
+  name: OpenVPN Authentication Failure
+  severity: medium
+  score: 60
+  category: auth
+  message: OpenVPN kimlik doğrulaması başarısız oldu
+  summary: OpenVPN oturumu için kimlik doğrulama başarısız; kaba kuvvet veya yanlış yapılandırma olabilir.
+  operator_note: Kaynak IP, kullanıcı/common-name ve eşlik eden VPN olaylarını kontrol edin.
+  cooldown: 60
+  cooldown_entity: ip
+  condition:
+    action: vpn_login
+    outcome: failure
+    fields:
+      auth_mechanism: openvpn
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - brute-force
+  - vpn
+  - openvpn
+  - remote-access
+  mitre_subtechnique: T1110.001
+  pack: core
+  pack_version: '1.0'
+  message_en: OpenVPN Authentication Failure
+  message_tr: OpenVPN kimlik doğrulaması başarısız oldu
+  summary_en: This rule highlights openvpn authentication failure and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: OpenVPN oturumu için kimlik doğrulama başarısız; kaba kuvvet veya yanlış yapılandırma olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kaynak IP, kullanıcı/common-name ve eşlik eden VPN olaylarını kontrol edin.
+- id: AUTH-012
+  name: SSSD Authentication Failure
+  severity: medium
+  score: 55
+  category: auth
+  message: SSSD kimlik doğrulama başarısız
+  summary: SSSD üzerinden merkezi kimlik doğrulama başarısız oldu.
+  operator_note: Kimlik sağlayıcı, kaynak IP ve takip eden başarılı girişleri inceleyin.
+  cooldown: 60
+  cooldown_entity: user
+  condition:
+    action: identity_login
+    outcome: failure
+    fields:
+      auth_mechanism: sssd
+      identity.phase: auth
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - identity
+  - brute-force
+  - sssd
+  - auth-failure
+  mitre_subtechnique: T1110.001
+  pack: core
+  pack_version: '1.0'
+  message_en: SSSD Authentication Failure
+  message_tr: SSSD kimlik doğrulama başarısız
+  summary_en: This rule highlights sssd authentication failure and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: SSSD üzerinden merkezi kimlik doğrulama başarısız oldu.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kimlik sağlayıcı, kaynak IP ve takip eden başarılı girişleri inceleyin.
+- id: AUTH-012A
+  name: Winbind Authentication Failure
+  severity: medium
+  score: 55
+  category: auth
+  message: Winbind kimlik doğrulama başarısız
+  summary: Winbind üzerinden merkezi kimlik doğrulama başarısız oldu.
+  operator_note: Etkilenen domain hesabını ve takip eden deny/success kalıplarını gözden geçirin.
+  cooldown: 60
+  cooldown_entity: user
+  condition:
+    action: identity_login
+    outcome: failure
+    fields:
+      auth_mechanism: winbind
+      identity.phase: auth
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - identity
+  - brute-force
+  - winbind
+  - auth-failure
+  mitre_subtechnique: T1110.001
+  pack: core
+  pack_version: '1.0'
+  message_en: Winbind Authentication Failure
+  message_tr: Winbind kimlik doğrulama başarısız
+  summary_en: This rule highlights winbind authentication failure and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Winbind üzerinden merkezi kimlik doğrulama başarısız oldu.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Etkilenen domain hesabını ve takip eden deny/success kalıplarını gözden geçirin.
+- id: AUTH-012B
+  name: Winbind Account Lockout
+  severity: medium
+  score: 60
+  category: auth
+  message: Winbind hesabı kilitlendi
+  summary: Winbind hesabı çoklu başarısız deneme sonrası kilitlendi.
+  operator_note: Kilit açma sonrası başarı, parola sıfırlama ve hesap durumu değişimlerini inceleyin.
+  cooldown: 300
+  cooldown_entity: user
+  condition:
+    action: account_locked
+    outcome: failure
+    fields:
+      auth_mechanism: winbind
+      identity.phase: account
+      identity.policy: lockout
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - identity
+  - account-lockout
+  - winbind
+  - auth-aftermath
+  mitre_subtechnique: T1110.001
+  pack: core
+  pack_version: '1.0'
+  message_en: Winbind Account Lockout
+  message_tr: Winbind hesabı kilitlendi
+  summary_en: This rule highlights winbind account lockout and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Winbind hesabı çoklu başarısız deneme sonrası kilitlendi.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kilit açma sonrası başarı, parola sıfırlama ve hesap durumu değişimlerini inceleyin.
+- id: AUTH-012C
+  name: Winbind Account Policy Denied
+  severity: low
+  score: 45
+  category: auth
+  message: Winbind hesap politikası erişimi engelledi
+  summary: Winbind hesap politikası erişimi engelledi; hesap durumu, grup veya zaman kısıtı etkili olabilir.
+  operator_note: Policy reddinin ardından erişim sağlanıp sağlanmadığını ve hesap durumundaki değişiklikleri doğrulayın.
+  cooldown: 300
+  cooldown_entity: user
+  condition:
+    action: account_policy
+    outcome: failure
+    fields:
+      auth_mechanism: winbind
+      identity.phase: account
+      identity.policy_token_contains_any:
+      - account_disabled
+      - password_expired
+      - password_change_required
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - identity
+  - account-policy
+  - winbind
+  - auth-aftermath
+  mitre_subtechnique: T1110.001
+  pack: core
+  pack_version: '1.0'
+  message_en: Winbind Account Policy Denied
+  message_tr: Winbind hesap politikası erişimi engelledi
+  summary_en: This rule highlights winbind account policy denied and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Winbind hesap politikası erişimi engelledi; hesap durumu, grup veya zaman kısıtı etkili olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Policy reddinin ardından erişim sağlanıp sağlanmadığını ve hesap durumundaki değişiklikleri doğrulayın.
+- id: AUTH-012D
+  name: strongSwan Authentication Failure
+  severity: medium
+  score: 55
+  category: auth
+  message: strongSwan kimlik doğrulaması başarısız oldu
+  summary: strongSwan VPN oturumu kimlik doğrulamada başarısız; hesap veya sertifika kötüye kullanımı olabilir.
+  operator_note: EAP/IKE kullanıcı bilgisini ve aynı IP'den gelen diğer VPN denemelerini inceleyin.
+  cooldown: 60
+  cooldown_entity: ip
+  condition:
+    action: vpn_login
+    outcome: failure
+    fields:
+      auth_mechanism: strongswan
+      vpn.provider: strongswan
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - brute-force
+  - vpn
+  - strongswan
+  - remote-access
+  pack: core
+  pack_version: '1.0'
+  message_en: strongSwan Authentication Failure
+  message_tr: strongSwan kimlik doğrulaması başarısız oldu
+  summary_en: This rule highlights strongswan authentication failure and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: strongSwan VPN oturumu kimlik doğrulamada başarısız; hesap veya sertifika kötüye kullanımı olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: EAP/IKE kullanıcı bilgisini ve aynı IP'den gelen diğer VPN denemelerini inceleyin.
+- id: AUTH-012E
+  name: WireGuard Handshake Failure
+  severity: medium
+  score: 55
+  category: auth
+  message: WireGuard el sıkışması başarısız oldu
+  summary: WireGuard peer el sıkışması tamamlanmadı; yanlış anahtar veya erişim denemesi olabilir.
+  operator_note: Peer kimliği, tünel adı ve aynı IP'den gelen sonraki bağlantıları kontrol edin.
+  cooldown: 60
+  cooldown_entity: ip
+  condition:
+    action: vpn_login
+    outcome: failure
+    fields:
+      auth_mechanism: wireguard
+      vpn.provider: wireguard
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - brute-force
+  - vpn
+  - wireguard
+  - remote-access
+  pack: core
+  pack_version: '1.0'
+  message_en: WireGuard Handshake Failure
+  message_tr: WireGuard el sıkışması başarısız oldu
+  summary_en: This rule highlights wireguard handshake failure and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: WireGuard peer el sıkışması tamamlanmadı; yanlış anahtar veya erişim denemesi olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Peer kimliği, tünel adı ve aynı IP'den gelen sonraki bağlantıları kontrol edin.
+- id: AUTH-013
+  name: Postfix SMTP Authentication Failure
+  severity: medium
+  score: 55
+  category: auth
+  message: SMTP kimlik doğrulaması başarısız oldu
+  summary: Postfix SASL kimlik doğrulaması reddedildi; hesap kaba kuvveti veya yanlış parola olabilir.
+  operator_note: Kaynak IP, SASL yöntemi ve aynı hesabın sonraki başarı/ret kalıbını gözden geçirin.
+  cooldown: 60
+  cooldown_entity: ip
+  condition:
+    action: smtp_login
+    outcome: failure
+    fields:
+      identity.phase: auth
+      auth_mechanism: sasl
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - brute-force
+  - mail
+  - smtp
+  - postfix
+  mitre_subtechnique: T1110.001
+  pack: core
+  pack_version: '1.0'
+  message_en: Postfix SMTP Authentication Failure
+  message_tr: SMTP kimlik doğrulaması başarısız oldu
+  summary_en: This rule highlights postfix smtp authentication failure and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Postfix SASL kimlik doğrulaması reddedildi; hesap kaba kuvveti veya yanlış parola olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Kaynak IP, SASL yöntemi ve aynı hesabın sonraki başarı/ret kalıbını gözden geçirin.
+- id: AUTH-014
+  name: Postfix SMTP Reject
+  severity: low
+  score: 40
+  category: network
+  message: SMTP isteği Postfix tarafından reddedildi
+  summary: Postfix bir SMTP isteğini politika veya relay kısıtı nedeniyle reddetti.
+  operator_note: Reddedilme nedenini, hedef alıcıyı ve aynı kaynaktaki auth olaylarını inceleyin.
+  cooldown: 300
+  cooldown_entity: ip
+  condition:
+    action: smtp_reject
+    outcome: failure
+  mitre_tactic: TA0006
+  mitre_technique: T1110
+  tags:
+  - credential-access
+  - mail
+  - smtp
+  - postfix
+  - reject
+  - policy-enforcement
+  - access-abuse
+  pack: core
+  pack_version: '1.0'
+  message_en: Postfix SMTP Reject
+  message_tr: SMTP isteği Postfix tarafından reddedildi
+  summary_en: This rule highlights postfix smtp reject and may indicate suspicious or unauthorized network activity. Review the surrounding context to confirm the impact.
+  summary_tr: Postfix bir SMTP isteğini politika veya relay kısıtı nedeniyle reddetti.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding network activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Reddedilme nedenini, hedef alıcıyı ve aynı kaynaktaki auth olaylarını inceleyin.

@@ -1,0 +1,5 @@
+# Test bağımlılıkları
+# Kurulum: pip install -r test-requirements.txt
+
+-r requirements.txt
+pytest>=7.0

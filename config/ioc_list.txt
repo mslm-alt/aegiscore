@@ -1,0 +1,20 @@
+# IOC List - IP / Domain / Hash
+# Bir satır = bir IOC
+# # ile başlayan satırlar yorum
+# Bu dosyanın marker öncesi bölümü statik/product seed IOC olarak korunur.
+# "# --- AUTO FEED ---" sonrası runtime threat-intel updater tarafından yeniden üretilebilir.
+
+# Bilinen kötü IP'ler (örnek)
+192.168.100.666
+10.0.0.evil
+
+# Bilinen kötü domainler
+malware.example.com
+c2server.bad.net
+
+# Bilinen kötü hash'ler (md5/sha256)
+d41d8cd98f00b204e9800998ecf8427e
+
+# --- AUTO FEED ---
+# AUTO FEED bölümü runtime/generated içeriktir ve release paketinde sanitize edilmiştir.
+# Threat intel feed verisi runtime'da yeniden oluşturulabilir; statik seed IOC'ler yukarıda korunur.

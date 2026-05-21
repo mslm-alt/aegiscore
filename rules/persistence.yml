@@ -1,0 +1,1034 @@
+- id: PERS-001
+  name: Root Crontab Değişikliği
+  severity: high
+  score: 80
+  category: process
+  message: Root kullanıcısı crontab dosyasını doğrudan düzenledi — persistence mekanizması şüphesi
+  summary: Root bağlamında gerçek crontab değişikliği görüldü; kalıcı görev eklenmiş olabilir.
+  operator_note: Crontab diff'ini, komut içeriğini ve değişikliği yapan kullanıcıyı doğrulayın.
+  cooldown: 120
+  condition:
+    action: cron_exec
+    user: root
+    fields:
+      cron_command_contains:
+      - crontab -e
+      - crontab -r
+      - crontab -l
+      - echo.*crontab
+      - tee.*crontab
+      - '> /etc/crontab'
+      - '>> /etc/crontab'
+      - '> /var/spool/cron'
+      - '>> /var/spool/cron'
+  mitre_tactic: TA0003
+  mitre_technique: T1053.003
+  tags:
+  - persistence
+  - cron
+  - root
+  - scheduled-task
+  - crontab-edit
+  pack: core
+  pack_version: '1.0'
+  message_en: Root Crontab Modification
+  message_tr: Root kullanıcısı crontab dosyasını doğrudan düzenledi — persistence mekanizması şüphesi
+  summary_en: This rule highlights root crontab modification and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: Root bağlamında gerçek crontab değişikliği görüldü; kalıcı görev eklenmiş olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding process activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Crontab diff'ini, komut içeriğini ve değişikliği yapan kullanıcıyı doğrulayın.
+- id: PERS-002
+  name: Cron ile Dış Bağlantı veya Reverse Shell
+  severity: critical
+  score: 90
+  category: process
+  message: Cron job içinde reverse shell veya dış bağlantı komutu tespit edildi
+  summary: Cron komutu dış bağlantı veya shell açma davranışı içeriyor; yüksek güvenli persistence/c2 sinyali.
+  operator_note: Cron komutunu, hedef adresi ve aynı hosttaki yeni script/dropper değişikliklerini inceleyin.
+  cooldown: 60
+  condition:
+    action: cron_exec
+    fields:
+      cron_command_contains:
+      - /dev/tcp
+      - /dev/udp
+      - bash -i
+      - bash -c
+      - sh -i
+      - python -c
+      - python3 -c
+      - perl -e
+      - ruby -e
+      - netcat
+      - ' nc '
+      - nc -e
+      - nc -l
+      - ncat
+      exclude_if_field: cron_safe
+  mitre_tactic: TA0003
+  mitre_technique: T1053.003
+  tags:
+  - persistence
+  - cron
+  - reverse-shell
+  - scheduled-task
+  - command-and-control
+  pack: core
+  pack_version: '1.0'
+  message_en: Outbound Connection or Reverse Shell via cron
+  message_tr: Cron job içinde reverse shell veya dış bağlantı komutu tespit edildi
+  summary_en: This rule highlights outbound connection or reverse shell via cron and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: Cron komutu dış bağlantı veya shell açma davranışı içeriyor; yüksek güvenli persistence/c2 sinyali.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding process activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Cron komutunu, hedef adresi ve aynı hosttaki yeni script/dropper değişikliklerini inceleyin.
+- id: PERS-003
+  name: /etc/cron Dosyası Değişikliği
+  severity: high
+  score: 75
+  category: filesystem
+  message: Sistem cron dizini doğrudan değiştirildi
+  summary: sudo ile sistem cron dizinine veya /etc/crontab'a yazım görüldü.
+  operator_note: Yazılan cron dosyasını ve komutu başlatan kullanıcıyı doğrulayın.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - /etc/cron.d
+      - /etc/cron.daily
+      - /etc/cron.hourly
+      - /etc/cron.weekly
+      - /etc/crontab
+  mitre_tactic: TA0003
+  mitre_technique: T1053.003
+  tags:
+  - persistence
+  - cron
+  - filesystem
+  - scheduled-task
+  - post-auth
+  pack: core
+  pack_version: '1.0'
+  message_en: /etc/cron File Modification
+  message_tr: Sistem cron dizini doğrudan değiştirildi
+  summary_en: This rule highlights /etc/cron file modification and may indicate suspicious or unauthorized filesystem activity. Review the surrounding context to confirm the impact.
+  summary_tr: sudo ile sistem cron dizinine veya /etc/crontab'a yazım görüldü.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding filesystem activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Yazılan cron dosyasını ve komutu başlatan kullanıcıyı doğrulayın.
+- id: PERS-004
+  name: Systemd Servis Kurulumu (sudo)
+  severity: high
+  score: 75
+  category: process
+  message: sudo ile systemd servisi etkinleştirildi veya başlatıldı
+  summary: sudo üzerinden systemd service enable/start görüldü; kalıcılık kurulumu olabilir.
+  operator_note: Service adı, unit dosyası ve komutu başlatan kullanıcıyı doğrulayın.
+  cooldown: 300
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - systemctl enable
+      - systemctl start
+      - systemctl daemon-reload
+  mitre_tactic: TA0003
+  mitre_technique: T1543.002
+  tags:
+  - persistence
+  - systemd
+  - service
+  - service-enable
+  - post-auth
+  pack: core
+  pack_version: '1.0'
+  message_en: Systemd Service Installation (sudo)
+  message_tr: sudo ile systemd servisi etkinleştirildi veya başlatıldı
+  summary_en: This rule highlights systemd servis kurulumu (sudo) and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: sudo üzerinden systemd service enable/start görüldü; kalıcılık kurulumu olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding process activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Service adı, unit dosyası ve komutu başlatan kullanıcıyı doğrulayın.
+- id: PERS-005
+  name: /etc/systemd Dizinine Yazma
+  severity: critical
+  score: 85
+  category: filesystem
+  message: Systemd servis dizinine dosya yazıldı — service persistence olabilir
+  summary: /etc/systemd veya eşdeğer dizine yazım görüldü; yeni veya değiştirilmiş unit olabilir.
+  operator_note: Yazılan dosya yolunu, unit içeriğini ve hemen sonraki enable/start komutlarını kontrol edin.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - /etc/systemd/system
+      - /lib/systemd/system
+      - /usr/lib/systemd
+      - .service.d
+      - override.conf
+      - ExecStart=
+      - ExecReload=
+      - Environment=
+  mitre_tactic: TA0003
+  mitre_technique: T1543.002
+  tags:
+  - persistence
+  - systemd
+  - service-file
+  - filesystem
+  - service-install
+  pack: core
+  pack_version: '1.0'
+  message_en: /etc/systemd Dizinine Yazma
+  message_tr: Systemd servis dizinine dosya yazıldı — service persistence olabilir
+  summary_en: This rule highlights /etc/systemd dizinine yazma and may indicate suspicious or unauthorized filesystem activity. Review the surrounding context to confirm the impact.
+  summary_tr: /etc/systemd veya eşdeğer dizine yazım görüldü; yeni veya değiştirilmiş unit olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding filesystem activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Yazılan dosya yolunu, unit içeriğini ve hemen sonraki enable/start komutlarını kontrol edin.
+- id: PERS-006
+  name: Authorized Keys Değişikliği (sudo)
+  severity: critical
+  score: 90
+  category: auth
+  message: sudo ile SSH authorized_keys dosyasına yazıldı
+  summary: authorized_keys dosyasına yazım görüldü; kalıcı SSH erişimi eklenmiş olabilir.
+  operator_note: Etkilenen kullanıcıyı, eklenen anahtarı ve değişikliğin beklenen olup olmadığını doğrulayın.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - authorized_keys
+      - .ssh/authorized_keys
+  mitre_tactic: TA0003
+  mitre_technique: T1098.004
+  tags:
+  - persistence
+  - ssh
+  - backdoor
+  - authorized-keys
+  - account-access
+  pack: core
+  pack_version: '1.0'
+  message_en: authorized_keys Modification (sudo)
+  message_tr: sudo ile SSH authorized_keys dosyasına yazıldı
+  summary_en: This rule highlights authorized_keys modification (sudo) and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: authorized_keys dosyasına yazım görüldü; kalıcı SSH erişimi eklenmiş olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Etkilenen kullanıcıyı, eklenen anahtarı ve değişikliğin beklenen olup olmadığını doğrulayın.
+- id: PERS-007
+  name: Root SSH Dizinine Yazma
+  severity: critical
+  score: 90
+  category: auth
+  message: Root SSH dizinine (authorized_keys) dosya yazıldı
+  summary: Root SSH dizininde anahtar veya yardımcı dosya değişikliği görüldü; root backdoor olabilir.
+  operator_note: /root/.ssh içeriğini, değişen dosyayı ve kaynağı olan sudo komutunu inceleyin.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - /root/.ssh
+  mitre_tactic: TA0003
+  mitre_technique: T1098.004
+  tags:
+  - persistence
+  - ssh
+  - root-backdoor
+  - authorized-keys
+  - root
+  pack: core
+  pack_version: '1.0'
+  message_en: Write to Root SSH Directory
+  message_tr: Root SSH dizinine (authorized_keys) dosya yazıldı
+  summary_en: This rule highlights root ssh dizinine yazma and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Root SSH dizininde anahtar veya yardımcı dosya değişikliği görüldü; root backdoor olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: /root/.ssh içeriğini, değişen dosyayı ve kaynağı olan sudo komutunu inceleyin.
+- id: PERS-008
+  name: Shell Startup Dosyası Değişikliği
+  severity: high
+  score: 75
+  category: filesystem
+  message: Shell başlangıç dosyası değiştirildi — persistence veya credential harvesting
+  summary: Kullanıcı veya sistem shell başlangıç dosyası değiştirildi.
+  operator_note: Değişen profile/rc satırlarını ve eklenen komutları doğrulayın.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - .bashrc
+      - .bash_profile
+      - .profile
+      - .zshrc
+      - .bash_logout
+      - /etc/profile
+      - /etc/bash.bashrc
+  mitre_tactic: TA0003
+  mitre_technique: T1546.004
+  tags:
+  - persistence
+  - shell-startup
+  - bashrc
+  - profile
+  - post-auth
+  pack: core
+  pack_version: '1.0'
+  message_en: Shell Startup File Modification
+  message_tr: Shell başlangıç dosyası değiştirildi — persistence veya credential harvesting
+  summary_en: This rule highlights shell startup file modification and may indicate suspicious or unauthorized filesystem activity. Review the surrounding context to confirm the impact.
+  summary_tr: Kullanıcı veya sistem shell başlangıç dosyası değiştirildi.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding filesystem activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Değişen profile/rc satırlarını ve eklenen komutları doğrulayın.
+- id: PERS-009
+  name: /etc/profile.d Değişikliği
+  severity: high
+  score: 80
+  category: filesystem
+  message: /etc/profile.d dizinine script eklendi — tüm kullanıcıları etkileyen persistence
+  summary: /etc/profile.d altına yeni script eklenmesi tüm kullanıcı oturumlarına kalıcılık ekleyebilir.
+  operator_note: Yeni script içeriğini, sahipliğini ve dağıtım mekanizmasını inceleyin.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - /etc/profile.d
+  mitre_tactic: TA0003
+  mitre_technique: T1546.004
+  tags:
+  - persistence
+  - profile.d
+  - all-users
+  - shell-startup
+  pack: core
+  pack_version: '1.0'
+  message_en: /etc/profile.d Modification
+  message_tr: /etc/profile.d dizinine script eklendi — tüm kullanıcıları etkileyen persistence
+  summary_en: This rule highlights /etc/profile.d modification and may indicate suspicious or unauthorized filesystem activity. Review the surrounding context to confirm the impact.
+  summary_tr: /etc/profile.d altına yeni script eklenmesi tüm kullanıcı oturumlarına kalıcılık ekleyebilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding filesystem activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Yeni script içeriğini, sahipliğini ve dağıtım mekanizmasını inceleyin.
+- id: PERS-010
+  name: LD_PRELOAD Ortam Değişkeni Kullanımı
+  severity: critical
+  score: 95
+  category: process
+  message: LD_PRELOAD ile kütüphane injection — rootkit veya credential stealer persistence
+  summary: LD_PRELOAD veya benzeri dinamik yükleyici değişkeni ile kalıcılık/injection davranışı görüldü.
+  operator_note: Ortam değişkenini ayarlayan komutu ve yüklenen kütüphaneyi doğrulayın.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - LD_PRELOAD
+      - LD_LIBRARY_PATH
+  mitre_tactic: TA0003
+  mitre_technique: T1574.006
+  tags:
+  - persistence
+  - ld-preload
+  - library-injection
+  - hijack-execution-flow
+  pack: core
+  pack_version: '1.0'
+  message_en: LD_PRELOAD Environment Variable Usage
+  message_tr: LD_PRELOAD ile kütüphane injection — rootkit veya credential stealer persistence
+  summary_en: This rule highlights ld_preload environment variable usage and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: LD_PRELOAD veya benzeri dinamik yükleyici değişkeni ile kalıcılık/injection davranışı görüldü.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding process activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Ortam değişkenini ayarlayan komutu ve yüklenen kütüphaneyi doğrulayın.
+- id: PERS-011
+  name: /etc/rc.local Değişikliği
+  severity: critical
+  score: 85
+  category: filesystem
+  message: /etc/rc.local veya init scripti değiştirildi — boot persistence
+  summary: Boot sırasında çalışan rc/init dosyaları değiştirildi; yeniden başlatmada kalıcılık olabilir.
+  operator_note: Değişen init/rc script içeriğini ve son düzenleme bağlamını inceleyin.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - /etc/rc.local
+      - /etc/init.d
+      - /etc/rc.d/init.d
+      - /etc/rc
+      - /etc/default/
+      - /etc/sysconfig/
+  mitre_tactic: TA0003
+  mitre_technique: T1037.004
+  tags:
+  - persistence
+  - rc-local
+  - boot
+  - startup-script
+  pack: core
+  pack_version: '1.0'
+  message_en: /etc/rc.local Modification
+  message_tr: /etc/rc.local veya init scripti değiştirildi — boot persistence
+  summary_en: This rule highlights /etc/rc.local modification and may indicate suspicious or unauthorized filesystem activity. Review the surrounding context to confirm the impact.
+  summary_tr: Boot sırasında çalışan rc/init dosyaları değiştirildi; yeniden başlatmada kalıcılık olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding filesystem activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Değişen init/rc script içeriğini ve son düzenleme bağlamını inceleyin.
+- id: PERS-012
+  name: Kullanıcı Gruba Ekleme
+  severity: high
+  score: 64
+  category: auth
+  message: Kullanıcı sudo veya yönetici grubuna eklendi
+  summary: Kullanıcı yönetici gruplarından birine eklendi; kalıcı ayrıcalık genişletmesi olabilir.
+  operator_note: Etkilenen hesabı, grup üyeliği değişikliğini ve değişikliği yapan kullanıcıyı doğrulayın.
+  cooldown: 120
+  condition:
+    action:
+    - sudo
+    - exec
+    - process_exec
+    - lotl_exec
+    outcome: success
+    fields:
+      __all__:
+      - __any__:
+        - sudo_command_contains_any:
+          - usermod
+          - gpasswd
+          - adduser
+          - groupadd
+        - command_contains_any:
+          - usermod
+          - gpasswd
+          - adduser
+          - groupadd
+      - __any__:
+        - sudo_command_contains_any:
+          - ' sudo'
+          - ' wheel'
+          - ' adm'
+          - ' admin'
+          - ' docker'
+          - ' lxd'
+          - ' libvirt'
+        - command_contains_any:
+          - ' sudo'
+          - ' wheel'
+          - ' adm'
+          - ' admin'
+          - ' docker'
+          - ' lxd'
+          - ' libvirt'
+      - __not__:
+          __any__:
+          - sudo_command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+          - command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+  mitre_tactic: TA0003
+  mitre_technique: T1136.001
+  tags:
+  - persistence
+  - group-modification
+  - privilege
+  - account-manipulation
+  pack: core
+  pack_version: '1.0'
+  message_en: User Added to Group
+  message_tr: Kullanıcı sudo veya yönetici grubuna eklendi
+  summary_en: This rule highlights user added to group and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: Kullanıcı yönetici gruplarından birine eklendi; kalıcı ayrıcalık genişletmesi olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Etkilenen hesabı, grup üyeliği değişikliğini ve değişikliği yapan kullanıcıyı doğrulayın.
+- id: PERS-013
+  name: Gizli Kullanıcı Oluşturma (UID 0)
+  severity: critical
+  score: 99
+  category: auth
+  message: UID 0 ile yeni kullanıcı oluşturuldu — root klonlama girişimi
+  summary: UID 0 ile yeni hesap oluşturma denemesi root eşleniği kalıcılığına işaret eder.
+  operator_note: Oluşan hesabı, passwd/group değişikliklerini ve sonraki oturum etkinliklerini inceleyin.
+  cooldown: 30
+  condition:
+    action: useradd
+    outcome: success
+    fields:
+      new_user_uid: '0'
+  mitre_tactic: TA0003
+  mitre_technique: T1136.001
+  tags:
+  - persistence
+  - root-clone
+  - critical
+  - local-account
+  pack: core
+  pack_version: '1.0'
+  message_en: Hidden User Creation (UID 0)
+  message_tr: UID 0 ile yeni kullanıcı oluşturuldu — root klonlama girişimi
+  summary_en: This rule highlights hidden user creation (uid 0) and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: UID 0 ile yeni hesap oluşturma denemesi root eşleniği kalıcılığına işaret eder.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Oluşan hesabı, passwd/group değişikliklerini ve sonraki oturum etkinliklerini inceleyin.
+- id: PERS-014
+  name: Kernel Modülü Yükleme
+  severity: critical
+  score: 95
+  category: process
+  message: Kernel modülü yüklendi — rootkit kurulumu olabilir
+  summary: Kernel modülü yükleme/kaldırma işlemi kalıcılık veya rootkit davranışı olabilir.
+  operator_note: Modül adını, dosya yolunu ve işlemi başlatan kullanıcıyı doğrulayın.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - insmod
+      - modprobe
+      - rmmod
+      - /lib/modules
+  mitre_tactic: TA0003
+  mitre_technique: T1547.006
+  tags:
+  - persistence
+  - kernel-module
+  - rootkit
+  - boot-or-kernel
+  pack: core
+  pack_version: '1.0'
+  message_en: Kernel Module Loading
+  message_tr: Kernel modülü yüklendi — rootkit kurulumu olabilir
+  summary_en: This rule highlights kernel module loading and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: Kernel modülü yükleme/kaldırma işlemi kalıcılık veya rootkit davranışı olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding process activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Modül adını, dosya yolunu ve işlemi başlatan kullanıcıyı doğrulayın.
+- id: PERS-015
+  name: systemd Service File Created
+  severity: high
+  score: 75
+  category: persistence
+  message: Yeni systemd servis dosyası oluşturuldu
+  summary: Komut satırı bağlamında yeni systemd service enable/daemon-reload izi görüldü.
+  operator_note: Oluşturulan service adını ve hemen önceki container/sudo/auth bağlamını inceleyin.
+  condition:
+    action: exec
+    fields:
+      command_contains:
+      - systemctl enable
+      - systemctl daemon-reload
+      - .service
+  mitre_tactic: TA0003
+  mitre_technique: T1543.002
+  tags:
+  - persistence
+  - systemd
+  - service-creation
+  - service-file
+  - post-auth
+  pack: core
+  pack_version: '1.0'
+  message_en: systemd Service File Created
+  message_tr: Yeni systemd servis dosyası oluşturuldu
+  summary_en: This rule highlights systemd service file created and may indicate suspicious or unauthorized persistence activity. Review the surrounding context to confirm the impact.
+  summary_tr: Komut satırı bağlamında yeni systemd service enable/daemon-reload izi görüldü.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding persistence activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Oluşturulan service adını ve hemen önceki container/sudo/auth bağlamını inceleyin.
+- id: PERS-016
+  name: Kernel Module Loaded via insmod/modprobe
+  severity: high
+  score: 80
+  category: persistence
+  message: Kernel modülü yüklendi — rootkit veya persistence olabilir
+  summary: insmod/modprobe/rmmod kullanımı kernel düzeyinde kalıcılık veya gizleme davranışına işaret edebilir.
+  operator_note: Modül kaynağını, hash bilgisini ve yükleme zamanındaki oturum bağlamını doğrulayın.
+  condition:
+    action: exec
+    fields:
+      command_contains:
+      - insmod
+      - modprobe
+      - rmmod
+  mitre_tactic: TA0003
+  mitre_technique: T1547.006
+  tags:
+  - persistence
+  - kernel-module
+  - rootkit
+  - kernel
+  pack: core
+  pack_version: '1.0'
+  message_en: Kernel Module Loaded via insmod/modprobe
+  message_tr: Kernel modülü yüklendi — rootkit veya persistence olabilir
+  summary_en: This rule highlights kernel module loaded via insmod/modprobe and may indicate suspicious or unauthorized persistence activity. Review the surrounding context to confirm the impact.
+  summary_tr: insmod/modprobe/rmmod kullanımı kernel düzeyinde kalıcılık veya gizleme davranışına işaret edebilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding persistence activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Modül kaynağını, hash bilgisini ve yükleme zamanındaki oturum bağlamını doğrulayın.
+- id: PERS-017
+  name: Process-Logged Persistence Path or Enable/Start
+  severity: high
+  score: 76
+  category: process
+  message: Process loglarında persistence create/enable/start davranışı görüldü
+  summary: systemd timer/service, user systemd, at/cron veya kalıcı auth/config dosyalarına yönelik komut görüldü.
+  operator_note: Hedef yolun, unit/timer adının ve komutu başlatan oturumun meşru yönetim işi olup olmadığını doğrulayın.
+  cooldown: 180
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    action:
+    - exec
+    - process_exec
+    - lotl_exec
+    - service_created
+    fields:
+      __all__:
+      - __any__:
+        - command_contains_any:
+          - systemctl enable
+          - systemctl start
+          - systemctl --user enable
+          - systemctl --user start
+          - systemctl daemon-reload
+          - systemctl edit
+          - systemctl link
+          - loginctl enable-linger
+          - ~/.config/systemd/user
+          - .config/systemd/user
+          - /etc/systemd/system
+          - .service.d
+          - override.conf
+          - ExecStart=
+          - ExecReload=
+          - Environment=
+          - .timer
+          - .service
+          - /etc/default/
+          - /etc/sysconfig/
+          - /etc/init.d/
+          - /etc/rc.d/init.d/
+          - /etc/rc.local
+          - update-rc.d
+          - invoke-rc.d
+          - 'chkconfig '
+          - 'insserv '
+          - 'rc-update '
+          - at -f
+          - crontab -e
+          - /etc/cron.
+          - /etc/crontab
+          - /var/spool/cron
+          - authorized_keys
+          - /etc/sudoers
+          - /etc/sudoers.d
+          - /etc/ssh/sshd_config
+          - .bashrc
+          - .bash_profile
+          - .profile
+          - .zshrc
+          - /etc/profile
+          - /etc/profile.d
+        - service_path_contains_any:
+          - /etc/systemd/system
+          - .config/systemd/user
+          - .timer
+          - .service
+      - __not__:
+          __any__:
+          - command_contains_any:
+            - apt
+            - apt-get
+            - dpkg
+            - rpm
+            - dnf
+            - yum
+            - zypper
+            - packagekit
+            - needrestart
+            - unattended-upgrades
+            - cloud-init
+            - subscription-manager
+            - SUSEConnect
+            - transactional-update
+            - ansible
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - snap refresh
+            - systemctl preset
+            - systemctl reenable
+            - systemctl restart
+            - systemctl reload
+            - daemon-reexec
+            - apt install
+            - apt-get install
+            - dnf install
+            - yum install
+            - zypper install
+            - unattended-upgrades
+          - service_path_contains_any:
+            - apt-daily
+            - apt-daily-upgrade
+            - fstrim.timer
+            - logrotate.timer
+            - man-db.timer
+            - motd-news
+  mitre_tactic: TA0003
+  mitre_technique: T1543.002
+  tags:
+  - persistence
+  - systemd
+  - timer
+  - cron
+  - at
+  - authorized-keys
+  - sudoers
+  - sshd-config
+  - shell-startup
+  pack: core
+  pack_version: '1.0'
+  message_en: Process-Logged Persistence Path or Enable/Start
+  message_tr: Process loglarında persistence create/enable/start davranışı görüldü
+  summary_en: This rule highlights process-logged persistence path or enable/start and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: systemd timer/service, user systemd, at/cron veya kalıcı auth/config dosyalarına yönelik komut görüldü.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding process activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Hedef yolun, unit/timer adının ve komutu başlatan oturumun meşru yönetim işi olup olmadığını doğrulayın.
+- id: PERS-019
+  name: Service Or Daemon Hijack via Process Logs
+  severity: critical
+  score: 89
+  category: process
+  message: Service/daemon hijack veya execution-flow abuse görüldü
+  summary: systemd override, ExecStart/ExecReload/Environment, init.d/rc.local veya daemon wrapper üzerinden payload çalıştırmaya uygun değişiklik ve takip eden servis işlemi görüldü.
+  operator_note: Değişen unit/init dosyasını, override içeriğini, wrapper yolunu ve bunu izleyen restart/reload davranışının meşru rollout işi olup olmadığını doğrulayın.
+  cooldown: 120
+  condition:
+    source:
+    - auditd
+    - syslog
+    - journald
+    - auth
+    - sudo
+    action:
+    - sudo
+    - exec
+    - process_exec
+    - lotl_exec
+    - service_created
+    outcome: success
+    fields:
+      __all__:
+      - __any__:
+        - sudo_command_contains_any:
+          - /etc/systemd/system
+          - /lib/systemd/system
+          - /usr/lib/systemd
+          - .service.d
+          - override.conf
+          - ExecStart=
+          - ExecReload=
+          - Environment=
+          - /etc/init.d/
+          - /etc/rc.d/init.d/
+          - /etc/rc.local
+          - /etc/default/
+          - /etc/sysconfig/
+          - update-rc.d
+          - invoke-rc.d
+          - chkconfig
+          - insserv
+          - rc-update
+        - command_contains_any:
+          - /etc/systemd/system
+          - /lib/systemd/system
+          - /usr/lib/systemd
+          - .service.d
+          - override.conf
+          - ExecStart=
+          - ExecReload=
+          - Environment=
+          - /etc/init.d/
+          - /etc/rc.d/init.d/
+          - /etc/rc.local
+          - /etc/default/
+          - /etc/sysconfig/
+          - update-rc.d
+          - invoke-rc.d
+          - chkconfig
+          - insserv
+          - rc-update
+        - service_path_contains_any:
+          - /etc/systemd/system
+          - .service.d
+          - override.conf
+      - __any__:
+        - sudo_command_contains_any:
+          - systemctl daemon-reload
+          - systemctl restart
+          - systemctl reload
+          - systemctl start
+          - service
+          - /usr/local/bin/
+          - /opt/
+          - /tmp/
+          - /var/tmp/
+          - /dev/shm/
+          - curl
+          - wget
+          - bash -c
+          - sh -c
+          - python -c
+          - python3 -c
+          - nc
+          - ncat
+          - socat
+        - command_contains_any:
+          - systemctl daemon-reload
+          - systemctl restart
+          - systemctl reload
+          - systemctl start
+          - service
+          - /usr/local/bin/
+          - /opt/
+          - /tmp/
+          - /var/tmp/
+          - /dev/shm/
+          - curl
+          - wget
+          - bash -c
+          - sh -c
+          - python -c
+          - python3 -c
+          - nc
+          - ncat
+          - socat
+      - __not__:
+          __any__:
+          - sudo_command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - apt
+            - apt-get
+            - dpkg
+            - rpm
+            - dnf
+            - yum
+            - zypper
+            - packagekit
+            - needrestart
+            - unattended-upgrades
+            - cloud-init
+            - subscription-manager
+            - SUSEConnect
+            - transactional-update
+            - maintenance
+            - systemctl preset
+            - systemctl reenable
+            - logrotate
+            - /health
+            - /healthz
+            - /readyz
+            - /livez
+          - command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - apt
+            - apt-get
+            - dpkg
+            - rpm
+            - dnf
+            - yum
+            - zypper
+            - packagekit
+            - needrestart
+            - unattended-upgrades
+            - cloud-init
+            - subscription-manager
+            - SUSEConnect
+            - transactional-update
+            - maintenance
+            - systemctl preset
+            - systemctl reenable
+            - logrotate
+            - /health
+            - /healthz
+            - /readyz
+            - /livez
+          - service_path_contains_any:
+            - apt-daily
+            - apt-daily-upgrade
+            - fstrim.timer
+            - logrotate.timer
+            - man-db.timer
+            - motd-news
+          - command_token_contains_any:
+            - backup
+            - healthcheck
+  mitre_tactic: TA0003
+  mitre_technique: T1574
+  tags:
+  - persistence
+  - service-hijack
+  - daemon-hijack
+  - execution-flow
+  - systemd
+  - initd
+  pack: core
+  pack_version: '1.0'
+  message_en: Service Or Daemon Hijack via Process Logs
+  message_tr: Service/daemon hijack veya execution-flow abuse görüldü
+  summary_en: This rule highlights service or daemon hijack via process logs and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: systemd override, ExecStart/ExecReload/Environment, init.d/rc.local veya daemon wrapper üzerinden payload çalıştırmaya uygun değişiklik ve takip eden servis işlemi görüldü.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding process activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Değişen unit/init dosyasını, override içeriğini, wrapper yolunu ve bunu izleyen restart/reload davranışının meşru rollout işi olup olmadığını doğrulayın.
+- id: PERS-018
+  name: Account Or Identity Abuse via Process Logs
+  severity: high
+  score: 81
+  category: process
+  message: Hesap/kimlik yapılandırmasında şüpheli değişiklik görüldü
+  summary: Kullanıcı, grup, shell/home, parola, sudo/doas veya kimlik politika dosyalarında kötüye kullanıma uygun değişiklik komutları görüldü.
+  operator_note: Hedef hesabı/grubu, değişiklik komutunu ve bunun planlı IAM/config-management işi olup olmadığını doğrulayın.
+  cooldown: 120
+  condition:
+    action:
+    - sudo
+    - exec
+    - process_exec
+    - lotl_exec
+    - useradd
+    fields:
+      __all__:
+      - __any__:
+        - sudo_command_regex: (?:^|\s)(?:(?:/\S+/)?useradd|(?:/\S+/)?adduser)\b(?!.*(?:--system|\s-r\b|/usr/sbin/nologin|/bin/false)).*(?:\s-m\b|\s-d\s+/home/|\s-s\s+/(?:bin|usr/bin)/(?:bash|sh|zsh|fish))
+        - command_regex: (?:^|\s)(?:(?:/\S+/)?useradd|(?:/\S+/)?adduser)\b(?!.*(?:--system|\s-r\b|/usr/sbin/nologin|/bin/false)).*(?:\s-m\b|\s-d\s+/home/|\s-s\s+/(?:bin|usr/bin)/(?:bash|sh|zsh|fish))
+        - sudo_command_regex: (?:^|\s)(?:(?:/\S+/)?useradd|(?:/\S+/)?adduser)\b(?!.*(?:--system|\s-r\b|/usr/sbin/nologin|/bin/false))\s+backdoor[\w.-]*\b
+        - command_regex: (?:^|\s)(?:(?:/\S+/)?useradd|(?:/\S+/)?adduser)\b(?!.*(?:--system|\s-r\b|/usr/sbin/nologin|/bin/false))\s+backdoor[\w.-]*\b
+        - sudo_command_regex: (?:^|\s)(?:(?:/\S+/)?usermod\b.*(?:\s-(?:aG|G)\s+(?:sudo|wheel|adm|admin)\b|\s-(?:L|U)\b|\s-s\s+/(?:bin|usr/bin)/(?:bash|sh|zsh|fish)|\s-d\s+/home/\S+\s+-m|\s--home\s+/home/\S+)|(?:/\S+/)?passwd\s+(?:-l|-u)\s+\S+|(?:/\S+/)?passwd\s+root\b|(?:/\S+/)?chpasswd\b|(?:/\S+/)?gpasswd\b.*(?:\s+(?:sudo|wheel|adm|admin)\b)|(?:/\S+/)?groupadd\b.*(?:\s(?:sudo|wheel|adm|admin)\b)|(?:/\S+/)?groupmod\b|(?:/\S+/)?chsh\b.*\s+/(?:bin|usr/bin)/(?:bash|sh|zsh|fish)|(?:/\S+/)?vipw\b|(?:/\S+/)?vigr\b)
+        - command_regex: (?:^|\s)(?:(?:/\S+/)?usermod\b.*(?:\s-(?:aG|G)\s+(?:sudo|wheel|adm|admin)\b|\s-(?:L|U)\b|\s-s\s+/(?:bin|usr/bin)/(?:bash|sh|zsh|fish)|\s-d\s+/home/\S+\s+-m|\s--home\s+/home/\S+)|(?:/\S+/)?passwd\s+(?:-l|-u)\s+\S+|(?:/\S+/)?passwd\s+root\b|(?:/\S+/)?chpasswd\b|(?:/\S+/)?gpasswd\b.*(?:\s+(?:sudo|wheel|adm|admin)\b)|(?:/\S+/)?groupadd\b.*(?:\s(?:sudo|wheel|adm|admin)\b)|(?:/\S+/)?groupmod\b|(?:/\S+/)?chsh\b.*\s+/(?:bin|usr/bin)/(?:bash|sh|zsh|fish)|(?:/\S+/)?vipw\b|(?:/\S+/)?vigr\b)
+        - sudo_command_contains_any:
+          - authorized_keys
+          - /etc/sudoers
+          - /etc/sudoers.d
+          - /etc/doas.conf
+          - /etc/security/access.conf
+          - /etc/pam.d/
+          - /etc/sssd/sssd.conf
+          - /etc/login.defs
+          - /etc/default/useradd
+          - /etc/ssh/sshd_config
+        - command_contains_any:
+          - authorized_keys
+          - /etc/sudoers
+          - /etc/sudoers.d
+          - /etc/doas.conf
+          - /etc/security/access.conf
+          - /etc/pam.d/
+          - /etc/sssd/sssd.conf
+          - /etc/login.defs
+          - /etc/default/useradd
+          - /etc/ssh/sshd_config
+      - __not__:
+          __any__:
+          - sudo_command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - apt
+            - apt-get
+            - dpkg
+            - rpm
+            - dnf
+            - yum
+            - zypper
+            - packagekit
+            - needrestart
+            - unattended-upgrades
+            - cloud-init
+            - subscription-manager
+            - SUSEConnect
+            - transactional-update
+            - maintenance
+            - systemd-sysusers
+            - /usr/sbin/nologin
+            - /bin/false
+            - --system
+          - command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - apt
+            - apt-get
+            - dpkg
+            - rpm
+            - dnf
+            - yum
+            - zypper
+            - packagekit
+            - needrestart
+            - unattended-upgrades
+            - cloud-init
+            - subscription-manager
+            - SUSEConnect
+            - transactional-update
+            - maintenance
+            - systemd-sysusers
+            - /usr/sbin/nologin
+            - /bin/false
+            - --system
+          - command_token_contains_any:
+            - backup
+            - healthcheck
+  mitre_tactic: TA0003
+  mitre_technique: T1098
+  tags:
+  - persistence
+  - account-manipulation
+  - identity-abuse
+  - authorized-keys
+  - sudoers
+  - remote-access
+  pack: core
+  pack_version: '1.0'
+  message_en: Account Or Identity Abuse via Process Logs
+  message_tr: Hesap/kimlik yapılandırmasında şüpheli değişiklik görüldü
+  summary_en: This rule highlights account or identity abuse via process logs and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: Kullanıcı, grup, shell/home, parola, sudo/doas veya kimlik politika dosyalarında kötüye kullanıma uygun değişiklik komutları görüldü.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding process activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Hedef hesabı/grubu, değişiklik komutunu ve bunun planlı IAM/config-management işi olup olmadığını doğrulayın.

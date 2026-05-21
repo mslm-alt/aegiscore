@@ -1,0 +1,535 @@
+- id: PRIVESC-001
+  name: Sudo -l Keşfi
+  severity: medium
+  score: 55
+  category: process
+  message: Kullanıcı sudo izinlerini listeledi — privilege escalation keşif aşaması
+  cooldown: 300
+  condition:
+    action:
+    - sudo
+    - exec
+    - process_exec
+    - lotl_exec
+    outcome: success
+    fields:
+      __all__:
+      - __any__:
+        - sudo_command_contains_any:
+          - sudo -l
+          - sudo --list
+          - doas -L
+          - getent group sudo
+          - getent group wheel
+          - getent group admin
+          - grep sudo /etc/group
+          - grep wheel /etc/group
+          - cat /etc/sudoers
+          - cat /etc/sudoers.d
+        - command_contains_any:
+          - sudo -l
+          - sudo --list
+          - doas -L
+          - getent group sudo
+          - getent group wheel
+          - getent group admin
+          - grep sudo /etc/group
+          - grep wheel /etc/group
+          - cat /etc/sudoers
+          - cat /etc/sudoers.d
+      - __not__:
+          __any__:
+          - sudo_command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - apt
+            - apt-get
+            - dpkg
+            - rpm
+            - dnf
+            - yum
+            - zypper
+            - packagekit
+          - command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - apt
+            - apt-get
+            - dpkg
+            - rpm
+            - dnf
+            - yum
+            - zypper
+            - packagekit
+  mitre_tactic: TA0004
+  mitre_technique: T1548.003
+  tags:
+  - privilege-escalation
+  - sudo
+  - discovery
+  - sudo-enumeration
+  summary: Kullanıcı sudo -l/--list ile yetkilerini keşfetti.
+  operator_note: Takip eden sudoers değişikliği, root shell veya persistence sinyalleri ile birlikte inceleyin.
+  pack: core
+  pack_version: '1.0'
+  message_en: sudo -l Discovery
+  message_tr: Kullanıcı sudo izinlerini listeledi — privilege escalation keşif aşaması
+  summary_en: This rule highlights sudo -l discovery and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: Kullanıcı sudo -l/--list ile yetkilerini keşfetti.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding process activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Takip eden sudoers değişikliği, root shell veya persistence sinyalleri ile birlikte inceleyin.
+- id: PRIVESC-002
+  name: Sudoers Dosyasını Okuma
+  severity: high
+  score: 75
+  category: process
+  message: /etc/sudoers okundu — sudo yapılandırması keşfediliyor
+  cooldown: 120
+  condition:
+    action:
+    - sudo
+    - exec
+    - process_exec
+    - lotl_exec
+    outcome: success
+    fields:
+      __all__:
+      - __any__:
+        - sudo_command_contains_any:
+          - /etc/sudoers
+          - /etc/sudoers.d
+          - cat /etc/sudoers
+          - cat /etc/sudoers.d
+          - visudo -c
+          - visudo -f /etc/sudoers
+          - visudo -f /etc/sudoers.d
+        - command_contains_any:
+          - /etc/sudoers
+          - /etc/sudoers.d
+          - cat /etc/sudoers
+          - cat /etc/sudoers.d
+          - visudo -c
+          - visudo -f /etc/sudoers
+          - visudo -f /etc/sudoers.d
+      - __not__:
+          __any__:
+          - sudo_command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+          - command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+  mitre_tactic: TA0004
+  mitre_technique: T1548.003
+  tags:
+  - privilege-escalation
+  - sudoers
+  - credential-access
+  - policy-discovery
+  summary: sudoers yapılandırması okundu veya doğrulandı; yetki keşfi olabilir.
+  operator_note: Komutun meşru yönetim işi mi yoksa hazırlık/keşif mi olduğunu doğrulayın.
+  pack: core
+  pack_version: '1.0'
+  message_en: sudoers File Read
+  message_tr: /etc/sudoers okundu — sudo yapılandırması keşfediliyor
+  summary_en: This rule highlights sudoers file read and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: sudoers yapılandırması okundu veya doğrulandı; yetki keşfi olabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding process activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Komutun meşru yönetim işi mi yoksa hazırlık/keşif mi olduğunu doğrulayın.
+- id: PRIVESC-003
+  name: NOPASSWD Sudo Kuralı Ekleme
+  severity: critical
+  score: 99
+  category: auth
+  message: Sudoers dosyasına NOPASSWD kuralı eklendi — şifresiz root erişimi
+  cooldown: 30
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - NOPASSWD
+      - ALL=(ALL)
+      - ALL=NOPASSWD
+  mitre_tactic: TA0004
+  mitre_technique: T1548.003
+  tags:
+  - privilege-escalation
+  - sudoers
+  - nopasswd
+  - critical
+  - persistence
+  summary: sudoers içine NOPASSWD kuralı eklenerek kalıcı şifresiz root erişimi sağlanabilir.
+  operator_note: Değişen sudoers satırını ve etkilenen kullanıcı/grubu hemen doğrulayın.
+  pack: core
+  pack_version: '1.0'
+  message_en: NOPASSWD sudo Rule Added
+  message_tr: Sudoers dosyasına NOPASSWD kuralı eklendi — şifresiz root erişimi
+  summary_en: This rule highlights nopasswd sudo rule added and may indicate suspicious or unauthorized auth activity. Review the surrounding context to confirm the impact.
+  summary_tr: sudoers içine NOPASSWD kuralı eklenerek kalıcı şifresiz root erişimi sağlanabilir.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding auth activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Değişen sudoers satırını ve etkilenen kullanıcı/grubu hemen doğrulayın.
+- id: PRIVESC-004
+  name: SUID Binary ile Root Shell
+  severity: critical
+  score: 95
+  category: process
+  message: SUID bit'li uygulama ile root shell spawn edildi — GTFOBins tekniği
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SUID Binary ile Root Shell davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - find / -perm -4000
+      - find / -perm /4000
+      - find / -perm -u=s
+      - -exec /bin/sh
+      - -exec /bin/bash
+      - -exec whoami
+  mitre_tactic: TA0004
+  mitre_technique: T1548.001
+  tags:
+  - privilege-escalation
+  - suid
+  - gtfobins
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: SUID Binary Root Shell
+  message_tr: SUID bit'li uygulama ile root shell spawn edildi — GTFOBins tekniği
+  summary_en: This rule highlights SUID Binary ile Root Shell when the normalized event fields match the defined patterns or content conditions. This signal indicates a risk of persistence or privilege escalation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde SUID Binary ile Root Shell davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PRIVESC-005
+  name: GTFOBins — Yetki Yükseltme Tekniği
+  severity: critical
+  score: 90
+  category: process
+  message: GTFOBins'de bilinen bir binary ile yetki yükseltme girişimi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde GTFOBins — Yetki Yükseltme Tekniği davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      __all__:
+      - sudo_command_contains:
+        - nmap --interactive
+        - nmap --script
+        - vim -c ':!
+        - more /etc/shadow
+        - awk 'BEGIN {system(
+        - man man
+        - python -c 'import os; os.system
+        - python3 -c 'import os; os.system
+        - perl -e 'exec
+        - ruby -e 'exec
+        - lua -e 'os.execute
+        - node -e 'require("child_process")
+        - git commit --template
+        - git log --exec
+        - ftp -e
+        - zip /tmp/test.zip /etc/passwd -T --unzip-command="sh -c
+      - __not__:
+          __any__:
+          - sudo_command_contains_any:
+            - apt install ftp
+            - apt-get install ftp
+            - dnf install ftp
+            - yum install ftp
+            - zypper install ftp
+            - rpm -i ftp
+  mitre_tactic: TA0004
+  mitre_technique: T1548.001
+  tags:
+  - privilege-escalation
+  - gtfobins
+  - living-off-the-land
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: GTFOBins Privilege Escalation Technique
+  message_tr: GTFOBins'de bilinen bir binary ile yetki yükseltme girişimi
+  summary_en: A GTFOBins-style privilege escalation technique was observed. This may indicate local privilege escalation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde GTFOBins — Yetki Yükseltme Tekniği davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PRIVESC-006
+  name: /etc/shadow Erişimi
+  severity: critical
+  score: 95
+  category: auth
+  message: /etc/shadow dosyasına erişim — hash çalma girişimi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde /etc/shadow Erişimi davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - /etc/shadow
+      - unshadow
+      - john --wordlist
+      - hashcat
+  mitre_tactic: TA0006
+  mitre_technique: T1003.008
+  tags:
+  - credential-access
+  - shadow
+  - hash-dumping
+  pack: core
+  pack_version: '1.0'
+  operator_note: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+  message_en: /etc/shadow Access
+  message_tr: /etc/shadow dosyasına erişim — hash çalma girişimi
+  summary_en: Access to /etc/shadow was observed. This may indicate credential access or privilege escalation.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde /etc/shadow Erişimi davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the source IP, target user account, host, event time, tty or session context, and the immediately preceding or following failed login, successful login, sudo, su, lockout, or password change events.
+  operator_note_tr: Kaynak IP, hedef kullanıcı hesabı, host, olay zamanı, tty/oturum bağlamı ve hemen önceki/sonraki başarısız giriş, başarılı giriş, sudo, su, lockout veya parola değişimi olaylarını kontrol edin.
+- id: PRIVESC-007
+  name: Bellek'ten Kimlik Bilgisi Çalma
+  severity: critical
+  score: 95
+  category: process
+  message: Bellekten kimlik bilgisi çalma aracı çalıştırıldı
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Bellek'ten Kimlik Bilgisi Çalma davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - mimipenguin
+      - LaZagne
+      - lazagne
+      - keydump
+      - 3snake
+      - pspy
+  mitre_tactic: TA0006
+  mitre_technique: T1003.007
+  tags:
+  - credential-access
+  - memory-dump
+  - credential-stealing
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Credential Theft from Memory
+  message_tr: Bellekten kimlik bilgisi çalma aracı çalıştırıldı
+  summary_en: Credential theft activity from memory was observed. This may indicate credential access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Bellek'ten Kimlik Bilgisi Çalma davranışını görünür kılar; bu sinyal hesap keşfi, parola denemesi veya yetkisiz erişim riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PRIVESC-008
+  name: Container Escape Girişimi
+  severity: critical
+  score: 95
+  category: process
+  message: Container veya namespace escape tekniği tespit edildi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Container Escape Girişimi davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  cooldown: 60
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - nsenter
+      - unshare
+      - docker run --privileged
+      - docker run -v /:/host
+      - lxc exec
+      - runc exec
+      - runc run
+      - runc --root
+  mitre_tactic: TA0004
+  mitre_technique: T1611
+  tags:
+  - privilege-escalation
+  - container-escape
+  - namespace
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Container Escape Attempt
+  message_tr: Container veya namespace escape tekniği tespit edildi
+  summary_en: A container escape attempt was observed. This may indicate privilege escalation or host access.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Container Escape Girişimi davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PRIVESC-009
+  name: PATH Manipülasyonu
+  severity: high
+  score: 80
+  category: process
+  message: PATH ortam değişkeni şüpheli şekilde değiştirildi — binary hijacking
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde PATH Manipülasyonu davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  cooldown: 120
+  condition:
+    action: sudo
+    outcome: success
+    fields:
+      sudo_command_contains:
+      - export PATH=/tmp
+      - export PATH=/dev/shm
+      - export PATH=.
+      - 'PATH=/tmp:'
+  mitre_tactic: TA0004
+  mitre_technique: T1574.007
+  tags:
+  - privilege-escalation
+  - path-hijacking
+  - binary-hijack
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: PATH Manipulation
+  message_tr: PATH ortam değişkeni şüpheli şekilde değiştirildi — binary hijacking
+  summary_en: PATH manipulation was observed. This may indicate privilege escalation or execution hijacking.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde PATH Manipülasyonu davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PRIVESC-010
+  name: Polkit / doas Yetki Yükseltme Launcher
+  severity: critical
+  score: 90
+  category: process
+  message: pkexec veya doas ile root bağlamına geçiş denendi
+  summary: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Polkit / doas Yetki Yükseltme Launcher davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  cooldown: 60
+  condition:
+    action:
+    - sudo
+    - exec
+    - process_exec
+    - lotl_exec
+    outcome: success
+    fields:
+      __all__:
+      - __any__:
+        - sudo_command_contains_any:
+          - pkexec
+          - /usr/bin/pkexec
+          - dbus-send
+          - doas
+          - doas -s
+          - doas su -
+          - doas /bin/sh
+          - doas /bin/bash
+        - command_contains_any:
+          - pkexec
+          - /usr/bin/pkexec
+          - dbus-send
+          - doas
+          - doas -s
+          - doas su -
+          - doas /bin/sh
+          - doas /bin/bash
+      - __not__:
+          __any__:
+          - sudo_command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - packagekit
+          - command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - packagekit
+  mitre_tactic: TA0004
+  mitre_technique: T1068
+  tags:
+  - privilege-escalation
+  - pkexec
+  - polkit
+  - doas
+  - root-shell
+  pack: core
+  pack_version: '1.0'
+  operator_note: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+  message_en: Polkit/doas Privilege Escalation Launcher
+  message_tr: pkexec veya doas ile root bağlamına geçiş denendi
+  summary_en: A Polkit or doas privilege escalation launcher was observed. This may indicate unauthorized elevation attempts.
+  summary_tr: Bu kural, normalize edilen olay alanları tanımlı kalıp veya içerik koşullarıyla eşleştiğinde Polkit / doas Yetki Yükseltme Launcher davranışını görünür kılar; bu sinyal kalıcılık kurulması veya yetki yükseltme riskini gösterir.
+  operator_note_en: Review the affected user, process name, parent process, and command-line context, along with the host, event time, accessed path or socket details, and the immediately preceding or following network, secret, persistence, or defense-evasion events.
+  operator_note_tr: İlgili kullanıcıyı, process adını, parent process ve cmdline bağlamını, host ve olay zamanını, erişilen path veya socket bilgisini ve hemen önceki/sonraki network, secret, persistence veya defense-evasion olaylarını kontrol edin.
+- id: PRIVESC-011
+  name: Admin Grup / Root Kimlik Bilgisi Manipülasyonu
+  severity: high
+  score: 86
+  category: process
+  message: Admin grup üyeliği veya root parola akışı manipüle edildi
+  cooldown: 90
+  condition:
+    action:
+    - sudo
+    - exec
+    - process_exec
+    - lotl_exec
+    outcome: success
+    fields:
+      __all__:
+      - __any__:
+        - sudo_command_regex: (?:^|\s)(?:(?:/\S+/)?usermod\s+(?:-[^\n;]*\s+)*-aG\s+(?:sudo|wheel|adm|admin)\b|(?:/\S+/)?groupmod\s+(?:-[^\n;]*\s+)*(?:sudo|wheel|adm|admin)\b|(?:/\S+/)?gpasswd\s+-a\s+\S+\s+(?:sudo|wheel|adm|admin)\b|(?:/\S+/)?passwd\s+root\b|(?:/\S+/)?chpasswd\b|(?:/\S+/)?vipw\b|(?:/\S+/)?vigr\b)
+        - command_regex: (?:^|\s)(?:(?:/\S+/)?usermod\s+(?:-[^\n;]*\s+)*-aG\s+(?:sudo|wheel|adm|admin)\b|(?:/\S+/)?groupmod\s+(?:-[^\n;]*\s+)*(?:sudo|wheel|adm|admin)\b|(?:/\S+/)?gpasswd\s+-a\s+\S+\s+(?:sudo|wheel|adm|admin)\b|(?:/\S+/)?passwd\s+root\b|(?:/\S+/)?chpasswd\b|(?:/\S+/)?vipw\b|(?:/\S+/)?vigr\b)
+      - __not__:
+          __any__:
+          - sudo_command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - maintenance
+          - command_contains_any:
+            - ansible
+            - ansible-playbook
+            - chef-client
+            - puppet
+            - salt-call
+            - salt-minion
+            - maintenance
+  mitre_tactic: TA0004
+  mitre_technique: T1098
+  tags:
+  - privilege-escalation
+  - account-manipulation
+  - sudo
+  - wheel
+  - passwd
+  summary: Admin gruba ekleme veya root parola akışı yetki yükseltme/persistence hazırlığına işaret eder.
+  operator_note: Değişikliği yapan kullanıcıyı, hedef hesabı ve bunun planlı IAM/CM değişikliği olup olmadığını doğrulayın.
+  pack: core
+  pack_version: '1.0'
+  message_en: Admin Group / Root Credential Manipulation
+  message_tr: Admin grup üyeliği veya root parola akışı manipüle edildi
+  summary_en: This rule highlights admin group / root credential manipulation and may indicate suspicious or unauthorized process activity. Review the surrounding context to confirm the impact.
+  summary_tr: Admin gruba ekleme veya root parola akışı yetki yükseltme/persistence hazırlığına işaret eder.
+  operator_note_en: Review the relevant source, user, host, time window, and surrounding process activity to determine whether the alert reflects expected behavior or suspicious activity.
+  operator_note_tr: Değişikliği yapan kullanıcıyı, hedef hesabı ve bunun planlı IAM/CM değişikliği olup olmadığını doğrulayın.
