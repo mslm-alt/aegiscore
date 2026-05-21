@@ -289,7 +289,7 @@ AegisCore is intended for:
 - authorized Linux log analysis  
 Use it only on systems that you own or are explicitly authorized to monitor.  
 ![](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAnEAAAACCAYAAAA3pIp+AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAANklEQVR4nO3OQQmAABRAsSfYxZo/jzlMYQLPJrCCNxG2BFtmZquOAAD4i3Ot7mr/egIAwGvXA4q7Bc870TqdAAAAAElFTkSuQmCC)  
-**License**  
+ 
 **## License**  
    
 **This project is licensed under the **Apache License 2.0**.**  
